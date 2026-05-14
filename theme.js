@@ -898,7 +898,11 @@ footer.layout-principal-rodape.rodape.simples {
             const config = res.customTheme || {};
             const darkSwitch = document.getElementById('theme-dark-switch');
             
-            darkSwitch.checked = config.isDark || false;
+         const darkModeToggle = document.getElementById('gridCheck'); // Ou o ID que você usa
+if (darkModeToggle) {
+    darkModeToggle.checked = statusDoTema; 
+}
+            
             darkSwitch.onchange = saveTheme;
 
             if (isKanban) {

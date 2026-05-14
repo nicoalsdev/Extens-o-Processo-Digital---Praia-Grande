@@ -3,8 +3,6 @@
 // NOVO: Controle para garantir que o listener de refresh só seja anexado uma vez
  let autoRefreshListenerAttached = false;
 
-//VCariavel Board
-const SHOW_ANALYSIS_BOARD = false;
  // MOCK do storage (substitua por chrome.storage.local na extensão)
  const mockStorage = {
      predefinedTags: [{}
@@ -30,6 +28,41 @@ const SHOW_ANALYSIS_BOARD = false;
 }
 
 
+const API_URL = "http://localhost:3000";
+
+async function getUserAuth() {
+  const { dadosPessoais } = await chrome.storage.local.get("dadosPessoais");
+  return dadosPessoais || {};
+}
+
+async function fetchTasksFromAPI() {
+  const user = await getUserAuth();
+  try {
+    const res = await fetch(`${API_URL}/tasks`, {
+      headers: { cpf: user.cpf, local: user.destino }
+    });
+
+    if (!res.ok) throw new Error(`Erro na API: ${res.status}`); //
+    return await res.json();
+  } catch (err) {
+    console.error("Falha ao buscar tasks:", err);
+    return []; // Retorna lista vazia para não quebrar o init()
+  }
+}
+
+async function saveTaskToAPI(task) {
+  const user = await getUserAuth();
+
+  await fetch(`${API_URL}/tasks`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      cpf: user.cpf,
+      local: user.destino
+    },
+    body: JSON.stringify(task)
+  });
+}
 
 // Abrir modal ao clicar no botão "+"
 document.addEventListener("click", (e) => {
@@ -89,21 +122,35 @@ document.getElementById("saveNewProcess").addEventListener("click", async () => 
     return;
 }
 
-const data = await getStorageData();
-if (!data.processData) data.processData = {};
-if (!data.processTags) data.processTags = {};
+async function getStorageData() {
+  // Busca tags e configurações locais
+  const local = await new Promise(resolve => {
+    chrome.storage.local.get(["predefinedTags", "processTags"], resolve);
+  });
 
-    // 🔥 PEGAR A COR DO BOARD CORRETA
-const boardInfo = data.predefinedTags.find(
-  b => b.name === board && b.showOnBoard
-  );
+  // Busca as tarefas do servidor Node.js
+  const apiTasks = await fetchTasksFromAPI();
+  const processData = {};
 
-if (!boardInfo) {
-  console.error("Board não encontrado:", board);
-  alert("Erro: não foi possível localizar o board.");
-  return;
+  // Converte a lista da API para o objeto processData que o Kanban usa
+  if (Array.isArray(apiTasks)) {
+    apiTasks.forEach(task => {
+      processData[task.id] = {
+        processNumber: task.processNumber,
+        board: task.board, // Define em qual coluna o card aparece
+        description: task.description || "",
+        dataPrazo: task.dataPrazo || "",
+        updatedAt: task.updatedAt
+      };
+    });
+  }
+
+  return {
+    predefinedTags: local.predefinedTags || [],
+    processTags: local.processTags || {},
+    processData: processData // Agora os boards vêm do servidor
+  };
 }
-
     // criar ID único
 const processId = "manual-" + Date.now();
 
@@ -134,7 +181,13 @@ data.processData[processId] = {
     isBoardTag: true // 🔥 CORREÇÃO ESSENCIAL
 };
 
-await setStorageData(data);
+await saveTaskToAPI({
+  id: processId,
+  processNumber: currentTask.processNumber,
+  board: data.processData[processId].board,
+  description,
+  dataPrazo
+});
 
 bootstrap.Modal.getInstance(modal).hide();
 
@@ -382,8 +435,21 @@ function isSameWeek(date) {
 }
 
 async function computeLoadForecast() {
-  const data = await getStorageData();
-  const processData = data.processData || {};
+  const localData = await getStorageData(); // só tags
+const apiTasks = await fetchTasksFromAPI();
+
+const processData = {};
+apiTasks.forEach(task => {
+  processData[task.id] = {
+    processNumber: task.processNumber,
+    board: task.board,
+    description: task.description,
+    dataPrazo: task.dataPrazo,
+    enteredBoardAt: task.updatedAt,
+    lastMove: task.updatedAt,
+    history: []
+  };
+});
 
   const today = new Date();
 
@@ -706,19 +772,6 @@ function renderGuide(boards) {
 }
 
 
-async function setStorageData(data) {
-   if (isExtensionEnv()) {
-     return new Promise(resolve => {
-       chrome.storage.local.set(data, () => {
-                 //console.log("📦 Dados salvos em chrome.storage.local:", data);
-           resolve();
-       });
-   });
- } else {
-     Object.assign(mockStorage, data);
-         //console.log("💾 Salvo no mockStorage:", data);
- }
-}
 
  // === helper: obtém processNumber real para um processId (procura nas tags do processo)
 function getProcessNumberFor(processId, data) {
@@ -808,7 +861,13 @@ processTags[tagInstanceId] = {
 };
 
   // 3️⃣ Salva
-await setStorageData({ processTags });
+await saveTaskToAPI({
+  id: processId,
+  processNumber: currentTask.processNumber,
+  board: data.processData[processId].board,
+  description,
+  dataPrazo
+});
 }
 
 
@@ -938,7 +997,13 @@ function renderBoards(boards) {
           action: `Movido de ${oldBoard} para ${newBoard}`
       });
 
-      await setStorageData({ processData: data.processData });
+      await saveTaskToAPI({
+  id: processId,
+  processNumber,
+  board: newBoard,
+  description: data.processData[processId]?.description || "",
+  dataPrazo: data.processData[processId]?.dataPrazo || ""
+});
 
         // ================= TAG DE BOARD =================
       const processNumber =
@@ -1040,20 +1105,9 @@ function getTwoBusinessDaysAhead() {
   const allBoards = [...document.querySelectorAll(".board")];
 
   for (const task of tasks) {
-     let boardName =
-  (processData &&
-    processData[task.processId] &&
-    processData[task.processId].board) ||
-  "Em análise";
-
-// Se o board "Em análise" estiver desativado,
-// escondemos completamente essas tasks
-if (
-  !SHOW_ANALYSIS_BOARD &&
-  boardName === "Em análise"
-) {
-  continue;
-}
+      const boardName =
+      (processData && processData[task.processId] && processData[task.processId].board) ||
+      "Em análise";
 
         // tenta encontrar o board exato primeiro
       let boardEl = allBoards.find(b => b.dataset.board === boardName);
@@ -1065,13 +1119,9 @@ if (
       }
 
         // se ainda não encontrou, usa o primeiro board disponível como fallback
-     if (!boardEl) {
-    console.warn(
-      `Board "${boardName}" não encontrado para processId ${task.processId}`
-    );//console.warn(`Board "${boardName}" não encontrado — usando board "${boardEl?.dataset.board || 'desconhecido'}" como fallback para processId ${task.processId}`);
-    continue;
-
-          
+      if (!boardEl) {
+          boardEl = allBoards[0];
+          console.warn(`Board "${boardName}" não encontrado — usando board "${boardEl?.dataset.board || 'desconhecido'}" como fallback para processId ${task.processId}`);
       }
 
       const taskList = boardEl?.querySelector(".task-list");
@@ -1331,9 +1381,9 @@ document.getElementById("removeTaskBtn").addEventListener("click", async () => {
 }
 
        // Salva tudo limpo
-await setStorageData({
-   processTags: data.processTags,
-   processData: data.processData
+await fetch(`${API_URL}/tasks/${processId}`, { 
+  method: "DELETE", 
+  headers: { cpf: user.cpf, local: user.destino } 
 });
 
 Swal.fire({
@@ -1352,52 +1402,31 @@ await init();
 
 
 
- // Salva dataPrazo e description em processData e re-renderiza
 document.getElementById("saveTaskBtn").addEventListener("click", async () => {
   if (!currentTask) return;
 
   const dataPrazo = document.getElementById("modalDataPrazo").value || "";
   const description = document.getElementById("modalDescription").value || "";
   const processId = currentTask.processId;
-
+  
+  // Pegar os dados atuais do storage para não perder o board original
   const data = await getStorageData();
-  if (!data.processData) data.processData = {};
-  if (!data.processData[processId]) {
-    data.processData[processId] = {
-      processNumber: getProcessNumberFor(processId, data) || "",
-        board: oldBoard,       // garante que o board exista ANTES da troca
-        description: "",
-        dataPrazo: "",
-        enteredBoardAt: Date.now(),
-        lastMove: Date.now(),
-        history: []
-    };
-}
+  const currentBoard = data.processData[processId]?.board || "Em análise";
 
-  // salvar dados
-data.processData[processId].dataPrazo = dataPrazo;
-data.processData[processId].description = description;
+  const payload = {
+    id: processId,
+    processNumber: currentTask.processNumber,
+    board: currentBoard,
+    description: description,
+    dataPrazo: dataPrazo
+  };
 
-  // histórico
-if (!data.processData[processId].history) {
-    data.processData[processId].history = [];
-}
+  // Envia para o servidor
+  await saveTaskToAPI(payload);
 
-data.processData[processId].history.push({
-    date: Date.now(),
-    action: `Alterou dados: prazo (${dataPrazo || "vazio"}) e/ou descrição`
-});
-
-  // salvar no storage
-await setStorageData({ processData: data.processData });
-
-  // atualizar task na UI
-updateTaskElement(processId, dataPrazo, description);
-
-modalDirty = false;
-computeLoadForecast();
-
-document.querySelector("#taskModal .btn-close")?.click();
+  // Atualiza localmente a interface
+  updateTaskElement(processId, dataPrazo, description);
+  bootstrap.Modal.getInstance(document.getElementById("taskModal")).hide();
 });
 
 
@@ -1469,7 +1498,12 @@ if (dataPrazo) {
 
      //let predefined = data.predefinedTags || [];
 
-  const predefined = predefinedTags.filter(tag => tag.showOnBoard === true);
+  const predefined = data.predefinedTags.filter(tag => tag.showOnBoard === true);
+
+// Se a lista estiver vazia, define um padrão para não quebrar a tela
+if (predefined.length === 0) {
+    predefined.push({ name: "Em análise", color: "#0d6efd", showOnBoard: true });
+}
   cachedBoards = predefined;
 // Corrige tags que não possuem processId
   for (const [key, tag] of Object.entries(data.processTags || {})) {
@@ -1481,29 +1515,39 @@ if (dataPrazo) {
 }
 
 // Salva correção
-await setStorageData({ processTags: data.processTags });
+
 
 renderGuide(predefined);
 
      // 🔹 Garante que o primeiro board "Em análise" exista
 const defaultBoardName = "Em análise";
-
-if (
-  SHOW_ANALYSIS_BOARD &&
-  !predefined.some(b => b.name === defaultBoardName)
-) {
-  predefined.unshift({
-    name: defaultBoardName,
-    color: "#0d6efd",
-    showOnBoard: true
-  });
+if (!predefined.some(b => b.name === defaultBoardName)) {
+ predefined.unshift({
+   name: defaultBoardName,
+   color: "#0d6efd",
+   showOnBoard: true
+});
 }
 
      // 🔹 Cria tasks a partir das tags existentes
 const tasks = createTasks(data.processTags || {});
 
      // 🔹 Define board de cada processo conforme tags
-const processData = data.processData || {};
+const localData = await getStorageData(); // só tags
+const apiTasks = await fetchTasksFromAPI();
+
+const processData = {};
+apiTasks.forEach(task => {
+  processData[task.id] = {
+    processNumber: task.processNumber,
+    board: task.board,
+    description: task.description,
+    dataPrazo: task.dataPrazo,
+    enteredBoardAt: task.updatedAt,
+    lastMove: task.updatedAt,
+    history: []
+  };
+});
 
     // define board de cada processo conforme tags
 // Não recalcular o board pelas tags.
@@ -1527,28 +1571,29 @@ const tagEntry = Object.entries(data.processTags || {})
 
 if (tagEntry) {
   const tagObj = tagEntry[1];
-  processData[processId].board =
-  tagObj.name ||
-  (SHOW_ANALYSIS_BOARD ? defaultBoardName : null);
+  processData[processId].board = tagObj.name || defaultBoardName;
 } else {
- processData[processId].board =
-  SHOW_ANALYSIS_BOARD ? defaultBoardName : null;
+  processData[processId].board = defaultBoardName;
 }
 }
 
      // 🔹 Atualiza storage local com possíveis ajustes
-await setStorageData({
- processData
-});
+
 
      // 🔹 Renderiza a interface
+
 renderBoards(predefined);
-
-
 await renderTasks(tasks, processData);
 computeLoadForecast();
-     // 🚀 SOLUÇÃO: Ativa o listener de refresh automático
+
+// Remova o saveTaskToAPI fixo que estava aqui, 
+// ele deve ser chamado apenas quando houver mudança real.
 enableAutoRefresh();
+
+
+
+
+
 }
 
 
@@ -1607,7 +1652,13 @@ function enableAutoRefresh() {
           });
       }
 
-      await setStorageData({ processData: data.processData });
+      await saveTaskToAPI({
+  id: processId,
+  processNumber: currentTask.processNumber,
+  board: data.processData[processId].board,
+  description,
+  dataPrazo
+});
   }
 
             // 🔄 Atualização automática do Kanban
