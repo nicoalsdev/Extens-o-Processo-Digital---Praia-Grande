@@ -3,25 +3,24 @@
 // NOVO: Controle para garantir que o listener de refresh só seja anexado uma vez
  let autoRefreshListenerAttached = false;
 
-//VCariavel Board
-const SHOW_ANALYSIS_BOARD = false;
+ const view_board = true;
  // MOCK do storage (substitua por chrome.storage.local na extensão)
  const mockStorage = {
-     predefinedTags: [{}
+   predefinedTags: [{}
          /*
          name: "Em análise", color: "#0d6efd" },
          { name: "Em andamento", color: "#198754" },
          { name: "Concluído", color: "#6c757d"
          */
-     ],
-     processTags: {},
+   ],
+   processTags: {},
      // processData armazena dataPrazo, board e description (separado das tags)
-     processData: {}
- };
+   processData: {}
+};
 
- let modalDirty = false;
+let modalDirty = false;
 
- function sortPredefinedTags(tags) {
+function sortPredefinedTags(tags) {
   return [...tags].sort((a, b) => {
     const orderA = typeof a.order === 'number' ? a.order : 999;
     const orderB = typeof b.order === 'number' ? b.order : 999;
@@ -209,10 +208,10 @@ async function fixCorruptedKanbanData() {
     console.log(`✅ ${boardsToUpdateCount} processos corrigidos. Salvando no storage...`);
     
     await new Promise(resolve => {
-       (typeof chrome !== 'undefined' && chrome.storage.local) ? 
-       chrome.storage.local.set({ processData: processData, processTags: newProcessTags }, resolve) : 
-       resolve();
-   });
+     (typeof chrome !== 'undefined' && chrome.storage.local) ? 
+     chrome.storage.local.set({ processData: processData, processTags: newProcessTags }, resolve) : 
+     resolve();
+ });
 
     console.log("🎉 CORREÇÃO CONCLUÍDA! O Kanban será re-inicializado.");
     
@@ -249,14 +248,14 @@ async function clearAllKanbanTasks() {
     console.log("✅ Limpando 'processData' (tasks/cards)...");
     
     await new Promise(resolve => {
-       (typeof chrome !== 'undefined' && chrome.storage.local) ? 
-       chrome.storage.local.set({ 
+     (typeof chrome !== 'undefined' && chrome.storage.local) ? 
+     chrome.storage.local.set({ 
                 processData: newProcessData, // Dados zerados
                 processTags: processTags,    // Tags mantidas
                 predefinedTags: predefinedTags // Tags pré-definidas mantidas
             }, resolve) : 
-       resolve();
-   });
+     resolve();
+ });
 
     console.log("🎉 LIMPEZA CONCLUÍDA! O Kanban será re-inicializado, e todos os cards desaparecerão.");
     
@@ -302,14 +301,14 @@ async function fullKanbanCleanup() {
     console.log("✅ Limpeza concluída. Salvando no storage...");
     
     await new Promise(resolve => {
-       (typeof chrome !== 'undefined' && chrome.storage.local) ? 
-       chrome.storage.local.set({ 
+     (typeof chrome !== 'undefined' && chrome.storage.local) ? 
+     chrome.storage.local.set({ 
         processData: newProcessData, 
         processTags: newProcessTags, 
                 predefinedTags: predefinedTags // PRESERVADO!
             }, resolve) : 
-       resolve();
-   });
+     resolve();
+ });
 
     console.log("🎉 LIMPEZA GERAL CONCLUÍDA! O Kanban será re-inicializado.");
     
@@ -654,7 +653,7 @@ window.addEventListener("load", () => {
 
  // Função auxiliar: detectar se está em extensão
 function isExtensionEnv() {
- return typeof chrome !== "undefined" && chrome.storage && chrome.storage.local;
+   return typeof chrome !== "undefined" && chrome.storage && chrome.storage.local;
 }
 
 async function getStorageData() {
@@ -678,75 +677,75 @@ async function getStorageData() {
 
 
 function renderGuide(boards) {
-   const guide = document.getElementById("kanbanGuide");
-   guide.innerHTML = "";
+ const guide = document.getElementById("kanbanGuide");
+ guide.innerHTML = "";
 
-   boards.forEach(board => {
-     const item = document.createElement("div");
-     item.className = "kanban-guide-item";
+ boards.forEach(board => {
+   const item = document.createElement("div");
+   item.className = "kanban-guide-item";
 
-     item.innerHTML = `
+   item.innerHTML = `
    <span class="kanban-color-dot" style="background:${board.color}"></span>
    <span>${board.name}</span>
-     `;
+   `;
 
-     item.addEventListener("click", () => {
-       const target = document.querySelector(`.board[data-board="${board.name}"]`);
-       if (target) {
-         target.scrollIntoView({
-           behavior: "smooth",
-           block: "start",
-           inline: "center"
-       });
-     }
- });
+   item.addEventListener("click", () => {
+     const target = document.querySelector(`.board[data-board="${board.name}"]`);
+     if (target) {
+       target.scrollIntoView({
+         behavior: "smooth",
+         block: "start",
+         inline: "center"
+     });
+   }
+});
 
-     guide.appendChild(item);
- });
+   guide.appendChild(item);
+});
 }
 
 
 async function setStorageData(data) {
-   if (isExtensionEnv()) {
-     return new Promise(resolve => {
-       chrome.storage.local.set(data, () => {
+ if (isExtensionEnv()) {
+   return new Promise(resolve => {
+     chrome.storage.local.set(data, () => {
                  //console.log("📦 Dados salvos em chrome.storage.local:", data);
-           resolve();
-       });
-   });
- } else {
-     Object.assign(mockStorage, data);
+         resolve();
+     });
+ });
+} else {
+   Object.assign(mockStorage, data);
          //console.log("💾 Salvo no mockStorage:", data);
- }
+}
 }
 
  // === helper: obtém processNumber real para um processId (procura nas tags do processo)
 function getProcessNumberFor(processId, data) {
      // data = resultado de getStorageData()
-   if (!data) return null;
+ if (!data) return null;
 
      // procura todas as tags desse processo
-   const entries = Object.entries(data.processTags || {})
-   .filter(([key]) => key.startsWith(processId + "-"));
+ const entries = Object.entries(data.processTags || {})
+ .filter(([key]) => key.startsWith(processId + "-"));
 
-   if (entries.length) {
+ if (entries.length) {
          // ordena por timestamp (parte após o "-"), do mais novo para o mais velho
-       entries.sort((a, b) => {
-         const at = Number(a[0].split("-")[1]) || 0;
-         const bt = Number(b[0].split("-")[1]) || 0;
-         return bt - at;
-     });
-       const latestTag = entries[0][1];
+     entries.sort((a, b) => {
+       const at = Number(a[0].split("-")[1]) || 0;
+       const bt = Number(b[0].split("-")[1]) || 0;
+       return bt - at;
+   });
+     const latestTag = entries[0][1];
          // usa o processNumber da tag mais nova, se existir
-       if (latestTag && latestTag.processNumber) return latestTag.processNumber;
-   }
-
-     // fallback para processData
-   if (data.processData && data.processData[processId] && data.processData[processId].processNumber) {
-     return data.processData[processId].processNumber;
+     if (latestTag && latestTag.processNumber) return latestTag.processNumber;
  }
 
- return null;
+     // fallback para processData
+ if (data.processData && data.processData[processId] && data.processData[processId].processNumber) {
+   return data.processData[processId].processNumber;
+}
+
+return null;
 }
 
 
@@ -1006,23 +1005,23 @@ return tasks;
 
 
 function getTwoBusinessDaysAhead() {
- const date = new Date();
- let daysToAdd = 2;
+   const date = new Date();
+   let daysToAdd = 2;
 
- while (daysToAdd > 0) {
-   date.setDate(date.getDate() + 1);
-   const day = date.getDay();
+   while (daysToAdd > 0) {
+     date.setDate(date.getDate() + 1);
+     const day = date.getDay();
          if (day !== 0 && day !== 6) { // pula fim de semana
-             daysToAdd--;
-         }
-     }
-     date.setHours(0, 0, 0, 0);
-     return date;
- }
+           daysToAdd--;
+       }
+   }
+   date.setHours(0, 0, 0, 0);
+   return date;
+}
 
  // RENDER TASKS em seus boards (usando processData para board e dataprazo/description)
  // RENDER TASKS em seus boards (usando processData para board e dataprazo/description)
- async function renderTasks(tasks, processData) {
+async function renderTasks(tasks, processData) {
     // limpa listas
     document.querySelectorAll(".task-list").forEach(l => l.innerHTML = "");
 
@@ -1040,47 +1039,41 @@ function getTwoBusinessDaysAhead() {
   const allBoards = [...document.querySelectorAll(".board")];
 
   for (const task of tasks) {
-     let boardName =
-  (processData &&
-    processData[task.processId] &&
-    processData[task.processId].board) ||
-  "Em análise";
+      let boardName = (processData && processData[task.processId] && processData[task.processId].board);
 
-// Se o board "Em análise" estiver desativado,
-// escondemos completamente essas tasks
-if (
-  !SHOW_ANALYSIS_BOARD &&
-  boardName === "Em análise"
-) {
-  continue;
-}
+    // 🔥 CORREÇÃO 1: Bloqueio imediato se o board estiver desativado
+      if (!view_board && (!boardName || boardName === "Em análise" || boardName === "Sem Board")) {
+        continue;
+    }
+    
+    if (!boardName) boardName = "Em análise";
 
-        // tenta encontrar o board exato primeiro
-      let boardEl = allBoards.find(b => b.dataset.board === boardName);
+    let boardEl = allBoards.find(b => b.dataset.board === boardName);
 
-        // se não encontrou, tenta correspondência normalizada (ignora acentos/case)
-      if (!boardEl) {
-          const targetNorm = normalizeName(boardName);
-          boardEl = allBoards.find(b => normalizeName(b.dataset.board) === targetNorm);
-      }
+    if (!boardEl) {
+        const targetNorm = normalizeName(boardName);
+        boardEl = allBoards.find(b => normalizeName(b.dataset.board) === targetNorm);
+    }
 
-        // se ainda não encontrou, usa o primeiro board disponível como fallback
-     if (!boardEl) {
-    console.warn(
-      `Board "${boardName}" não encontrado para processId ${task.processId}`
-    );//console.warn(`Board "${boardName}" não encontrado — usando board "${boardEl?.dataset.board || 'desconhecido'}" como fallback para processId ${task.processId}`);
-    continue;
+        // Se ainda não encontrou o board (ex: board deletado mas task ainda aponta pra ele)
 
-          
-      }
+    if (!boardEl) {
+        // Se view_board é false, NÃO permitimos fallback para o primeiro board da lista
+        if (!view_board) {
+            continue; // Ignora a task em vez de jogar no allBoards[0]
+        }
+        
+        boardEl = allBoards[0];
+        if (!boardEl) continue;
+    }
 
-      const taskList = boardEl?.querySelector(".task-list");
-      if (!taskList) continue;
+    const taskList = boardEl.querySelector(".task-list");
+    if (!taskList) continue;
 
-      const prazo = processData?.[task.processId]?.dataPrazo || "";
-      const description = processData?.[task.processId]?.description || "";
+    const prazo = processData?.[task.processId]?.dataPrazo || "";
+    const description = processData?.[task.processId]?.description || "";
 
-      let formattedDate = "";
+    let formattedDate = "";
         let colortask = "#444A4F"; // padrão cinza
 
         chrome.storage.local.get(['userSettings', 'customTheme'], (data) => {
@@ -1178,19 +1171,19 @@ if (
     let currentTask = null;
 
     function openModal(task, dataFromStorage = {}) {
-       currentTask = task;
-       document.getElementById("modalProcessId").textContent = task.processId;
-       document.getElementById("modalProcessNumber").textContent = task.processNumber;
-       document.getElementById("modalDataPrazo").value = dataFromStorage.dataPrazo || "";
-       document.getElementById("modalDescription").value = dataFromStorage.description || "";
-       const modal = new bootstrap.Modal(document.getElementById("taskModal"));
-       modal.show();
+     currentTask = task;
+     document.getElementById("modalProcessId").textContent = task.processId;
+     document.getElementById("modalProcessNumber").textContent = task.processNumber;
+     document.getElementById("modalDataPrazo").value = dataFromStorage.dataPrazo || "";
+     document.getElementById("modalDescription").value = dataFromStorage.description || "";
+     const modal = new bootstrap.Modal(document.getElementById("taskModal"));
+     modal.show();
 
      // 🔹 Exibir as tags no modal
-       renderTagsInsideModal(task.processId,task.processNumber,task.type);
+     renderTagsInsideModal(task.processId,task.processNumber,task.type);
 
-       renderHistory(task.processId);
-       renderBoardTime(task.processId);
+     renderHistory(task.processId);
+     renderBoardTime(task.processId);
 
          modalDirty = false; // reset ao abrir o modal
 
@@ -1275,24 +1268,24 @@ if (
  // BOTÃO ABRIR PROCESSO — Abre a URL do processo em nova aba
  // =============================================================
 document.getElementById("openProcessBtn").addEventListener("click", () => {
- if (!currentTask) return;
- const processNumber = currentTask.processNumber || "";
- const processId = currentTask.processId;
+   if (!currentTask) return;
+   const processNumber = currentTask.processNumber || "";
+   const processId = currentTask.processId;
 
      // Monte sua URL conforme o sistema que usa
- const url = `https://processodigital.praiagrande.sp.gov.br/processo/${processId}`;
- window.open(url, "_blank");
+   const url = `https://processodigital.praiagrande.sp.gov.br/processo/${processId}`;
+   window.open(url, "_blank");
 });
 
 document.getElementById("SearchProcessBtn").addEventListener("click", () => {
- if (!currentTask) return;
- const processNumber = currentTask.processNumber || "";
- const procss = processNumber.split("/");
- const processId = currentTask.processId;
+   if (!currentTask) return;
+   const processNumber = currentTask.processNumber || "";
+   const procss = processNumber.split("/");
+   const processId = currentTask.processId;
 
      // Monte sua URL conforme o sistema que usa
- const url = chrome.runtime.getURL(`lista_assinador.html?busca=${procss[0]}`);;
- window.open(url, "_blank");
+   const url = chrome.runtime.getURL(`lista_assinador.html?busca=${procss[0]}`);;
+   window.open(url, "_blank");
 });
 
 
@@ -1301,47 +1294,47 @@ document.getElementById("SearchProcessBtn").addEventListener("click", () => {
 // =========================================================================
 
 document.getElementById("removeTaskBtn").addEventListener("click", async () => {
-   if (!currentTask) return;
+ if (!currentTask) return;
 
-   const confirm = await Swal.fire({
-     title: "Remover processo e dados?",
-     text: "Isso removerá as tags, o prazo e a descrição deste processo.",
-     icon: "warning",
-     showCancelButton: true,
-     confirmButtonColor: "#d33",
-     cancelButtonColor: "#6c757d",
-     confirmButtonText: "Sim, remover tudo",
-     cancelButtonText: "Cancelar"
- });
+ const confirm = await Swal.fire({
+   title: "Remover processo e dados?",
+   text: "Isso removerá as tags, o prazo e a descrição deste processo.",
+   icon: "warning",
+   showCancelButton: true,
+   confirmButtonColor: "#d33",
+   cancelButtonColor: "#6c757d",
+   confirmButtonText: "Sim, remover tudo",
+   cancelButtonText: "Cancelar"
+});
 
-   if (confirm.isConfirmed) {
-     const data = await getStorageData();
-     const processId = currentTask.processId;
+ if (confirm.isConfirmed) {
+   const data = await getStorageData();
+   const processId = currentTask.processId;
 
        // 1. Remove todas as tags do processo
-     for (const key of Object.keys(data.processTags || {})) {
-       if (key.startsWith(processId + "-")) {
-         delete data.processTags[key];
-     }
- }
+   for (const key of Object.keys(data.processTags || {})) {
+     if (key.startsWith(processId + "-")) {
+       delete data.processTags[key];
+   }
+}
 
        // 2. CORREÇÃO: Remove também os dados (Descrição, Prazo, Board)
- if (data.processData && data.processData[processId]) {
-   delete data.processData[processId];
+if (data.processData && data.processData[processId]) {
+ delete data.processData[processId];
 }
 
        // Salva tudo limpo
 await setStorageData({
-   processTags: data.processTags,
-   processData: data.processData
+ processTags: data.processTags,
+ processData: data.processData
 });
 
 Swal.fire({
-   title: "Removido!",
-   text: "O processo foi removido do quadro.",
-   icon: "success",
-   timer: 1500,
-   showConfirmButton: false
+ title: "Removido!",
+ text: "O processo foi removido do quadro.",
+ icon: "success",
+ timer: 1500,
+ showConfirmButton: false
 });
 
        // Fecha o modal e atualiza a tela
@@ -1402,37 +1395,37 @@ document.querySelector("#taskModal .btn-close")?.click();
 
 
 function updateTaskElement(processId, dataPrazo, description) {
- const taskEl = document.querySelector(`.task[data-process-id="${processId}"]`);
- if (!taskEl) {
-   console.warn("❌ Task não encontrada para processId:", processId);
-   return;
-}
+   const taskEl = document.querySelector(`.task[data-process-id="${processId}"]`);
+   if (!taskEl) {
+     console.warn("❌ Task não encontrada para processId:", processId);
+     return;
+ }
 
      //console.log("✅ Atualizando task:", processId, "com prazo:", dataPrazo);
 
      // Atualiza a descrição no dataset (mantém compatível com modal)
-taskEl.dataset.description = description || "";
+ taskEl.dataset.description = description || "";
 
-let formattedDate = "";
-let colortask = "#6c757d";
+ let formattedDate = "";
+ let colortask = "#6c757d";
 
-if (dataPrazo) {
- const parts = dataPrazo.split('-').map(Number);
- if (parts.length === 3) {
-   const expiryDate = new Date(parts[0], parts[1] - 1, parts[2]);
-   expiryDate.setHours(0, 0, 0, 0);
+ if (dataPrazo) {
+   const parts = dataPrazo.split('-').map(Number);
+   if (parts.length === 3) {
+     const expiryDate = new Date(parts[0], parts[1] - 1, parts[2]);
+     expiryDate.setHours(0, 0, 0, 0);
 
-   const today = new Date();
-   today.setHours(0, 0, 0, 0);
+     const today = new Date();
+     today.setHours(0, 0, 0, 0);
 
-   const twoBusinessDaysAhead = getTwoBusinessDaysAhead();
+     const twoBusinessDaysAhead = getTwoBusinessDaysAhead();
 
-   const day = String(expiryDate.getDate()).padStart(2, '0');
-   const month = String(expiryDate.getMonth() + 1).padStart(2, '0');
-   const year = expiryDate.getFullYear();
-   formattedDate = `${day}/${month}/${year}`;
+     const day = String(expiryDate.getDate()).padStart(2, '0');
+     const month = String(expiryDate.getMonth() + 1).padStart(2, '0');
+     const year = expiryDate.getFullYear();
+     formattedDate = `${day}/${month}/${year}`;
 
-   if (expiryDate.getTime() <= today.getTime()) {
+     if (expiryDate.getTime() <= today.getTime()) {
                  colortask = "#dc3545"; // vencido - vermelho
              } else if (expiryDate.getTime() <= twoBusinessDaysAhead.getTime()) {
                  colortask = "#ffc107"; // expira em até 2 dias úteis - amarelo
@@ -1450,18 +1443,18 @@ if (dataPrazo) {
      // Atualiza ou cria o elemento que exibe o prazo
      let dueDateEl = taskEl.querySelector(".due-date");
      if (!dueDateEl) {
-         dueDateEl = document.createElement("div");
-         dueDateEl.className = "due-date small text-muted";
-         taskEl.appendChild(dueDateEl);
-     }
+       dueDateEl = document.createElement("div");
+       dueDateEl.className = "due-date small text-muted";
+       taskEl.appendChild(dueDateEl);
+   }
 
-     dueDateEl.textContent = formattedDate ? `Prazo: ${formattedDate}` : "";
- }
-
-
+   dueDateEl.textContent = formattedDate ? `Prazo: ${formattedDate}` : "";
+}
 
 
- async function init() {
+
+
+async function init() {
   const data = await getStorageData();
 
   let predefinedTags = data.predefinedTags || [];
@@ -1487,16 +1480,14 @@ renderGuide(predefined);
 
      // 🔹 Garante que o primeiro board "Em análise" exista
 const defaultBoardName = "Em análise";
-
-if (
-  SHOW_ANALYSIS_BOARD &&
-  !predefined.some(b => b.name === defaultBoardName)
-) {
-  predefined.unshift({
-    name: defaultBoardName,
-    color: "#0d6efd",
-    showOnBoard: true
-  });
+if (view_board) {
+    if (!predefined.some(b => b.name === defaultBoardName)) {
+        predefined.unshift({
+            name: defaultBoardName,
+            color: "#0d6efd",
+            showOnBoard: true
+        });
+    }
 }
 
      // 🔹 Cria tasks a partir das tags existentes
@@ -1511,34 +1502,33 @@ const processData = data.processData || {};
 
 // === CORREÇÃO DEFINITIVA PARA O BOARD ENTRAR CERTO ===
 for (const task of tasks) {
-  const processId = task.processId;
+    const processId = task.processId;
 
-  if (!processData[processId]) {
-    processData[processId] = {};
-}
+    if (!processData[processId]) {
+        processData[processId] = {};
+    }
 
     // Se já tem board salvo, respeita
-if (processData[processId].board) continue;
+    if (processData[processId].board) continue;//
 
     // Busca a tag mais recente do processo
-const tagEntry = Object.entries(data.processTags || {})
-.filter(([key]) => key.startsWith(processId + "-"))
-.sort((a, b) => Number(b[0].split("-")[1]) - Number(a[0].split("-")[1]))[0];
+    const tagEntry = Object.entries(data.processTags || {})
+    .filter(([key]) => key.startsWith(processId + "-"))
+    .sort((a, b) => Number(b[0].split("-")[1]) - Number(a[0].split("-")[1]))[0];
 
-if (tagEntry) {
-  const tagObj = tagEntry[1];
-  processData[processId].board =
-  tagObj.name ||
-  (SHOW_ANALYSIS_BOARD ? defaultBoardName : null);
-} else {
- processData[processId].board =
-  SHOW_ANALYSIS_BOARD ? defaultBoardName : null;
-}
+    if (tagEntry) {
+        const tagObj = tagEntry[1];
+        processData[processId].board = tagObj.name || defaultBoardName;
+    } else {
+        // 🔥 ALTERAÇÃO AQUI:
+        // Se view_board for false, não atribuímos "Em análise" como fallback
+        processData[processId].board = view_board ? defaultBoardName : "Sem Board";
+    }
 }
 
      // 🔹 Atualiza storage local com possíveis ajustes
 await setStorageData({
- processData
+   processData
 });
 
      // 🔹 Renderiza a interface
