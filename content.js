@@ -1207,6 +1207,8 @@ console.log('Adicionando paginação');
     }
 
 
+
+
     
 
 
@@ -2687,9 +2689,242 @@ function addSearchProcess() {
 }
 
 
+function adicionarBotaoPastaMenu() {
+    if (!isProcessoDigital()) {
+        return;
+    }
+
+    // 1. Pega o ID do processo automaticamente a partir da URL do detalhe
+    const idProcesso = getProcessIdFromDetailUrl();
+    if (!idProcesso) return;
+
+    // 2. Consulta o storage local da extensão
+    consultarPastaDoProcesso(idProcesso).then((pasta) => {
+        // Se não estiver em nenhuma pasta mapeada (nem na caixa de entrada), não faz nada
+        if (!pasta) {
+            console.log("🔍 [Extensão] Este processo não pertence a nenhuma pasta monitorada.");
+            return;
+        }
+
+        const nomePasta = pasta.nomePasta;
+        const codigoPasta = pasta.codigoPasta;
+
+        // Monta a URL correta da pasta utilizando o código recebido da consulta
+        const urlDaPasta = `https://processodigital.praiagrande.sp.gov.br/CaixaEntrada/Pasta?codigo=${codigoPasta}`;
+
+        // Localiza especificamente o botão "Recibo" nativo da página
+        const btnRecibo = document.querySelector('a[data-target="#modal-recibo"]');
+        if (!btnRecibo) {
+            console.warn("⚠️ Botão Recibo não foi encontrado para ancoragem.");
+            return;
+        }
+
+        // Evita duplicar o botão verificando pela classe exclusiva dele
+        if (document.querySelector('.btn-pasta-atual-processo')) return;
+
+        // Cria o botão seguindo o padrão idêntico do Bootstrap utilizado no botão Recibo
+        const btn = document.createElement('a');
+        btn.className = 'btn btn-default btn-pasta-atual-processo';
+        
+        // Mantém a URL comentada e o clique desativado conforme solicitado
+        btn.href = '#';
+        btn.addEventListener('click', (e) => e.preventDefault()); 
+        
+        btn.title = `Pasta Atual do Processo: ${nomePasta.toUpperCase()}`;
+        btn.style.cursor = 'default';
+
+        // Renderiza com estrutura idêntica, usando o ícone de pasta aberta e o nome
+        btn.innerHTML = `
+            <i class="fa fa-folder-open" aria-hidden="true"></i>
+            <span>Pasta: ${nomePasta.toUpperCase()}</span>
+        `;
+
+        // Injeta na mesma div, exatamente ao lado direito do botão "Recibo"
+        btnRecibo.insertAdjacentElement('afterend', btn);
+        
+        console.log(`✔ Botão da Pasta Atual (${nomePasta}) injetado com sucesso ao lado do botão Recibo.`);
+    });
+}
 
 
 
+// 1. FUNÇÃO: Extrai os grupos e códigos das pastas baseado no HTML da página inicial
+function extrairEstruturaPastas() {
+    const estruturaPastas = {};
+    
+    // 🎯 NOVIDADE: Injeta manualmente o grupo padrão e a Caixa de Entrada Principal (Código 0)
+    // Isso garante que os processos que estão soltos nos Recebidos também sejam mapeados.
+    estruturaPastas["PRINCIPAL"] = {
+        "CAIXA DE ENTRADA": {
+            codigo: "0",
+            url: "https://processodigital.praiagrande.sp.gov.br/CaixaEntrada",
+            processos: []
+        }
+    };
+
+    const itensLista = document.querySelectorAll('li.titulo-aba-pasta');
+
+    itensLista.forEach(li => {
+        const linkGerenciar = li.querySelector('a[href*="/CaixaEntrada/GerenciarPastas?codigo="]');
+        if (!linkGerenciar) return;
+
+        const urlParamsGrupo = new URLSearchParams(linkGerenciar.getAttribute('href').split('?')[1]);
+        const codigoGrupo = urlParamsGrupo.get('codigo');
+
+        if (codigoGrupo) {
+            // Se o grupo ainda não existir na estrutura, inicializa ele
+            if (!estruturaPastas[codigoGrupo]) {
+                estruturaPastas[codigoGrupo] = {};
+            }
+            
+            const cardsPastas = li.querySelectorAll('.nome-pasta');
+
+            cardsPastas.forEach(card => {
+                const linkPasta = card.querySelector('a[href*="/CaixaEntrada/Pasta?codigo="]');
+                if (!linkPasta) return;
+
+                const urlParamsPasta = new URLSearchParams(linkPasta.getAttribute('href').split('?')[1]);
+                const codigoPasta = urlParamsPasta.get('codigo');
+                const nomePasta = linkPasta.textContent.replace(/\s+/g, ' ').trim();
+
+                if (codigoPasta && nomePasta) {
+                    estruturaPastas[codigoGrupo][nomePasta] = {
+                        codigo: codigoPasta,
+                        url: `https://processodigital.praiagrande.sp.gov.br/CaixaEntrada/Pasta?codigo=${codigoPasta}`,
+                        processos: [] 
+                    };
+                }
+            });
+        }
+    });
+
+    return estruturaPastas;
+}
+
+// 2. FUNÇÃO: Varre as páginas em background, calcula quem entrou/saiu e salva no Chrome Local
+async function mapearProcessosDasPastas(novaEstrutura) {
+    console.log("⏳ [Extensão] Iniciando varredura completa de processos em segundo plano...");
+
+    // Recupera os dados antigos salvos no storage para comparar o que mudou (Entrou/Saiu)
+    chrome.storage.local.get(['mapeamentoPastasProcessos'], async (resultado) => {
+        const dadosAntigos = resultado.mapeamentoPastasProcessos || {};
+
+        // Varre os grupos encontrados
+        for (const [codigoGrupo, pastas] of Object.entries(novaEstrutura)) {
+            for (const [nomePasta, dadosPasta] of Object.entries(pastas)) {
+                console.log(`🔍 Lendo pasta: ${nomePasta}...`);
+
+                try {
+                    // Busca a página interna da pasta sem abri-la visualmente
+                    const response = await fetch(dadosPasta.url);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    
+                    const htmlTexto = await response.text();
+                    const parser = new DOMParser();
+                    const docVirtual = parser.parseFromString(htmlTexto, 'text/html');
+
+                    // Seleciona os cards reais de processos (.pd-inbox-item)
+                    const cardsProcessos = docVirtual.querySelectorAll('a.pd-inbox-item');
+                    const processosAtuais = [];
+
+                    cardsProcessos.forEach(card => {
+                        const idProcesso = card.getAttribute('data-processo');
+                        const tagTitulo = card.querySelector('b.title');
+                        const numProcesso = tagTitulo ? tagTitulo.textContent.replace(/\s+/g, ' ').trim() : null;
+                        const hrefRelativo = card.getAttribute('href');
+
+                        if (idProcesso && numProcesso) {
+                            processosAtuais.push({
+                                id: idProcesso,
+                                numero: numProcesso,
+                                url: window.location.origin + hrefRelativo
+                            });
+                        }
+                    });
+
+                    // --- COMPARAÇÃO DE ENTRADA E SAÍDA (DIFF) ---
+                    const processosAntigos = dadosAntigos[codigoGrupo]?.[nomePasta]?.processos || [];
+                    
+                    const idsAtuais = new Set(processosAtuais.map(p => p.id));
+                    const idsAntigos = new Set(processosAntigos.map(p => p.id));
+
+                    // Verifica novidades
+                    const entraram = processosAtuais.filter(p => !idsAntigos.has(p.id));
+                    const sairam = processosAntigos.filter(p => !idsAtuais.has(p.id));
+
+                    if (entraram.length > 0) console.log(`📥 [${nomePasta}] Entrou:`, entraram.map(p => p.numero));
+                    if (sairam.length > 0) console.log(`📤 [${nomePasta}] Saiu:`, sairam.map(p => p.numero));
+
+                    // Atribui os processos descobertos à nova estrutura
+                    dadosPasta.processos = processosAtuais;
+
+                } catch (erro) {
+                    console.error(`❌ Erro ao atualizar a pasta ${nomePasta}. Mantendo dados anteriores:`, erro);
+                    // Se falhar a rede por um instante, recupera os processos antigos para não zerar seu storage
+                    dadosPasta.processos = dadosAntigos[codigoGrupo]?.[nomePasta]?.processos || [];
+                }
+
+                // Delay de 200ms para evitar sobrecarga ou bloqueio por requisições rápidas demais
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+        }
+
+        // Salva de forma definitiva no banco de dados local da extensão
+        chrome.storage.local.set({ 'mapeamentoPastasProcessos': novaEstrutura }, () => {
+            console.log("💾 [Extensão] Banco local atualizado com sucesso!");
+        });
+    });
+}
+
+
+/**
+ * Consulta em qual pasta um processo está armazenado.
+ * @param {string|number} idProcesso - O ID do processo (ex: "65268" ou 65268)
+ * @returns {Promise<{nomePasta: string, codigoPasta: string}|null>} Retorna os dados da pasta ou null se não encontrar.
+ */
+function consultarPastaDoProcesso(idProcesso) {
+    return new Promise((resolve) => {
+        // Converte para string para garantir a comparação correta
+        const idProcurado = String(idProcesso);
+
+        // Recupera o mapeamento atualizado do storage local
+        chrome.storage.local.get(['mapeamentoPastasProcessos'], (resultado) => {
+            const estruturaPastas = resultado.mapeamentoPastasProcessos;
+            
+            // Se o banco ainda não foi criado ou está vazio, retorna null
+            if (!estruturaPastas) {
+                console.warn("⚠️ [Extensão] Nenhum mapeamento de pastas encontrado no storage local.");
+                return resolve(null);
+            }
+
+            // Varre os grupos (Ex: 922)
+            for (const [codigoGrupo, pastas] of Object.entries(estruturaPastas)) {
+                // Varre as pastas de cada grupo (Ex: NICOLAS, LAIZE...)
+                for (const [nomePasta, dadosPasta] of Object.entries(pastas)) {
+                    
+                    // Verifica se algum processo dentro desta pasta possui o ID procurado
+                    const encontrou = dadosPasta.processos.some(p => String(p.id) === idProcurado);
+                    
+                    if (encontrou) {
+                        // Retorna os dados exatos da pasta encontrados no mapeamento original
+                        return resolve({
+                            nomePasta: nomePasta,
+                            codigoPasta: dadosPasta.codigo // Ex: "3076"
+                        });
+                    }
+                }
+            }
+
+            // Se rodar tudo e não encontrar o ID em nenhuma pasta
+            return resolve(null);
+        });
+    });
+}
+
+
+
+
+//FIM DAS FUNÇÕES
 
 
 
@@ -2868,6 +3103,20 @@ setTimeout(async () => {
             return window.location.href.includes('/processo/') && window.location.hash.includes('#dg922');
         }
 
+        // Exemplo de execução
+if (window.location.href.includes('/CaixaEntrada')) {
+    // 1. Extrai a lista do HTML atual da home
+    console.log("🏁 Página inicial detectada. Atualizando processos...");
+    
+    // 1. Extrai a lista do HTML atual da página
+    const estruturaMapeada = extrairEstruturaPastas();
+    
+    // 2. Se encontrou pastas na página, executa a busca e armazenamento
+    if (Object.keys(estruturaMapeada).length > 0) {
+        mapearProcessosDasPastas(estruturaMapeada);
+    }
+}
+
 // Escuta mudanças de hash (ex: de #dp para #dg922) sem recarregar a página
         window.addEventListener('hashchange', () => {
             if (deveExecutarOrdenacao()) {
@@ -2911,6 +3160,7 @@ setTimeout(async () => {
             initializeProcessoDetailTags();
             checkAndPromptTagRemovalOnDetail();
             addSearchProcess();
+            adicionarBotaoPastaMenu();
         }
     });
 }, 150);
