@@ -222,57 +222,84 @@ function hideLoading() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-
-    renderizarOpcoesGrupos();
-
-
-    const STORAGE_KEY = "assinador_preferencia";
-    const btnVoltar = document.getElementById('VoltaAssinador');
-
-    if (!btnVoltar) return;
-
-    btnVoltar.addEventListener("click", (event) => {
-        event.preventDefault();
-
-        // Remove chave no storage global da extensão
-        chrome.storage.local.remove(STORAGE_KEY, () => {
-            console.log("Preferência apagada com sucesso");
-            
-            // Redireciona para o assinador original
-            chrome.runtime.sendMessage({
-                action: "goToOriginalAssinador"
-            });
-        });
+    // Inicia app principal
+    loadAssinador().then(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const termoBusca = urlParams.get('busca');
+        if (termoBusca) {
+            setTimeout(() => executarBusca(termoBusca), 500);
+        }
     });
 
-// Escuta cliques no container principal (Delegação)
-    const container = document.getElementById("documents-list");
-    if (container) {
-        container.addEventListener("click", (e) => {
-            // Verifica se clicou no botão ou no ícone dentro dele
-            const btnAdd = e.target.closest(".btn-adicionar-ao-grupo, .btn-add-grupo");
-        const btnRem = e.target.closest(".btn-remover-do-grupo, .btn-rem-grupo");
-
-            if (btnAdd) {
-            e.preventDefault();
-            const id = btnAdd.getAttribute("data-id");
-            adicionarProcessoAoGrupo(id);
-        } else if (btnRem) {
-            e.preventDefault();
-            const id = btnRem.getAttribute("data-id");
-            removerProcessoDoGrupo(id);
-        }
+    // Configuração Botão Voltar (Extensão)
+    const btnVoltar = document.getElementById('VoltaAssinador');
+    if (btnVoltar) {
+        btnVoltar.addEventListener("click", (event) => {
+            event.preventDefault();
+            chrome.storage.local.remove("assinador_preferencia", () => {
+                chrome.runtime.sendMessage({ action: "goToOriginalAssinador" });
+            });
         });
     }
 
-    // Listener para o Select de Grupos
-    const selectMisto = document.getElementById("selectGrupo"); 
-    if (selectMisto) {
-    // Agora o mesmo select cuida de TUDO
-        selectMisto.addEventListener("change", filtrarMisto);
-    }
+    // Configuração Botões do Menu Superior de Grupos
+    document.getElementById('btnCriarGrupo')?.addEventListener('click', criarNovoGrupo);
+    document.getElementById('btnGerenciarGrupos')?.addEventListener('click', deletarGrupoAtual);
 
+    // Listener do select de filtros
+    document.getElementById("selectGrupo")?.addEventListener("change", filtrarMisto);
+
+    // Listener do Botão de Troca de Visualização (Tabela/Cards)
+    document.getElementById("toggleView")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        modoTabela = !modoTabela;
+        localStorage.setItem("assinador_modo_tabela", modoTabela);
+        aplicarModoVisualizacao(todosDocumentos, false);
+    });
+
+    // Input de busca por Enter
+    document.getElementById("Busca")?.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            executarBusca();
+        }
+    });
 });
+
+// Delegação de cliques no container dinamico da lista/tabela
+if (documentsList) {
+    documentsList.addEventListener("click", (e) => {
+        // Ações de grupos na Tabela
+        const btnAddTab = e.target.closest(".btn-adicionar-ao-grupo");
+        const btnRemTab = e.target.closest(".btn-remover-do-grupo");
+        // Ações de grupos nos Cards
+        const btnCardGrupo = e.target.closest(".btn-add-grupo-card");
+        
+        // Ações Utilitárias de link e cópia
+        const btnCopy = e.target.closest('.btn-copy-link');
+
+        if (btnAddTab) {
+            e.preventDefault();
+            adicionarProcessoAoGrupo(btnAddTab.getAttribute("data-id"));
+        } else if (btnRemTab) {
+            e.preventDefault();
+            removerProcessoDoGrupo(btnRemTab.getAttribute("data-id"));
+        } else if (btnCardGrupo) {
+            e.preventDefault();
+            const id = btnCardGrupo.getAttribute("data-id");
+            if (btnCardGrupo.getAttribute("data-modo") === "rem") {
+                removerProcessoDoGrupo(id);
+            } else {
+                adicionarProcessoAoGrupo(id);
+            }
+        } else if (btnCopy) {
+            const link = btnCopy.getAttribute('data-link');
+            if (link) {
+                navigator.clipboard.writeText(link).then(() => showToast("success", "Link copiado!"));
+            }
+        }
+    });
+}
 
 
 
@@ -1803,7 +1830,38 @@ loadAssinador().then(() => {
 
 
 
+async function limparCacheBusca() {
+    try {
+        // 1. Limpa a variável global na memória do script
+        listaBusca = [];
 
+        // 2. Abre a conexão para limpar o banco de dados
+        const db = await abrirDB();
+        
+        return new Promise((resolve, reject) => {
+            // Criamos uma transação de escrita para as duas stores
+            const tx = db.transaction([STORE_DOCS, STORE_META], "readwrite");
+            
+            tx.objectStore(STORE_DOCS).clear();
+            tx.objectStore(STORE_META).clear();
+
+            tx.oncomplete = () => {
+                console.log("🧹 Cache do IndexedDB limpo com sucesso!");
+                if (typeof showToast === "function") {
+                    showToast("success", "Cache de busca limpo!");
+                }
+                resolve(true);
+            };
+
+            tx.onerror = () => {
+                console.error("❌ Erro ao limpar o cache do IndexedDB:", tx.error);
+                reject(tx.error);
+            };
+        });
+    } catch (error) {
+        console.error("Erro na rotina de limpeza de cache:", error);
+    }
+}
 
 
 function garantirGrupo(boardName) {

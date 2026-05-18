@@ -36,6 +36,55 @@
     // Tipos DOc
     const TIPOS_DOCUMENTOS = [{"codigo":"47","nome":"ABAIXO-ASSINADO"},{"codigo":"48","nome":"ACÓRDÃO"},{"codigo":"49","nome":"ACORDO"},{"codigo":"50","nome":"ALVARÁ"},{"codigo":"310","nome":"ALVARÁ DE REGULARIZAÇÃO"},{"codigo":"267","nome":"ANÁLISE DE AMOSTRA"},{"codigo":"263","nome":"ANTEPROJETO"},{"codigo":"308","nome":"APÓLICE"},{"codigo":"29","nome":"APRESENTAÇÃO"},{"codigo":"302","nome":"ART / RRT"},{"codigo":"51","nome":"ASSENTO"},{"codigo":"19","nome":"ATA"},{"codigo":"307","nome":"ATA DE ASSEMBLEIA"},{"codigo":"266","nome":"ATA DE REGISTRO DE PREÇOS"},{"codigo":"52","nome":"ATESTADO"},{"codigo":"53","nome":"ATO"},{"codigo":"54","nome":"AUTO"},{"codigo":"229","nome":"AUTO DE ARREMATAÇÃO"},{"codigo":"15","nome":"AUTORIZAÇÃO"},{"codigo":"274","nome":"AUTORIZAÇÃO CONTRATAÇÃO DIRETA"},{"codigo":"283","nome":"AUTORIZAÇÃO DE FORNECIMENTO"},{"codigo":"293","nome":"AVALIAÇÃO"},{"codigo":"304","nome":"AVCB"},{"codigo":"55","nome":"AVISO"},{"codigo":"271","nome":"AVISO DE CONTRATAÇÃO DIRETA"},{"codigo":"22","nome":"BALANCETE"},{"codigo":"56","nome":"BANDO"},{"codigo":"57","nome":"BILHETE"},{"codigo":"253","nome":"BOLETIM DE OCORRÊNCIA"},{"codigo":"10","nome":"BOLETO"},{"codigo":"58","nome":"BREVE"},{"codigo":"59","nome":"CARTA"},{"codigo":"60","nome":"CARTA ABERTA"},{"codigo":"230","nome":"CARTA DE ARREMATAÇÃO"},{"codigo":"61","nome":"CARTA DE CHAMADA"},{"codigo":"62","nome":"CARTA DE LEI"},{"codigo":"63","nome":"CARTA DE PERDÃO"},{"codigo":"64","nome":"CARTA DE SESMARIA"},{"codigo":"65","nome":"CARTA DE VALIDADE"},{"codigo":"66","nome":"CARTA DECLARATÓRIA"},{"codigo":"67","nome":"CARTA INTERNACIONAL"},{"codigo":"68","nome":"CARTA OU MEMORANDO DIPLOMÁTICO"},{"codigo":"69","nome":"CARTA PARTIDA OU DE DEFERIMENTO"},{"codigo":"70","nome":"CARTA PATENTE"},{"codigo":"71","nome":"CARTA PATENTE OU CARTA DE AUTORIZAÇÃO"},{"codigo":"72","nome":"CARTA PRECATÓRIA"},{"codigo":"73","nome":"CARTA RÉGIA"},{"codigo":"74","nome":"CARTA REVERSAL"},{"codigo":"75","nome":"CARTA TESTEMUNHÁVEL"},{"codigo":"9","nome":"CARTA/AR"},{"codigo":"76","nome":"CARTÃO DE CRÉDITO"},{"codigo":"77","nome":"CARTÃO DE PONTO"},{"codigo":"79","nome":"CARTÃO DE VISITA, DE CONTATO COMERCIAL OU PROFISSIONAL"},{"codigo":"78","nome":"CARTAZ"},{"codigo":"80","nome":"CÉDULA DE ELEIÇÃO"},{"codigo":"81","nome":"CÉDULA DE IDENTIDADE"},{"codigo":"82","nome":"CENSO"},{"codigo":"21","nome":"CERTIDÃO"},{"codigo":"303","nome":"CERTIDÃO DE ÓBITO"},{"codigo":"305","nome":"CERTIDÃO NEGATIVA CARTÓRIO"},{"codigo":"84","nome":"CERTIFICADO"},{"codigo":"289","nome":"CERTIFICADO DE REGISTRO CADASTRAL"},{"codigo":"85","nome":"CHEQUE"},{"codigo":"86","nome":"CIRCULAR"},{"codigo":"87","nome":"CITAÇÃO"},{"codigo":"247","nome":"CNPJ"},{"codigo":"246","nome":"CÓDIGO"},{"codigo":"88","nome":"COMPROMISSO"},{"codigo":"284","nome":"COMPROVANTE"},{"codigo":"255","nome":"COMPROVANTE DE INSCRIÇÃO"},{"codigo":"242","nome":"COMPROVANTE DE PAGAMENTO"},{"codigo":"8","nome":"COMPROVANTE DE RESIDÊNCIA"},{"codigo":"89","nome":"COMUNICAÇÃO/PAPER"},{"codigo":"90","nome":"COMUNICADO"},{"codigo":"298","nome":"CONCILIAÇÃO BANCÁRIA"},{"codigo":"91","nome":"CONSTITUIÇÃO"},{"codigo":"92","nome":"CONSULTA"},{"codigo":"93","nome":"CONTA"},{"codigo":"94","nome":"CONTA CORRENTE"},{"codigo":"6","nome":"CONTRATO"},{"codigo":"268","nome":"CONTRATO ADMINISTRATIVO"},{"codigo":"95","nome":"CONVENÇÃO"},{"codigo":"96","nome":"CONVÊNIO"},{"codigo":"97","nome":"CONVITE"},{"codigo":"98","nome":"CONVOCAÇÃO"},{"codigo":"99","nome":"CÓPIA AUTÊNTICA"},{"codigo":"100","nome":"CORRESPONDÊNCIA INTERNA"},{"codigo":"1","nome":"COTA"},{"codigo":"248","nome":"CPF"},{"codigo":"101","nome":"CRACHÁ"},{"codigo":"102","nome":"CRONOGRAMA"},{"codigo":"31","nome":"CROQUIS"},{"codigo":"103","nome":"CURRÍCULO DE CURSO"},{"codigo":"104","nome":"CURRICULUM VITAE"},{"codigo":"105","nome":"DEBÊNTURE"},{"codigo":"44","nome":"DECENDIAIS"},{"codigo":"106","nome":"DECISÃO"},{"codigo":"4","nome":"DECLARAÇÃO"},{"codigo":"107","nome":"DECRETO"},{"codigo":"108","nome":"DECRETO-LEI"},{"codigo":"109","nome":"DELIBERAÇÃO"},{"codigo":"23","nome":"DEMONSTRATIVO"},{"codigo":"110","nome":"DEPOIMENTO"},{"codigo":"42","nome":"DEPÓSITO"},{"codigo":"290","nome":"DESCRITIVO"},{"codigo":"111","nome":"DESIGNAÇÃO"},{"codigo":"112","nome":"DESPACHO"},{"codigo":"306","nome":"DEVOLUÇÃO CARTÓRIO"},{"codigo":"113","nome":"DEVOLUTIVA"},{"codigo":"114","nome":"DIÁRIO"},{"codigo":"115","nome":"DIPLOMA"},{"codigo":"116","nome":"DIRETRIZES ORÇAMENTÁRIAS"},{"codigo":"117","nome":"DISSERTAÇÃO"},{"codigo":"291","nome":"DOCUMENTO"},{"codigo":"262","nome":"DOCUMENTO DE FORMALIZAÇÃO DE DEMANDA (DFD)"},{"codigo":"5","nome":"DOCUMENTO DE IDENTIFICAÇÃO"},{"codigo":"118","nome":"DOSSIÊ"},{"codigo":"119","nome":"EDITAL"},{"codigo":"11","nome":"E-MAIL"},{"codigo":"120","nome":"EMBARGO"},{"codigo":"121","nome":"EMENDA"},{"codigo":"122","nome":"EMENTA"},{"codigo":"299","nome":"ENCARGOS TRABALHISTAS"},{"codigo":"123","nome":"ESCALA"},{"codigo":"124","nome":"ESCRITO DE SECRETÁRIO"},{"codigo":"125","nome":"ESCRITURA"},{"codigo":"240","nome":"ESPELHO DE DECRETO"},{"codigo":"28","nome":"ESPELHO DO IPTU"},{"codigo":"126","nome":"ESTATUTO"},{"codigo":"254","nome":"ESTUDO"},{"codigo":"260","nome":"ESTUDO TÉCNICO PRELIMINAR - (ETP)"},{"codigo":"258","nome":"EXAME MÉDICO"},{"codigo":"127","nome":"EXPEDIENTE"},{"codigo":"128","nome":"EXPOSIÇÃO DE MOTIVOS"},{"codigo":"7","nome":"EXTRATO"},{"codigo":"129","nome":"EXTRATO BANCÁRIO"},{"codigo":"130","nome":"FATURA"},{"codigo":"131","nome":"FÉ DE OFÍCIO"},{"codigo":"132","nome":"FICHA"},{"codigo":"309","nome":"FICHA TÉCNICA"},{"codigo":"133","nome":"FILIPETA"},{"codigo":"134","nome":"FLUXOGRAMA"},{"codigo":"135","nome":"FOLHA"},{"codigo":"43","nome":"FOLHA DE PAGAMENTO"},{"codigo":"136","nome":"FOLHETO/FOLDER"},{"codigo":"137","nome":"FORAL"},{"codigo":"138","nome":"FÓRMULA/FORMULÁRIO"},{"codigo":"13","nome":"FORMULÁRIO"},{"codigo":"139","nome":"GRADE CURRICULAR"},{"codigo":"140","nome":"GUIA"},{"codigo":"141","nome":"HISTÓRICO ESCOLAR"},{"codigo":"300","nome":"HOLERITE"},{"codigo":"142","nome":"HOMOLOGAÇÃO"},{"codigo":"12","nome":"IMAGEM"},{"codigo":"276","nome":"IMPUGNAÇÃO EDITAL"},{"codigo":"143","nome":"INDICAÇÃO"},{"codigo":"270","nome":"INDICAÇÃO DE AGENTE DE CONTRATAÇÃO/EQUIPE DE APOIO"},{"codigo":"144","nome":"INFORMAÇÃO"},{"codigo":"145","nome":"INFORMAÇÃO COMERCIAL"},{"codigo":"146","nome":"INFORMAÇÃO DE SERVIÇO"},{"codigo":"147","nome":"INFORME"},{"codigo":"148","nome":"INSTRUÇÃO DE SERVIÇO"},{"codigo":"149","nome":"INSTRUÇÃO NORMATIVA"},{"codigo":"150","nome":"INVENTÁRIO"},{"codigo":"151","nome":"INVENTÁRIO POST MORTEM"},{"codigo":"252","nome":"JUSTIFICATIVA"},{"codigo":"152","nome":"LANÇAMENTO"},{"codigo":"241","nome":"LANÇAMENTO DE DECRETO"},{"codigo":"153","nome":"LAUDO"},{"codigo":"154","nome":"LAYOUT"},{"codigo":"33","nome":"LEGISLAÇÃO"},{"codigo":"155","nome":"LEI"},{"codigo":"37","nome":"LEIAUTE"},{"codigo":"156","nome":"LEMBRETE"},{"codigo":"157","nome":"LEVANTAMENTO ESTATÍSTICO"},{"codigo":"158","nome":"LEVANTAMENTO TOPOGRÁFICO"},{"codigo":"256","nome":"LICENÇA"},{"codigo":"39","nome":"LISTA DE PRESENÇA"},{"codigo":"288","nome":"LISTA DE VERIFICAÇÃO CONTRATAÇÃO DIRETA"},{"codigo":"287","nome":"LISTA DE VERIFICAÇÃO LICITAÇÃO"},{"codigo":"159","nome":"LISTA/LISTAGEM"},{"codigo":"245","nome":"MANIFESTAÇÃO"},{"codigo":"231","nome":"MANIFESTAÇÃO JURÍDICA"},{"codigo":"38","nome":"MANUAL"},{"codigo":"30","nome":"MAPA"},{"codigo":"232","nome":"MATRICULA C.R.I."},{"codigo":"275","nome":"MATRIZ DE RISCOS"},{"codigo":"36","nome":"MEMORANDO"},{"codigo":"301","nome":"MEMORIAL DESCRITIVO"},{"codigo":"32","nome":"MINUTA"},{"codigo":"269","nome":"MINUTA DE EDITAL"},{"codigo":"238","nome":"NOTA DE CANCELAMENTO DE RESTOS A PAGAR"},{"codigo":"239","nome":"NOTA DE DEDUÇÃO DE RECEITA"},{"codigo":"234","nome":"NOTA DE EMPENHO"},{"codigo":"237","nome":"NOTA DE ESTORNO DE EMPENHO"},{"codigo":"235","nome":"NOTA DE LIQUIDAÇÃO"},{"codigo":"20","nome":"NOTA FISCAL"},{"codigo":"24","nome":"NOTIFICAÇÃO"},{"codigo":"14","nome":"OFÍCIO"},{"codigo":"160","nome":"ORÇAMENTO"},{"codigo":"236","nome":"ORDEM DE PAGAMENTO"},{"codigo":"35","nome":"ORDEM DE SERVIÇO"},{"codigo":"161","nome":"ORDEM DO DIA"},{"codigo":"162","nome":"ORDENAÇÕES"},{"codigo":"163","nome":"ORGANOGRAMA"},{"codigo":"251","nome":"ORTOFOTO"},{"codigo":"46","nome":"PAGAMENTO"},{"codigo":"164","nome":"PANFLETO"},{"codigo":"165","nome":"PAPELETA"},{"codigo":"297","nome":"PARECER DO CONSELHO"},{"codigo":"295","nome":"PARECER JURÍDICO"},{"codigo":"294","nome":"PARECER TÉCNICO"},{"codigo":"167","nome":"PARTILHA DE SUCESSÃO"},{"codigo":"168","nome":"PARTITURA"},{"codigo":"169","nome":"PASSAPORTE"},{"codigo":"170","nome":"PAUTA"},{"codigo":"257","nome":"PESQUISA"},{"codigo":"286","nome":"PESQUISA DE PREÇOS"},{"codigo":"171","nome":"PETIÇÃO"},{"codigo":"172","nome":"PLANILHA"},{"codigo":"173","nome":"PLANO"},{"codigo":"174","nome":"PLANTA"},{"codigo":"34","nome":"PORTARIA"},{"codigo":"175","nome":"PORTULANO"},{"codigo":"176","nome":"POSTURA"},{"codigo":"177","nome":"PRECATÓRIO"},{"codigo":"178","nome":"PRESTAÇÃO DE CONTAS"},{"codigo":"292","nome":"PROCESSO FÍSICO"},{"codigo":"180","nome":"PROCURAÇÃO"},{"codigo":"181","nome":"PROGRAMA"},{"codigo":"182","nome":"PROJETO"},{"codigo":"264","nome":"PROJETO BÁSICO"},{"codigo":"265","nome":"PROJETO EXECUTIVO"},{"codigo":"183","nome":"PRONTUÁRIO"},{"codigo":"184","nome":"PRONUNCIAMENTO"},{"codigo":"185","nome":"PROPOSIÇÃO"},{"codigo":"186","nome":"PROPOSTA"},{"codigo":"187","nome":"PROSPECTO"},{"codigo":"188","nome":"PROTOCOLADO"},{"codigo":"27","nome":"PROTOCOLO"},{"codigo":"189","nome":"PROVA"},{"codigo":"190","nome":"PROVISÃO"},{"codigo":"25","nome":"PUBLICAÇÃO"},{"codigo":"191","nome":"QUADRO"},{"codigo":"249","nome":"QUADRO DE DESCRIÇÃO DE ITEM"},{"codigo":"250","nome":"QUADRO DE DESCRIÇÃO DE SERVIÇOS"},{"codigo":"192","nome":"QUESTIONÁRIO"},{"codigo":"193","nome":"RASCUNHO"},{"codigo":"194","nome":"RAZÃO"},{"codigo":"195","nome":"RECEITA"},{"codigo":"196","nome":"RECENSEAMENTO"},{"codigo":"41","nome":"RECIBO"},{"codigo":"197","nome":"RECOMENDAÇÃO"},{"codigo":"198","nome":"RECORTE/CLIP"},{"codigo":"199","nome":"RECURSO"},{"codigo":"277","nome":"RECURSO ADMINISTRATIVO"},{"codigo":"200","nome":"REGIMENTO"},{"codigo":"201","nome":"REGISTRO"},{"codigo":"202","nome":"REGISTRO CIVIL"},{"codigo":"203","nome":"REGISTRO PAROQUIAL"},{"codigo":"204","nome":"REGULAMENTO"},{"codigo":"205","nome":"RELAÇÃO"},{"codigo":"206","nome":"RELAÇÃO DE REMESSA"},{"codigo":"18","nome":"RELATÓRIO"},{"codigo":"278","nome":"RELATÓRIO E DESPACHO DE IMPUGNAÇÃO"},{"codigo":"279","nome":"RELATÓRIO E DESPACHO DE RECURSO ADMINISTRATIVO"},{"codigo":"207","nome":"RELEASE"},{"codigo":"3","nome":"REPRESENTAÇÃO"},{"codigo":"2","nome":"REQUERIMENTO"},{"codigo":"233","nome":"REQUERIMENTO DESARQUIVAMENTO"},{"codigo":"208","nome":"REQUISIÇÃO"},{"codigo":"244","nome":"REQUISIÇÃO DE COMPRAS"},{"codigo":"296","nome":"RESCISÃO TRABALHISTA"},{"codigo":"209","nome":"RESIDÊNCIA"},{"codigo":"210","nome":"RESOLUÇÃO"},{"codigo":"281","nome":"RESPOSTA DE ESCLARECIMENTO"},{"codigo":"211","nome":"RESUMO"},{"codigo":"212","nome":"ROL"},{"codigo":"213","nome":"ROTEIRO"},{"codigo":"214","nome":"SINOPSE"},{"codigo":"215","nome":"SOLICITAÇÃO"},{"codigo":"285","nome":"SOLICITAÇÃO DE EMPENHO"},{"codigo":"280","nome":"SOLICITAÇÃO DE ESCLARECIMENTO"},{"codigo":"216","nome":"TABELA"},{"codigo":"217","nome":"TALONÁRIO"},{"codigo":"218","nome":"TELEGRAMA"},{"codigo":"219","nome":"TERMO"},{"codigo":"40","nome":"TERMO DE CONFISSÃO DE DÍVIDA E ACORDO DE PARCELAMENTO"},{"codigo":"282","nome":"TERMO DE HOMOLOGAÇÃO"},{"codigo":"17","nome":"TERMO DE NOTIFICAÇÃO"},{"codigo":"272","nome":"TERMO DE RATIFICAÇÃO DE DISPENSA"},{"codigo":"273","nome":"TERMO DE RATIFICAÇÃO DE INEXIGIBILIDADE"},{"codigo":"261","nome":"TERMO DE REFERÊNCIA (TR)"},{"codigo":"243","nome":"TERMO DE RETIFICAÇÃO"},{"codigo":"220","nome":"TESE"},{"codigo":"221","nome":"TESTAMENTO"},{"codigo":"222","nome":"TESTE"},{"codigo":"259","nome":"TÍTULO"},{"codigo":"223","nome":"TÍTULO DE CRÉDITO"},{"codigo":"224","nome":"TRABALHO DE CONCLUSÃO DE CURSO (TCC)"},{"codigo":"16","nome":"TRANSFERÊNCIA DE RESPONSABILIDADE"},{"codigo":"225","nome":"TRASLADO"},{"codigo":"226","nome":"VALE"},{"codigo":"227","nome":"VOLANTE"},{"codigo":"228","nome":"WARRANT"}];
 
+const estiloPopover = document.createElement('style');
+estiloPopover.textContent = `
+    /* Esconde absolutamente qualquer popover que contenha este título específico */
+    .popover:has(.popover-title:contains("Cadastro de e-mails")),
+    .popover:has(h3:contains("Cadastro de e-mails")),
+    div[id^="popover"]:has(h3) { 
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+`;
+document.head.appendChild(estiloPopover);
+
+
+// Cria um observador para detectar e remover o popover assim que ele surgir no HTML
+const monitorarEApagarPopover = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+            // Verifica se o nó adicionado é uma div de popover
+            if (node.nodeType === 1 && node.classList.contains('popover')) {
+                const titulo = node.querySelector('.popover-title');
+                if (titulo && titulo.textContent.includes('Cadastro de e-mails')) {
+                    console.log('🛡️ Extensão bloqueou e removeu o popover automático.');
+                    node.remove(); // Remove o elemento do HTML na hora
+                }
+            }
+        });
+    });
+});
+
+const linkEmail = document.getElementById('emailPopover');
+if (linkEmail) {
+    // Remove completamente os gatilhos que o Bootstrap usa para ler e criar o popover
+    linkEmail.removeAttribute('data-toggle');
+    linkEmail.removeAttribute('data-trigger');
+    linkEmail.removeAttribute('data-original-title');
+    linkEmail.removeAttribute('data-content');
+    
+    // Substitui por um título nativo comum do navegador caso ainda queira um mini-tooltip padrão
+    linkEmail.title = "Gerenciar E-mails"; 
+}
+
+// Inicia o monitoramento no body da página
+monitorarEApagarPopover.observe(document.body, {
+    childList: true,
+    subtree: true
+});
+
     // ===== Floating menu creation (Mantido) =====
     const tagMenu = document.createElement('div');
     tagMenu.id = 'tag-floating-menu';
@@ -424,6 +473,11 @@ function selecionarDocumento(linha, indice, onCompleteCallback) {
     // =========================================================================
     // FUNÇÕES AUXILIARES (omitidas por brevidade, mas devem estar no arquivo)
     // =========================================================================
+
+       function isGerenciarPastaUrl() {
+        const url = window.location.href.toLowerCase();
+        return url.includes('/CaixaEntrada/GerenciarPastas');
+    }
 
     function isPastaUrl() {
         const url = window.location.href;
@@ -2802,28 +2856,42 @@ function extrairEstruturaPastas() {
 }
 
 // 2. FUNÇÃO: Varre as páginas em background, calcula quem entrou/saiu e salva no Chrome Local
-async function mapearProcessosDasPastas(novaEstrutura) {
-    console.log("⏳ [Extensão] Iniciando varredura completa de processos em segundo plano...");
+async function mapearProcessosDasPastas(estruturaMapeada) {
+    chrome.storage.local.get(['mapeamentoPastasProcessos', 'pastasMonitoradas'], async (result) => {
+        const dadosAntigos = result.mapeamentoPastasProcessos || {};
+        const pastasMonitoradas = result.pastasMonitoradas || {};
+        
+        // Mantém os dados antigos para não zerar as pastas que não forem atualizadas agora
+        const novaEstruturaSalvar = JSON.parse(JSON.stringify(dadosAntigos));
 
-    // Recupera os dados antigos salvos no storage para comparar o que mudou (Entrou/Saiu)
-    chrome.storage.local.get(['mapeamentoPastasProcessos'], async (resultado) => {
-        const dadosAntigos = resultado.mapeamentoPastasProcessos || {};
+        console.log("🚀 Iniciando atualização incremental das pastas...");
 
-        // Varre os grupos encontrados
-        for (const [codigoGrupo, pastas] of Object.entries(novaEstrutura)) {
+        for (const [codigoGrupo, pastas] of Object.entries(estruturaMapeada)) {
+            if (!novaEstruturaSalvar[codigoGrupo]) {
+                novaEstruturaSalvar[codigoGrupo] = {};
+            }
+
             for (const [nomePasta, dadosPasta] of Object.entries(pastas)) {
-                console.log(`🔍 Lendo pasta: ${nomePasta}...`);
+                const codigoPasta = dadosPasta.codigo;
+
+                // Se não estiver monitorada, mantém o histórico antigo intacto e pula o fetch
+                if (codigoPasta !== "0" && !pastasMonitoradas[codigoPasta]) {
+                    if (dadosAntigos[codigoGrupo]?.[nomePasta]) {
+                        novaEstruturaSalvar[codigoGrupo][nomePasta] = dadosAntigos[codigoGrupo][nomePasta];
+                    } else {
+                        novaEstruturaSalvar[codigoGrupo][nomePasta] = dadosPasta;
+                    }
+                    continue; 
+                }
 
                 try {
-                    // Busca a página interna da pasta sem abri-la visualmente
                     const response = await fetch(dadosPasta.url);
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     
                     const htmlTexto = await response.text();
                     const parser = new DOMParser();
                     const docVirtual = parser.parseFromString(htmlTexto, 'text/html');
-
-                    // Seleciona os cards reais de processos (.pd-inbox-item)
+                    
                     const cardsProcessos = docVirtual.querySelectorAll('a.pd-inbox-item');
                     const processosAtuais = [];
 
@@ -2842,36 +2910,48 @@ async function mapearProcessosDasPastas(novaEstrutura) {
                         }
                     });
 
-                    // --- COMPARAÇÃO DE ENTRADA E SAÍDA (DIFF) ---
-                    const processosAntigos = dadosAntigos[codigoGrupo]?.[nomePasta]?.processos || [];
-                    
+                    // --- COMPARAÇÃO DE ENTRADA E SAÍDA ---
+                    const pastaAntiga = dadosAntigos[codigoGrupo]?.[nomePasta] || {};
+                    const processosAntigos = pastaAntiga.processos || [];
                     const idsAtuais = new Set(processosAtuais.map(p => p.id));
                     const idsAntigos = new Set(processosAntigos.map(p => p.id));
 
-                    // Verifica novidades
                     const entraram = processosAtuais.filter(p => !idsAntigos.has(p.id));
                     const sairam = processosAntigos.filter(p => !idsAtuais.has(p.id));
 
-                    if (entraram.length > 0) console.log(`📥 [${nomePasta}] Entrou:`, entraram.map(p => p.numero));
-                    if (sairam.length > 0) console.log(`📤 [${nomePasta}] Saiu:`, sairam.map(p => p.numero));
+                    // Mantém o estado de alerta anterior, a menos que novos tenham entrado
+                    // Se entraram documentos novos, define como true.
+                    let alertaNovo = pastaAntiga.alertaNovo || false;
+                    
+                    if (entraram.length > 0) {
+                        console.log(`📥 [${nomePasta}] Entrou:`, entraram.map(p => p.numero));
+                        alertaNovo = true; // 🚨 Ativa o estado de alerta visual
+                    }
+                    if (sairam.length > 0) {
+                        console.log(`📤 [${nomePasta}] Saiu:`, sairam.map(p => p.numero));
+                    }
 
-                    // Atribui os processos descobertos à nova estrutura
-                    dadosPasta.processos = processosAtuais;
+                    // Salva a pasta preservando a estrutura e incluindo a flag de alerta
+                    novaEstruturaSalvar[codigoGrupo][nomePasta] = {
+                        codigo: codigoPasta,
+                        url: dadosPasta.url,
+                        processos: processosAtuais,
+                        alertaNovo: alertaNovo 
+                    };
 
                 } catch (erro) {
-                    console.error(`❌ Erro ao atualizar a pasta ${nomePasta}. Mantendo dados anteriores:`, erro);
-                    // Se falhar a rede por um instante, recupera os processos antigos para não zerar seu storage
-                    dadosPasta.processos = dadosAntigos[codigoGrupo]?.[nomePasta]?.processos || [];
+                    console.error(`❌ Erro ao buscar pasta ${nomePasta}:`, erro);
+                    if (dadosAntigos[codigoGrupo]?.[nomePasta]) {
+                        novaEstruturaSalvar[codigoGrupo][nomePasta] = dadosAntigos[codigoGrupo][nomePasta];
+                    }
                 }
-
-                // Delay de 200ms para evitar sobrecarga ou bloqueio por requisições rápidas demais
-                await new Promise(resolve => setTimeout(resolve, 200));
             }
         }
 
-        // Salva de forma definitiva no banco de dados local da extensão
-        chrome.storage.local.set({ 'mapeamentoPastasProcessos': novaEstrutura }, () => {
-            console.log("💾 [Extensão] Banco local atualizado com sucesso!");
+        // Grava as alterações no storage e força a atualização visual imediatamente
+        chrome.storage.local.set({ mapeamentoPastasProcessos: novaEstruturaSalvar }, () => {
+            console.log("💾 Mapeamento incremental e alertas salvos.");
+            atualizarBadgesPastas(); // Renderiza os badges na tela na hora
         });
     });
 }
@@ -2922,6 +3002,201 @@ function consultarPastaDoProcesso(idProcesso) {
 }
 
 
+
+/**
+ * CRIA UMA NOVA COLUNA E INJETA OS CONTROLES ON/OFF COMPATÍVEIS
+ */
+function injetarSwitchesGerenciamento() {
+    const tabela = document.querySelector('.table');
+    if (!tabela) return;
+
+    // 1. Injeta o cabeçalho TH se não existir
+    const cabecalhoLinha = tabela.querySelector('thead tr');
+    if (cabecalhoLinha && !tabela.querySelector('.th-monitorar-ext')) {
+        const th = document.createElement('th');
+        th.className = 'text-center th-monitorar-ext';
+        th.innerText = 'Monitorar (Badge)';
+        th.style.verticalAlign = 'middle';
+        
+        const colAcoesHead = cabecalhoLinha.querySelector('th:last-child');
+        cabecalhoLinha.insertBefore(th, colAcoesHead);
+    }
+
+    // 2. Injeta as células TD com o switch nativo pedido
+    const linhasTabela = tabela.querySelectorAll('tbody tr');
+    chrome.storage.local.get(['pastasMonitoradas'], (result) => {
+        const pastasMonitoradas = result.pastasMonitoradas || {};
+
+        linhasTabela.forEach(linha => {
+            if (linha.querySelector('.td-monitorar-ext')) return;
+
+            const linkAcao = linha.querySelector('a[href*="codigo="]');
+            if (!linkAcao) return;
+
+            const urlParams = new URLSearchParams(linkAcao.href.split('?')[1]);
+            const pastaId = urlParams.get('codigo');
+            if (!pastaId) return;
+
+            const isMonitored = !!pastasMonitoradas[pastaId];
+
+            const td = document.createElement('td');
+            td.className = 'text-center td-monitorar-ext col-xs-1';
+            td.style.verticalAlign = 'middle';
+
+            // Estrutura nativa do Bootstrap 5 com switch de checkbox
+            td.innerHTML = `
+                <div class="d-inline-block">
+                    <input class="form-check-input chk-monitorar-pasta" type="checkbox" role="switch" id="switch-pasta-${pastaId}" data-id="${pastaId}" ${isMonitored ? 'checked' : ''} style="cursor: pointer; left:0; position:relative;">
+                </div>
+            `;
+
+            const input = td.querySelector('input');
+            input.addEventListener('change', (e) => {
+                chrome.storage.local.get(['pastasMonitoradas'], (res) => {
+                    const atual = res.pastasMonitoradas || {};
+                    atual[pastaId] = e.target.checked;
+                    chrome.storage.local.set({ pastasMonitoradas: atual }, () => {
+                        atualizarBadgesPastas();
+                    });
+                });
+            });
+
+            const celulaAcoes = linha.querySelector('td:last-child');
+            linha.insertBefore(td, celulaAcoes);
+        });
+    });
+}
+
+/**
+ * DETECTA E INJETA OS BADGES NA LISTAGEM LATERAL DO SISTEMA
+ */
+/**
+ * DETECTA E INJETA OS BADGES NA LISTAGEM LATERAL DO SISTEMA
+ */
+function atualizarBadgesPastas() {
+    chrome.storage.local.get(['pastasMonitoradas', 'mapeamentoPastasProcessos'], (result) => {
+        const pastasMonitoradas = result.pastasMonitoradas || {};
+        const dadosMapeados = result.mapeamentoPastasProcessos || {};
+
+        // Remove badges antigos para evitar duplicações
+        document.querySelectorAll('.badge-monitoramento-pasta').forEach(el => el.remove());
+
+        // Localiza os links das pastas na barra lateral baseando-se no padrão real do sistema (li.titulo-aba-pasta)
+        // Buscamos qualquer link que aponte para uma pasta com o parâmetro codigo=
+        const linksPastas = document.querySelectorAll('li.titulo-aba-pasta a[href*="codigo="], .nav-sidebar a[href*="codigo="]');
+
+        linksPastas.forEach(link => {
+            const urlParams = new URLSearchParams(link.href.split('?')[1]);
+            const pastaId = urlParams.get('codigo');
+
+            // Se não houver ID ou se o usuário optou por não monitorar essa pasta, ignora
+            if (!pastaId || !pastasMonitoradas[pastaId]) return;
+
+            let quantidadeAtual = 0;
+            let encontrouNoMapeamento = false;
+
+            // Varre a estrutura real multinível gerada pelo seu mapeador (Grupo -> NomePasta)
+          let temAlerta = false; // Inicializa a flag de alerta como falsa
+
+            for (const codigoGrupo in dadosMapeados) {
+                const grupo = dadosMapeados[codigoGrupo];
+                for (const nomePasta in grupo) {
+                    const dadosPasta = grupo[nomePasta];
+                    if (String(dadosPasta.codigo) === String(pastaId)) {
+                        if (dadosPasta.processos && Array.isArray(dadosPasta.processos)) {
+                            quantidadeAtual = dadosPasta.processos.length;
+                            temAlerta = dadosPasta.alertaNovo || false; // 🚨 Captura o estado de alerta salvo no storage
+                            encontrouNoMapeamento = true;
+                            break;
+                        }
+                    }
+                }
+                if (encontrouNoMapeamento) break;
+            }
+
+            // Fallback: Se a home ainda não mapeou, tenta extrair o número entre parênteses do próprio texto nativo (Ex: "Minha Pasta (5)")
+            if (!encontrouNoMapeamento) {
+                const matchTexto = link.innerText.match(/\((\d+)\)/);
+                quantidadeAtual = matchTexto ? parseInt(matchTexto[1]) : 0;
+                temAlerta = false; // Sem dados mapeados, assume padrão sem alerta
+            }
+
+            // Cria o Badge usando a estrutura e estilização de classe nativa do Bootstrap 5 / AdminLTE
+            const badge = document.createElement('span');
+            
+            // Define a estilização base (alinhamento, tamanho e float)
+            badge.className = 'badge badge-monitoramento-pasta ms-2 align-middle';
+            badge.style.float = 'right';
+            badge.style.fontSize = '11px';
+            badge.style.fontWeight = 'bold';
+            badge.textContent = quantidadeAtual;
+            
+            // 🎨 LÓGICA DE ALTERAÇÃO DO BACKGROUND (WARNING vs DARK)
+            if (temAlerta && quantidadeAtual > 0) {
+                // 1. Limpamos de forma estrita as clases do modo escuro/normal
+                badge.classList.remove('bg-dark', 'text-light');
+                
+                // 2. Aplicamos as clases de aviso (Fondo amarelo, texto escuro)
+                badge.classList.add('bg-warning', 'text-dark');
+                badge.title = "Novos processos recebidos recentemente!";
+                
+                // FORZAR ESTILO INLINE (Garantía extra para o Modo Claro)
+                // Se o CSS do sistema fose moi agresivo, isto asegura o contraste:
+                badge.style.setProperty('color', '#000000', 'important');
+                badge.style.setProperty('background-color', '#ffc107', 'important');
+            } else {
+                // 1. Limpamos as clases de aviso
+                badge.classList.remove('bg-warning', 'text-dark');
+                
+                // 2. Volvemos ao estado estándar (Fondo escuro, texto claro)
+                badge.classList.add('bg-dark', 'text-light');
+                badge.removeAttribute('title');
+                
+                // Limpamos os estilos inline para que volva ao deseño por defecto
+                badge.style.removeProperty('color');
+                badge.style.removeProperty('background-color');
+            }
+
+            link.appendChild(badge);
+
+            //limpa alerta
+            link.addEventListener('click', () => {
+                limparAlertaDaPasta(pastaId);
+            });
+        });
+    });
+}
+
+// Função para remover o estado de alerta de uma pasta específica após o clique do usuário
+function limparAlertaDaPasta(pastaId) {
+    chrome.storage.local.get(['mapeamentoPastasProcessos'], (result) => {
+        const dadosMapeados = result.mapeamentoPastasProcessos || {};
+        let houveAlteracao = false;
+
+        // Procura a pasta correspondente ao ID para desligar o alerta
+        for (const codigoGrupo in dadosMapeados) {
+            const grupo = dadosMapeados[codigoGrupo];
+            for (const nomePasta in grupo) {
+                if (String(grupo[nomePasta].codigo) === String(pastaId)) {
+                    if (grupo[nomePasta].alertaNovo) {
+                        grupo[nomePasta].alertaNovo = false; // 🔓 Remove o alerta
+                        houveAlteracao = true;
+                    }
+                    break;
+                }
+            }
+            if (houveAlteracao) break;
+        }
+
+        // Se realmente mudou o estado, salva no storage e atualiza o visual na hora
+        if (houveAlteracao) {
+            chrome.storage.local.set({ mapeamentoPastasProcessos: dadosMapeados }, () => {
+                console.log(`🧼 Alerta removido para a pasta ID: ${pastaId}`);
+                atualizarBadgesPastas(); // Atualiza a tela tirando o bg-warning
+            });
+        }
+    });
+}
 
 
 //FIM DAS FUNÇÕES
@@ -3088,6 +3363,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   // 1. Carrega as configurações no início
 loadSettings(true);
 
+
     // CHAMADA DE INICIALIZAÇÃO COM SEGURANÇA E ASYNC
    // CHAMADA DE INICIALIZAÇÃO NO FINAL DO CONTENT.JS
 setTimeout(async () => {
@@ -3103,19 +3379,8 @@ setTimeout(async () => {
             return window.location.href.includes('/processo/') && window.location.hash.includes('#dg922');
         }
 
-        // Exemplo de execução
-if (window.location.href.includes('/CaixaEntrada')) {
-    // 1. Extrai a lista do HTML atual da home
-    console.log("🏁 Página inicial detectada. Atualizando processos...");
-    
-    // 1. Extrai a lista do HTML atual da página
-    const estruturaMapeada = extrairEstruturaPastas();
-    
-    // 2. Se encontrou pastas na página, executa a busca e armazenamento
-    if (Object.keys(estruturaMapeada).length > 0) {
-        mapearProcessosDasPastas(estruturaMapeada);
-    }
-}
+
+
 
 // Escuta mudanças de hash (ex: de #dp para #dg922) sem recarregar a página
         window.addEventListener('hashchange', () => {
@@ -3152,10 +3417,39 @@ if (window.location.href.includes('/CaixaEntrada')) {
         }
 
         if (isPastaUrl2() || isPastaUrl()) {
+         
+
             await carregarEAgruparTodasAsPaginas();
             initializeFeatures();
         }
 
+
+            // Exemplo de execução
+            if (window.location.href.includes('/CaixaEntrada')) {
+                // 1. Extrai a lista do HTML atual da home
+                console.log("🏁 Página inicial detectada. Atualizando processos...");
+                
+                // 1. Extrai a lista do HTML atual da página
+                const estruturaMapeada = extrairEstruturaPastas();
+                
+                // 2. Se encontrou pastas na página, executa a busca e armazenamento
+                if (Object.keys(estruturaMapeada).length > 0) {
+                    mapearProcessosDasPastas(estruturaMapeada);
+                }
+            }
+
+
+if (window.location.href.includes('/CaixaEntrada/GerenciarPastas')) {
+    console.log('Injetando controle de Badges na Tabela...');
+    injetarSwitchesGerenciamento();
+}
+
+    // Executa a renderização dos Badges
+    atualizarBadgesPastas();
+
+
+
+        
         if (isProcessoDetailUrl()) {
             initializeProcessoDetailTags();
             checkAndPromptTagRemovalOnDetail();

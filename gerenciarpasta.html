@@ -1,0 +1,718 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="url:base" content="/" />
+    <meta name="web-pki-license" content="AiIAKi5pbnRyYS5wZywqLnByYWlhZ3JhbmRlLnNwLmdvdi5icgAAAgBDQQAAAAHF1xnY2IMgR07q9/yq5R/HFiqrFXTGyLiZEJmayPVebOzEVvfW0o/4o4p0Z+O++GMDkOMCZKJoF9LkkFBq0S3tpgEnuDQvfTPECaiMjBGklo5mH8v6AdUSn9KOJdbSy/IPWFRtTBR8nXWd9LoSC26DWnQj4BTUIQOG4o1geUKw6rxHjNCR0BoOBG+70JYOK0+FJw4QQRpCn1kjwEgbOOlWHeIcMQBdKQ2trO7W+mTYOvLC0eJpex7ZBQ87ahSXdxvM492Kto5KUDiOHMlDVBe4UiDWPMxj+uN/gDogOTuS1HSOJkCfBWDySwXU/lgQwWms1X+MsKVCtWwKwX8Xivbd" />
+    <title>Processo Digital</title>
+    <link rel="shortcut icon" href="/content/favicon2.png" />
+
+    <script src="/Content/lib/fullcalendar-6.1.17/dist/index.global.min.js"></script>
+    <script src="/Content/lib/fullcalendar-6.1.17/packages/core/locales/pt-br.global.min.js"></script>
+    <script src="/Content/lib/fullcalendar-6.1.17-popper/popper.min.js"></script>
+    <script src="/Content/lib/fullcalendar-6.1.17-tooltip/tooltip.min.js"></script>
+    <script src="/Content/lib/sweetAlert2/sweetalert2@9.js"></script>
+
+    <link href="/content/lib/p/css?v=gxRInhmXX2RZXZqDsCN7elljxTF9UlrQx96OrfP3a2w1" rel="stylesheet"/>
+
+    <link href="/content/site/p/css?v=KybpEyhwZBkoVLy2oCspwXVyb2Ll50qzPVBAq3vwTdU1" rel="stylesheet"/>
+
+    <script src="/content/lib/js?v=YblreNeHiRguhpYlpDofoNa9A6V1c2QLSurv517qj1Q1"></script>
+
+    <script src="/content/site/p/js?v=g515-Iz9wWF72LoQXJqFKxTn5k9syeo911IIWBELTOU1"></script>
+
+    <script src="/content/componentes/plugins?v=OcwQmVbl3wn2500FVPDw1LsFkJTHfrwmY5YOHdc-K3U1"></script>
+
+
+    <link href="/content/web/prod/processo-digital@vendors.css?v=4a20e4f769ef799d80cff695f361c3eb022df3a40d9326ee5ff5472c31b79683" rel="stylesheet" />
+<link href="/content/web/prod/processo-digital@aplicacao.css?v=4a20e4f769ef799d80cff695f361c3eb022df3a40d9326ee5ff5472c31b79683" rel="stylesheet" />
+<link href="/content/web/prod/processo-digital@impromptu.css?v=4a20e4f769ef799d80cff695f361c3eb022df3a40d9326ee5ff5472c31b79683" rel="stylesheet" />
+
+    
+</head>
+<body class="layout-principal">
+
+    <audio id="somNotificacao" src="/Content/sons/notification.mp3" preload="auto"></audio>
+
+    <div id="toast" class="toastify toast-mensagem --alerta toastify-left toastify-bottom" style="bottom: 15px;">
+        <span class="toast-close">✖</span>
+        <span class="toast-message"></span>
+    </div>
+
+    <a href="#_conteudo" class="sr-apenas --focus">Ir para o conteúdo</a>
+
+    <header class="layout-principal-cabecalho">
+        
+
+<nav class="navegacao-principal" role="navigation">
+    <div class="navegacao">
+        <div class="navegacao-principal-item navegacao-principal-logo">
+            <a class="navegacao-principal-botao" href="/" title="Ir para o início" aria-label="Ir para o início">
+                <img class="imagem_grande" src="/content/img/logoHORIZONTAL2.png" height="30" alt="Brasão" aria-hidden="true" />
+                <img class="imagem_pequena" src="/content/img/logo_pqno_sem_borda.png" height="30" alt="Brasão" aria-hidden="true" />
+            </a>
+        </div>
+        
+            <div class="navegacao-principal-item navegacao-principal-ativador-menu">
+                <button class="navegacao-principal-botao" data-toggle="offcanvas" data-target="#_pg-navmenu.pg-navmenu">
+                    <i class="navegacao-principal-icone fa fa-bars" aria-hidden="true"></i>
+                </button>
+            </div>
+    </div>
+    <div class="navegacao --direita">
+            <div class="navegacao-principal-item navegacao-principal-menu-container">
+                <button class="navegacao-principal-botao navegacao-principal-menu-ativador" title="Mostrar opções da conta" aria-haspopup="true" aria-label="Mostrar opções da conta">
+                    <img class="navegacao-principal-avatar" src="/content/avatar-generico.svg" aria-hidden="true" />
+                    <span class="navegacao-principal-usuario">Nicolas</span>
+                    <i class="fa fa-caret-down" aria-hidden="true"></i>
+                </button>
+                <nav class="navegacao-principal-menu" role="menu" tabindex="-1">
+                    <header class="navegacao-principal-menu-secao -cabecalho">
+                        <label>Nicolas Leite Araujo</label>
+                    </header>
+
+
+                    <section class="navegacao-principal-menu-secao">
+                        
+
+                        <a class="navegacao-principal-menu-item" href="https://loginunicointerno.praiagrande.sp.gov.br/Home/">
+                            <i class="navegacao-principal-menu-icone fa fa-pencil-square-o" aria-hidden="true"></i>
+                            <span>Alterar dados de cadastro</span>
+                        </a>
+
+                        <a class="navegacao-principal-menu-item" href="/auth/logout">
+                            <i class="navegacao-principal-menu-icone fa fa-power-off" aria-hidden="true"></i>
+                            <span>Sair</span>
+                        </a>
+                    </section>
+                </nav>
+            </div>
+
+        <div class="navegacao-principal-item navegacao-principal-menu-container">
+            <button class="navegacao-principal-botao navegacao-principal-menu-ativador" title="Opções de acessibilidade" aria-haspopup="true" aria-label="Mostrar opções da conta">
+                <i class="navegacao-principal-menu-icone fa fa-universal-access" aria-hidden="true"></i>
+                <i class="fa fa-caret-down" aria-hidden="true"></i>
+            </button>
+            <nav class="navegacao-principal-menu" role="menu" tabindex="-1">
+                <section class="navegacao-principal-menu-secao">
+
+                    <a class="navegacao-principal-menu-item increase-font" href="#">
+                        <i class="navegacao-principal-menu-icone fa fa-plus" aria-hidden="true"></i>
+                        <span>Aumentar Letra</span>
+                    </a>
+
+                    <a class="navegacao-principal-menu-item decrease-font" href="#">
+                        <i class="navegacao-principal-menu-icone fa fa-minus" aria-hidden="true"></i>
+                        <span>Diminuir Letra</span>
+                    </a>
+
+                    <a class="navegacao-principal-menu-item toggle-dark-theme" href="#">
+                        <i class="navegacao-principal-menu-icone fa fa-lightbulb-o" aria-hidden="true"></i>
+                        <span>Alterar Contraste</span>
+                    </a>
+                </section>
+            </nav>
+        </div>
+
+        <div class="navegacao-principal-item">
+            <a class="navegacao-principal-botao" href="/paginainicial" title="Ir para a página inicial">
+                <span class="sr-apenas">Ir para a página inicial</span>
+                <i class="navegacao-principal-icone fa fa-home" aria-hidden="true"></i>
+            </a>
+        </div>
+
+        <div class="navegacao-principal-item navegacao-principal-menu-container">
+            <button class="navegacao-principal-botao navegacao-principal-menu-ativador" title="Mais informações" aria-haspopup="true" aria-label="Mais informações">
+                <i class="navegacao-principal-menu-icone fa fa-info-circle info-icone" aria-hidden="true"></i>
+                <i class="fa fa-caret-down" aria-hidden="true"></i>
+            </button>
+            <nav class="navegacao-principal-menu" role="menu" tabindex="-1">
+                <section class="navegacao-principal-menu-secao">
+
+                    <a class="navegacao-principal-menu-item" href="#" id="mostrarAtualizacoes" title="Ver as últimas atualizações do Sistema">
+                        <i class="navegacao-principal-menu-icone fa fa-fire" aria-hidden="true"></i>
+                        <span>Últimas atualizações</span>
+                    </a>
+                    <a class="navegacao-principal-menu-item" href="/dashboard" title="Ver indicadores do Sistema">
+                        <i class="navegacao-principal-menu-icone fa fa-bar-chart" aria-hidden="true"></i>
+                        <span>Indicadores </span>
+                    </a>
+                    <a class="navegacao-principal-menu-item" href="/manual" title="Ver o manual online">
+                        <i class="navegacao-principal-menu-icone fa fa-question-circle" aria-hidden="true"></i>
+                        <span>Manual </span>
+                    </a>
+
+                </section>
+            </nav>
+        </div>
+
+        <!-- ÍCONES
+        <div class="navegacao-principal-item">
+            <a class="navegacao-principal-botao" href="/manual" title="Ver o manual online">
+                <span class="sr-apenas">Ver o manual online</span>
+                <i class="navegacao-principal-icone fa fa-question-circle" aria-hidden="true"></i>
+            </a>
+        </div>
+        <div class="navegacao-principal-item">
+            <a class="navegacao-principal-botao" href="/dashboard" title="Ver indicadores do Sistema">
+                <span class="sr-apenas">Ver indicadores do sistema</span>
+                <i class="navegacao-principal-icone fa fa-bar-chart" aria-hidden="true"></i>
+            </a>
+        </div>-->
+    </div>
+</nav>
+
+    <div class="navbar navbar-default navbar-collapse collapse pg-icon-menu">
+        <div class="container">
+            <ul id="_pg-icon-menu" class="nav navbar-nav navbar-center">
+                    <li class="dropdown">
+        <a href="/requerimentos/" id="item-menu-solicitar-abertura-de-processo" class="dropdown-toggle"  >
+            <img src="/content/menu/Requerimento_processo.png" alt="Ícone do item de menu Solicitar Abertura de Processo" />
+            <span>Solicitar Abertura de Processo</span>
+        </a>
+
+    </li>
+    <li class="dropdown">
+        <a href="/CaixaEntrada" id="item-menu-caixa-de-entrada" class="dropdown-toggle"  >
+            <img src="/content/menu/caixa_entrada.png" alt="Ícone do item de menu Caixa de Entrada" />
+            <span>Caixa de Entrada</span>
+        </a>
+
+    </li>
+    <li class="dropdown">
+        <a href="/consulta" id="item-menu-consulta-de-processos" class="dropdown-toggle"  >
+            <img src="/content/menu/processo.png" alt="Ícone do item de menu Consulta de Processos" />
+            <span>Consulta de Processos</span>
+        </a>
+
+    </li>
+    <li class="dropdown">
+        <a href="/CadastroUnico/Consulta" id="item-menu-pessoas-f&#237;sicas" class="dropdown-toggle"  >
+            <img src="/content/menu/pessoas_fisicas.png" alt="Ícone do item de menu Pessoas F&#237;sicas" />
+            <span>Pessoas F&#237;sicas</span>
+        </a>
+
+    </li>
+    <li class="dropdown">
+        <a href="/GrupoLocal" id="item-menu-locais" class="dropdown-toggle"  >
+            <img src="/content/menu/grupoLocalx.png" alt="Ícone do item de menu Locais" />
+            <span>Locais</span>
+        </a>
+
+    </li>
+    <li class="dropdown">
+        <a href="/Mensagem" id="item-menu-mensagens" class="dropdown-toggle"  target=_blank>
+            <img src="/content/menu/Message.png" alt="Ícone do item de menu Mensagens" />
+            <span>Mensagens</span>
+        </a>
+
+    </li>
+    <li class="dropdown">
+        <a href="/Notificacoes" id="item-menu-&#225;rea-de-notifica&#231;&#245;es" class="dropdown-toggle"  >
+            <img src="/content/menu/Area_Notificacoes.png" alt="Ícone do item de menu &#193;rea de Notifica&#231;&#245;es" />
+            <span>&#193;rea de Notifica&#231;&#245;es</span>
+        </a>
+
+    </li>
+    <li class="dropdown">
+        <a href="#" id="item-menu-par&#226;metros" class="dropdown-toggle" data-toggle=dropdown >
+            <img src="/content/menu/parametros.png" alt="Ícone do item de menu Par&#226;metros" />
+            <span>Par&#226;metros</span>
+                <i class="fa fa-caret-down" aria-hidden="true"></i>
+        </a>
+
+            <div class="dropdown-menu" role="menu">
+                <ul class="nav">
+                        <li class="dropdown">
+        <a href="/parametro/tipo-assunto" id="item-menu-t&#237;tulo" class="dropdown-toggle"  >
+            <img src="/content/menu/assunto.png" alt="Ícone do item de menu T&#237;tulo" />
+            <span>T&#237;tulo</span>
+        </a>
+
+    </li>
+    <li class="dropdown">
+        <a href="/Parametros/TipoDocumento" id="item-menu-tipo-de-documento" class="dropdown-toggle"  >
+            <img src="/content/menu/tipodocumento.png" alt="Ícone do item de menu Tipo de Documento" />
+            <span>Tipo de Documento</span>
+        </a>
+
+    </li>
+    <li class="dropdown">
+        <a href="/Parametros/LocalPrefeitura" id="item-menu-local-prefeitura" class="dropdown-toggle"  >
+            <img src="/content/menu/local.png" alt="Ícone do item de menu Local Prefeitura" />
+            <span>Local Prefeitura</span>
+        </a>
+
+    </li>
+
+                </ul>
+            </div>
+    </li>
+
+            </ul>
+        </div>
+    </div>
+    <div id="_pg-navmenu" class="navmenu navmenu-default navmenu-fixed-left offcanvas-sm collapse pg-navmenu">
+        <button type="button" class="close-button" data-toggle="offcanvas" data-target="#_pg-navmenu.pg-navmenu">&times;</button>
+        <ul id="_pg-icon-navmenu" class="nav navmenu-nav pg-icon-menu">
+                <li class="dropdown">
+                    <a href="/manual" class="dropdown-toggle">
+                        <img src="/content/menu/manual.png" alt="Ícone do manual online" />
+                        <span>Manual online</span>
+                    </a>
+                </li>
+                <li class="divider"></li>
+                <li class="dropdown">
+        <a href="/requerimentos/" id="item-menu-solicitar-abertura-de-processo" class="dropdown-toggle"  >
+            <img src="/content/menu/Requerimento_processo.png" alt="Ícone do item de menu Solicitar Abertura de Processo" />
+            <span>Solicitar Abertura de Processo</span>
+        </a>
+
+    </li>
+    <li class="dropdown">
+        <a href="/CaixaEntrada" id="item-menu-caixa-de-entrada" class="dropdown-toggle"  >
+            <img src="/content/menu/caixa_entrada.png" alt="Ícone do item de menu Caixa de Entrada" />
+            <span>Caixa de Entrada</span>
+        </a>
+
+    </li>
+    <li class="dropdown">
+        <a href="/consulta" id="item-menu-consulta-de-processos" class="dropdown-toggle"  >
+            <img src="/content/menu/processo.png" alt="Ícone do item de menu Consulta de Processos" />
+            <span>Consulta de Processos</span>
+        </a>
+
+    </li>
+    <li class="dropdown">
+        <a href="/CadastroUnico/Consulta" id="item-menu-pessoas-f&#237;sicas" class="dropdown-toggle"  >
+            <img src="/content/menu/pessoas_fisicas.png" alt="Ícone do item de menu Pessoas F&#237;sicas" />
+            <span>Pessoas F&#237;sicas</span>
+        </a>
+
+    </li>
+    <li class="dropdown">
+        <a href="/GrupoLocal" id="item-menu-locais" class="dropdown-toggle"  >
+            <img src="/content/menu/grupoLocalx.png" alt="Ícone do item de menu Locais" />
+            <span>Locais</span>
+        </a>
+
+    </li>
+    <li class="dropdown">
+        <a href="/Mensagem" id="item-menu-mensagens" class="dropdown-toggle"  target=_blank>
+            <img src="/content/menu/Message.png" alt="Ícone do item de menu Mensagens" />
+            <span>Mensagens</span>
+        </a>
+
+    </li>
+    <li class="dropdown">
+        <a href="/Notificacoes" id="item-menu-&#225;rea-de-notifica&#231;&#245;es" class="dropdown-toggle"  >
+            <img src="/content/menu/Area_Notificacoes.png" alt="Ícone do item de menu &#193;rea de Notifica&#231;&#245;es" />
+            <span>&#193;rea de Notifica&#231;&#245;es</span>
+        </a>
+
+    </li>
+    <li class="dropdown">
+        <a href="#" id="item-menu-par&#226;metros" class="dropdown-toggle" data-toggle=dropdown >
+            <img src="/content/menu/parametros.png" alt="Ícone do item de menu Par&#226;metros" />
+            <span>Par&#226;metros</span>
+                <i class="fa fa-caret-down" aria-hidden="true"></i>
+        </a>
+
+            <div class="dropdown-menu" role="menu">
+                <ul class="nav">
+                        <li class="dropdown">
+        <a href="/parametro/tipo-assunto" id="item-menu-t&#237;tulo" class="dropdown-toggle"  >
+            <img src="/content/menu/assunto.png" alt="Ícone do item de menu T&#237;tulo" />
+            <span>T&#237;tulo</span>
+        </a>
+
+    </li>
+    <li class="dropdown">
+        <a href="/Parametros/TipoDocumento" id="item-menu-tipo-de-documento" class="dropdown-toggle"  >
+            <img src="/content/menu/tipodocumento.png" alt="Ícone do item de menu Tipo de Documento" />
+            <span>Tipo de Documento</span>
+        </a>
+
+    </li>
+    <li class="dropdown">
+        <a href="/Parametros/LocalPrefeitura" id="item-menu-local-prefeitura" class="dropdown-toggle"  >
+            <img src="/content/menu/local.png" alt="Ícone do item de menu Local Prefeitura" />
+            <span>Local Prefeitura</span>
+        </a>
+
+    </li>
+
+                </ul>
+            </div>
+    </li>
+
+        </ul>
+    </div>
+
+<script>
+    $('#mostrarAtualizacoes').on('click', function () {
+        $('#boas-vindas-backdrop, #boas-vindas-panel').remove();
+
+        Aprimoramento('desenvolvimento', {
+            versao: '8.5',
+            urlBoasVindas: '/boas-vindas',
+            urlNovidades: '/content/novidades.json?v=4a20e4f769ef799d80cff695f361c3eb022df3a40d9326ee5ff5472c31b79683',
+            reiniciar: true
+        });
+    });
+</script>
+
+
+<style>
+    .imagem_grande {
+        display: block;
+    }
+
+    .imagem_pequena {
+        display: none;
+    }
+
+    @media(max-width: 500px) {
+        .imagem_grande {
+            display: none;
+        }
+
+        .imagem_pequena {
+            display: block;
+        }
+    }
+</style>
+    </header>
+
+    <a id="_conteudo"></a>
+
+    <main class="layout-principal-corpo">
+        
+
+
+
+
+<div class="pg-content pg-content-md">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="row">
+
+                <div class="col-sm-10 pg-text-container">
+                    <p class="pg-text-middle text-info">
+                        <a href="/CaixaEntrada" class="btn btn-link btn-info pg-btn-icon">
+                            <span class="fa fa-2x fa-arrow-circle-left"></span>
+                        </a>&nbsp;
+                        <span>Gerenciar Pastas de <strong>SEAD-5111</strong></span>
+                    </p>
+                </div>
+                <div class="col-sm-2">
+                    <a class="btn btn-success pull-right" href="/CaixaEntrada/Pastas/InserirPasta?codigo=922">
+                        <span class="glyphicon glyphicon-plus"></span> Adicionar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- consulta
+        
+        -->
+
+        <div id="consulta">
+                <div class="pg-table-container" >
+                    <div class="table-responsive">
+                        <table class="table table-striped pg-table">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:center">
+                                        <div class="dropdown"><a class="dropdown-toggle"><span>Nome</span> <span class="glyphicon"></span></a></div>
+                                    </th>
+                                    <th style="text-align:center">
+                                        <div class="dropdown"><a class="dropdown-toggle"><span>Descrição</span> <span class="glyphicon"></span></a></div>
+                                    </th>
+                                    <th class="text-center">
+                                        <div class="dropdown"><a class="dropdown-toggle"><span>Ações</span> <span class="glyphicon"></span></a></div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                    <tr>
+                                        <td class="col-xs-2 text-center">
+                                            EXTRATOS PUBLICADOS
+                                        </td>
+                                        <td class="col-xs-4 text-center">
+                                            PUBLICA&#199;&#195;O DE EXTRATOS
+                                        </td>
+                                        <td class="col-xs-1 text-center">
+                                            <a href="/CaixaEntrada/Pastas/EditarPasta?codigo=4866" class="btn btn-info pg-btn-icon" title="Editar pasta do grupo">
+                                                <span class="glyphicon glyphicon-pencil" title="Editar"></span>
+                                            </a>
+                                            <a href="/CaixaEntrada/Pastas/Remover?codigo=4866" class="btn btn-info pg-btn-icon" title="Remover pasta do grupo">
+                                                <span class="glyphicon glyphicon-trash" title="Remover"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="col-xs-2 text-center">
+                                            JOS&#201; LUIZ
+                                        </td>
+                                        <td class="col-xs-4 text-center">
+                                            CONTRATOS
+                                        </td>
+                                        <td class="col-xs-1 text-center">
+                                            <a href="/CaixaEntrada/Pastas/EditarPasta?codigo=1811" class="btn btn-info pg-btn-icon" title="Editar pasta do grupo">
+                                                <span class="glyphicon glyphicon-pencil" title="Editar"></span>
+                                            </a>
+                                            <a href="/CaixaEntrada/Pastas/Remover?codigo=1811" class="btn btn-info pg-btn-icon" title="Remover pasta do grupo">
+                                                <span class="glyphicon glyphicon-trash" title="Remover"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="col-xs-2 text-center">
+                                            LAIZE
+                                        </td>
+                                        <td class="col-xs-4 text-center">
+                                            LAIZE
+                                        </td>
+                                        <td class="col-xs-1 text-center">
+                                            <a href="/CaixaEntrada/Pastas/EditarPasta?codigo=1805" class="btn btn-info pg-btn-icon" title="Editar pasta do grupo">
+                                                <span class="glyphicon glyphicon-pencil" title="Editar"></span>
+                                            </a>
+                                            <a href="/CaixaEntrada/Pastas/Remover?codigo=1805" class="btn btn-info pg-btn-icon" title="Remover pasta do grupo">
+                                                <span class="glyphicon glyphicon-trash" title="Remover"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="col-xs-2 text-center">
+                                            LAIZE (GER., PAG. E PATRIM.)
+                                        </td>
+                                        <td class="col-xs-4 text-center">
+                                            GERENCIAMENTO, PAGAMENTO E PATRIM&#212;NIO
+                                        </td>
+                                        <td class="col-xs-1 text-center">
+                                            <a href="/CaixaEntrada/Pastas/EditarPasta?codigo=3963" class="btn btn-info pg-btn-icon" title="Editar pasta do grupo">
+                                                <span class="glyphicon glyphicon-pencil" title="Editar"></span>
+                                            </a>
+                                            <a href="/CaixaEntrada/Pastas/Remover?codigo=3963" class="btn btn-info pg-btn-icon" title="Remover pasta do grupo">
+                                                <span class="glyphicon glyphicon-trash" title="Remover"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="col-xs-2 text-center">
+                                            LUIS (AGUARDAR)
+                                        </td>
+                                        <td class="col-xs-4 text-center">
+                                            PUBLICA&#199;&#195;O
+                                        </td>
+                                        <td class="col-xs-1 text-center">
+                                            <a href="/CaixaEntrada/Pastas/EditarPasta?codigo=1807" class="btn btn-info pg-btn-icon" title="Editar pasta do grupo">
+                                                <span class="glyphicon glyphicon-pencil" title="Editar"></span>
+                                            </a>
+                                            <a href="/CaixaEntrada/Pastas/Remover?codigo=1807" class="btn btn-info pg-btn-icon" title="Remover pasta do grupo">
+                                                <span class="glyphicon glyphicon-trash" title="Remover"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="col-xs-2 text-center">
+                                            LUIS (GERENCIAMENTO E PAGAMENTO)
+                                        </td>
+                                        <td class="col-xs-4 text-center">
+                                            PUBLICA&#199;&#195;O
+                                        </td>
+                                        <td class="col-xs-1 text-center">
+                                            <a href="/CaixaEntrada/Pastas/EditarPasta?codigo=1806" class="btn btn-info pg-btn-icon" title="Editar pasta do grupo">
+                                                <span class="glyphicon glyphicon-pencil" title="Editar"></span>
+                                            </a>
+                                            <a href="/CaixaEntrada/Pastas/Remover?codigo=1806" class="btn btn-info pg-btn-icon" title="Remover pasta do grupo">
+                                                <span class="glyphicon glyphicon-trash" title="Remover"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="col-xs-2 text-center">
+                                            LUIS (PUBLICAR)
+                                        </td>
+                                        <td class="col-xs-4 text-center">
+                                            PUBLICA&#199;&#195;O
+                                        </td>
+                                        <td class="col-xs-1 text-center">
+                                            <a href="/CaixaEntrada/Pastas/EditarPasta?codigo=1808" class="btn btn-info pg-btn-icon" title="Editar pasta do grupo">
+                                                <span class="glyphicon glyphicon-pencil" title="Editar"></span>
+                                            </a>
+                                            <a href="/CaixaEntrada/Pastas/Remover?codigo=1808" class="btn btn-info pg-btn-icon" title="Remover pasta do grupo">
+                                                <span class="glyphicon glyphicon-trash" title="Remover"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="col-xs-2 text-center">
+                                            MATHEUS
+                                        </td>
+                                        <td class="col-xs-4 text-center">
+                                            LEGISLA&#199;&#195;O
+                                        </td>
+                                        <td class="col-xs-1 text-center">
+                                            <a href="/CaixaEntrada/Pastas/EditarPasta?codigo=1809" class="btn btn-info pg-btn-icon" title="Editar pasta do grupo">
+                                                <span class="glyphicon glyphicon-pencil" title="Editar"></span>
+                                            </a>
+                                            <a href="/CaixaEntrada/Pastas/Remover?codigo=1809" class="btn btn-info pg-btn-icon" title="Remover pasta do grupo">
+                                                <span class="glyphicon glyphicon-trash" title="Remover"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="col-xs-2 text-center">
+                                            NICOLAS
+                                        </td>
+                                        <td class="col-xs-4 text-center">
+                                            CONTRATOS
+                                        </td>
+                                        <td class="col-xs-1 text-center">
+                                            <a href="/CaixaEntrada/Pastas/EditarPasta?codigo=3076" class="btn btn-info pg-btn-icon" title="Editar pasta do grupo">
+                                                <span class="glyphicon glyphicon-pencil" title="Editar"></span>
+                                            </a>
+                                            <a href="/CaixaEntrada/Pastas/Remover?codigo=3076" class="btn btn-info pg-btn-icon" title="Remover pasta do grupo">
+                                                <span class="glyphicon glyphicon-trash" title="Remover"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!--consulta
+                    
+                    -->
+
+                </div>
+
+        </div>
+
+    </div>
+
+    
+
+<div class="circulo-carregando --centro --absoluto" id="carregando" role="status" style="display: none;">
+    <span class="sr-only">Carregando</span>
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </main>
+
+    <footer class="layout-principal-rodape rodape simples">
+        <div class="navegacao --centro">
+            <span>&copy; MEBPG Desenvolvido por SEPLAN - Secretaria de Planejamento - 2018.</span>
+        </div>
+    </footer>
+
+    <script src="/content/web/prod/processo-digital@pollyfills.js?v=4a20e4f769ef799d80cff695f361c3eb022df3a40d9326ee5ff5472c31b79683"></script>
+<script src="/content/web/prod/processo-digital@vendors.js?v=4a20e4f769ef799d80cff695f361c3eb022df3a40d9326ee5ff5472c31b79683"></script>
+<script src="/content/web/prod/processo-digital@runtime.js?v=4a20e4f769ef799d80cff695f361c3eb022df3a40d9326ee5ff5472c31b79683"></script>
+<script src="/content/web/prod/processo-digital@aplicacao.js?v=4a20e4f769ef799d80cff695f361c3eb022df3a40d9326ee5ff5472c31b79683"></script>
+<script src="/content/web/prod/processo-digital@aplicacao-comum.js?v=4a20e4f769ef799d80cff695f361c3eb022df3a40d9326ee5ff5472c31b79683"></script>
+<script src="/content/web/prod/processo-digital@impromptu.js?v=4a20e4f769ef799d80cff695f361c3eb022df3a40d9326ee5ff5472c31b79683"></script>
+    
+
+
+
+
+<script>
+    pg.inicializar({
+        ambiente: 'producao',
+        boasVindas: {
+            versao: '9.1',
+            urlBoasVindas: '/boas-vindas',
+            urlNovidades: '/content/novidades.json?v=4a20e4f769ef799d80cff695f361c3eb022df3a40d9326ee5ff5472c31b79683',
+        },
+        dadosMensagem: undefined,
+        configVerificacaoMensagem: {
+            url: '/Mensagem/MensagemLida',
+            imagem: '/Content/menu/recado.png',
+        },
+        configVerificacaoRequerimento: {
+            url: '/Notificacoes/VerificaNotificacoes',
+            imagem: '/Content/menu/Area_Notificacoes_Nova.png',
+        },
+        consolidado: {
+            appUrl: '/',
+        },
+    });
+</script>
+
+    <style>
+        .toastify {
+            z-index: 1;
+        }
+
+        @media screen and (max-width: 1252px) {
+            #mostrarAtualizacoes {
+                margin-bottom: 10px;
+            }
+        }
+
+        @media screen and (max-width: 925px) {
+
+            span#Titulo_Novidades {
+                font-size: 1.1rem;
+            }
+
+            span#Subtitulo_novidades {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+
+            span#Titulo_Novidades {
+                font-size: 1.1rem;
+            }
+
+            span#Subtitulo_novidades {
+                font-size: 0.8rem;
+            }
+        }
+
+    </style>
+</body>
+</html>
