@@ -844,9 +844,21 @@ footer.layout-principal-rodape.rodape.simples {
 }
 
 
+.pg-info, .pg-panel-footer {
+    position: relative;
+    padding: 14px 14px 14px 56px;
+    margin-bottom: 10px;
+    margin-left: 3px;
+    margin-right: 3px;
+    min-height: 50px;
+    border: 1px solid #1212125c !important;
+    background-color: #2a2a2a !important;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, .175);
+}
 
-
-
+.pg-panel {
+    border: 0px solid #efefef;
+}
                 ` : ''}
             `;
 
