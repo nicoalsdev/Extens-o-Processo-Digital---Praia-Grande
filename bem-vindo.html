@@ -3,13 +3,15 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bem-vindo à Extensão Tags</title>
+    <title>Manual de Uso - Extensão Gerenciador do Processo Digital</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
-        
-  <link rel="stylesheet" href="css/sweetalert2.min.css">
+    <link rel="stylesheet" href="css/sweetalert2.min.css">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    
+    <script defer src="js/img-comparison-slider.js"></script>
+    <link rel="stylesheet" href="css/img-comparison-slider.css"/>
 
-  <link href="css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-color: #1976d2; 
@@ -18,14 +20,13 @@
             --bs-success: var(--secondary-color);
         }
         body {
-            background-color: var(--bs-light);
+            background-color: #f8f9fa;
             line-height: 1.6;
         }
-        /* Estilo customizado para o container central */
         .welcome-card {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
             border-radius: 12px;
-            padding: 2rem;
+            padding: 2.5rem;
             margin-top: 2rem;
             margin-bottom: 2rem;
         }
@@ -36,226 +37,372 @@
             margin-bottom: 1.5rem;
         }
         h2 {
-            color: var(--bs-success);
-            font-size: 1.4rem;
-            margin-top: 1.5rem;
-            padding-bottom: 0.2rem;
-            border-bottom: 1px solid #eee;
+            font-size: 1.5rem;
+            margin-top: 0.5rem;
+            padding-bottom: 0.3rem;
         }
+        .section-divider {
+            border-top: 3px dashed #dee2e6;
+            margin: 3rem 0;
+        }
+        
+        /* --- REVISÃO DA LÓGICA DE CORES INTERCALADAS (AZUL / VERDE) --- */
         .feature-block {
+            border-radius: 0 8px 8px 0;
+            transition: transform 0.2s;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Blocos Ímpares: Azul */
+        .feature-block:nth-of-type(odd) {
             border-left: 5px solid var(--bs-primary);
-            background-color: #f1f8ff;  Lightest blue */
+            background-color: #f1f8ff;
         }
-        .feature-block:nth-child(odd) {
-            border-left-color: var(--bs-success);
-            background-color: #fff;
+        .feature-block:nth-of-type(odd) h2 {
+            color: var(--bs-primary);
         }
+        
+        /* Blocos Pares: Verde */
+        .feature-block:nth-of-type(even) {
+            border-left: 5px solid var(--bs-success);
+            background-color: #f6fff6;
+        }
+        .feature-block:nth-of-type(even) h2 {
+            color: var(--bs-success);
+        }
+
         .step-list {
             list-style: none;
             padding-left: 0;
         }
         .step-list li {
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.6rem;
             display: flex;
             align-items: flex-start;
         }
         .step-list .icon {
-            color: var(--bs-primary);
             font-size: 1.1rem;
-            margin-right: 0.5rem;
+            margin-right: 0.6rem;
             flex-shrink: 0;
             padding-top: 2px;
         }
+        /* Cor dos ícones interna da lista acompanhando o bloco */
+        .feature-block:nth-of-type(odd) .step-list .icon { color: var(--bs-primary); }
+        .feature-block:nth-of-type(even) .step-list .icon { color: var(--bs-success); }
 
-        /* --- ESTILOS DE DEMONSTRAÇÃO --- */
-        .demo-box {
-            overflow: hidden;
-            min-height: 12rem;
-            border: 1px dashed #adb5bd;
-            border-radius: 0.3rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start; 
-            font-size: 0.8rem;
-            text-align: center;
-            color: #6c757d;
-            position: relative;
-            padding: 0.8rem;
-            margin-bottom: 0.5rem;
-            overflow: hidden; /* Importante para o iframe */
-        }
-        /* Iframe de Configurações (480x550) */
-        .settings-demo-box {
-            overflow: hidden;
-            width: 480px; 
-            height: 400px; 
-            padding: 5px; 
-            border: 1px solid var(--bs-primary);
+        .media-box {
             background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-        #settingsIframe {
-            width: 100%; 
-            height: 95%; 
-            border: none;
-            background-color: #fff; 
-        }
-
-        /* Tags Rápidas */
-        .tags-gallery {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-            justify-content: center;
-        }
-        .quick-tag-btn {
-            padding: 0.3rem 0.6rem;
-            border-radius: 0.25rem;
-            font-weight: bold;
-            color: white;
-            border: 2px solid;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: transform 0.1s;
-        }
-        .quick-tag-btn:hover {
-            opacity: 0.8;
-            transform: scale(1.05);
-        }
-        .toast-success {
-            position: absolute;
-            bottom: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 0.25rem;
-            color: white;
-            font-weight: bold;
-            font-size: 0.75rem;
-            display: none; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            z-index: 100;
-        }
-
-        /* Popup Manual */
-        .popup-sim-form {
-            display: flex; 
-            flex-direction: column; 
-            gap: 0.5rem; 
+        img-comparison-slider {
             width: 100%;
+            max-width: 700px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #dee2e6;
         }
-        .popup-sim-row button {
-             /* Estilo do botão de salvar, usando classes do Bootstrap */
-             background: var(--bs-primary);
+        figcaption {
+            position: absolute;
+            top: 10px;
+            background: rgba(0,0,0,0.7);
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
         }
+        .before figcaption { left: 10px; }
+        .after figcaption { right: 10px; }
     </style>
 </head>
-<body class='text-dark bg-white'>
+<body class='text-dark'>
     <div class="container">
         <div class="welcome-card bg-white">
+            
             <h1 class="text-center d-flex justify-content-center align-items-center gap-2">
-                <i class="fa fa-tags"></i>
-                Bem-vindo(a) à Extensão Tags!
+                <i class="fa fa-cubes text-primary"></i>
+                Manual do Gerenciador - Processo Digital
             </h1>
+            <p class="lead text-center mb-5">Sua extensão foi atualizada com sucesso! Confira abaixo o guia completo de todas as ferramentas disponíveis para otimizar seu fluxo de trabalho.</p>
 
-            <p class="lead text-center mb-5">Parabéns! Sua extensão "Gerenciador - Processo Digital" foi instalada. Siga o tutorial abaixo para começar a usar de forma rápida e eficiente.</p>
-
-            <div class="feature-block p-3 mb-4">
-                <h2><i class="fa fa-cogs"></i> 1. Configurar Tags Rápidas e Opções</h2>
-                <div class="row g-3 align-items-start">
-                    <div class="col-md-7">
-                        <p>O primeiro passo é configurar suas tags favoritas e personalizar as opções da extensão. Você pode acessar esta tela a qualquer momento clicando no <img src="icon.png" class="" style="width: 20px; height: 20px; vertical-align: bottom;">.</p>
-                        <h3>Passo a Passo:</h3>
-                        <ul class="step-list text-left">
-                            <li>
-                                <p><span class="icon"><i class="fa fa-mouse-pointer"></i></span> <strong>Acesse:</strong> &nbsp;Clique nas sua extensões e depois no Ícone da Extensão: <img src="icon.png" class="" style="width: 20px; height: 20px; vertical-align: middle; "></p></li>
-                            <li>
-                                <span class="icon"><i class="fa fa-list-check"></i></span> <strong>Ajuste:</strong> &nbsp; Defina o `Tipo de Menu` e as opções de `Ordenação`.
-                            </li>
-                            <li>
-                                <span class="icon"><i class="fa fa-tags"></i></span><strong>Crie:</strong> &nbsp; Adicione suas Tags Rápidas personalizadas (Nome e Cor).</li>
-
-                        </ul>
-                    </div>
-                    
-                    <div class="col-md-5 d-flex justify-content-center justify-content-md-end">
-                        <div class="demo-box settings-demo-box shadow">
-                            <p class="m-0 font-weight-bold text-primary">Simulação Real da Tela de Configurações:</p>
-                            <iframe id="settingsIframe" src="settings.html" title="Configurações da Extensão" frameborder="0"  scrolling="no"></iframe>
+            <div class="mb-5">
+                <h3 class="text-uppercase fw-bold text-secondary mb-4"><i class="fa fa-sliders"></i> 1. Configurações Iniciais</h3>
+                
+                <div class="feature-block">
+                    <h2><i class="fa fa-gear"></i> Painel de Controle e Preferências</h2>
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-7">
+                            <ul class="step-list">
+                                <li>
+                                    <span class="icon"><i class="fa fa-window-maximize"></i></span> 
+                                    <div><strong>Abrir Popup:</strong> Clique no ícone da extensão na barra de ferramentas do seu navegador para abrir o painel de acesso rápido.</div>
+                                </li>
+                                <li>
+                                    <span class="icon"><i class="fa fa-sort-amount-down-alt"></i></span> 
+                                    <div><strong>Opções de Ordenação da Caixa de Entrada e das Pastas:</strong> Configure as regras de prioridade e a ordem padrão de exibição dos seus processos nas listagens e pastas monitoradas.</div>
+                                </li>
+                                <li>
+                                    <span class="icon"><i class="fa fa-bars-staggered"></i></span> 
+                                    <div><strong>Estilo de Menu:</strong> Alterne e personalize o visual dos menus da extensão para se adequarem melhor à sua tela de trabalho.</div>
+                                </li>
+                                <li>
+                                    <span class="icon"><i class="fa fa-plus-circle"></i></span> 
+                                    <div><strong>Criar Tags Rápidas:</strong> Defina seus modelos favoritos de tags com nomes e cores personalizadas para aplicação em lote ou clique único.</div>
+                                </li>
+                                <li>
+                                    <span class="icon"><i class="fa fa-arrows-left-right-to-line"></i></span> 
+                                    <div><strong>Posição das Tags Rápidas:</strong> Escolha e ajuste o local e o layout onde os botões de tags rápidas serão exibidos na interface do sistema.</div>
+                                </li>
+                                <li>
+                                    <span class="icon"><i class="fa fa-file-import"></i></span> 
+                                    <div><strong>Importar/Exportar Tags:</strong> Faça backup das suas tags personalizadas ou transfira suas configurações para outro computador de forma simples.</div>
+                                </li>
+                            </ul>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="feature-block p-3 mb-4">
-                <h2><i class="fa fa-hand-pointer"></i> 2. Marcação Rápida (Botão Direito)</h2>
-                <div class="row g-3 align-items-start">
-                    <div class="col-md-8">
-                        <p>A forma mais rápida de usar a extensão. <strong>Basta ir para a página inicial do processo digital e clicar com o botão direito</strong> em um processo. As Tags Rápidas que você configurou (na Seção 1) aparecerão!</p>
-                        <h3>Tutorial e Benefícios:</h3>
-                        <ul class="step-list">
-                            <li><span class="icon"><i class="fa fa-right-to-bracket"></i></span> <strong>Ação Principal:</strong> Clique com o Botão Direito no item da lista de processos.</li>
-                            <li><span class="icon"><i class="fa fa-tags"></i></span> Escolha uma Tag Rápida no menu.</li>
-                            <li><span class="icon"><i class="fa fa-bolt"></i></span> <strong>Velocidade:</strong> Aplicação instantânea sem abrir janelas.</li>
-                            <li><span class="icon"><i class="fa fa-check-circle"></i></span> <strong>Teste:</strong> Clique em qualquer tag ao lado para simular a aplicação instantânea.</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="col-md-4 d-flex justify-content-center justify-content-md-end">
-                        <div class="demo-box shadow" id="quickTagsDemo" style="width: 100%; max-width: 300px; height: 180px;">
-                            <p class="mb-2">Clique em uma Tag Rápida:</p>
-                            <div id="quickTagsGallery" class="tags-gallery">
-                                <p class="text-muted" style="font-size: 0.7rem;">Carregando suas tags...</p>
+                        <div class="col-md-5 text-center">
+                            <div class="media-box">
+                                <img src="tutorial/1 abrir menu.gif" alt="Configurações Iniciais" class='img-fluid rounded'>
                             </div>
-                            <div id="simulationToast" class="toast-success"></div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="feature-block p-3 mb-4">
-                <h2><i class="fa fa-window-restore"></i> 3. Popup: Criação Manual de Tags</h2>
-                 <div class="row g-3 align-items-start">
-                    <div class="col-md-8">
-                        <p>Use o Popup (o ícone da extensão) para criar uma tag com nome e cor personalizados, uma a uma. Isso é útil para tags únicas que não precisam ser salvas como Tags Rápidas.</p>
-                        <h3>Como Funciona a Criação Manual:</h3>
-                        <ul class="step-list">
-                            <li><span class="icon"><i class="fa fa-pencil-alt"></i></span> Permite customizar Nome e Cor antes de salvar.</li>
-                            <li><span class="icon"><i class="fa fa-id-badge"></i></span> O ID do processo é preenchido automaticamente.</li>
-                            <li><span class="icon"><i class="fa fa-save"></i></span> A tag é salva no histórico do processo.</li>
-                        </ul>
-                    </div>
-
-                    <div class="col-md-4 d-flex justify-content-center justify-content-md-end">
-                        <div class="demo-box shadow" id="popupDemo" style="width: 100%; max-width: 300px; height: 250px;">
-                            <p class="mb-2 fw-bold text-primary">Simulação do Popup</p>
-                            
-                            <div class="popup-sim-form">
-                                <input type="text" id="simProcessId" class="form-control form-control-sm" placeholder="ID do Processo (Ex: 12345)" value="75350" readonly>
-                                <input type="text" id="simTagName" class="form-control form-control-sm" placeholder="Nome da Tag (Ex: Novo Cliente)">
-                                
-                                <div class="popup-sim-row d-flex gap-2 align-items-center">
-                                    <input type="color" id="simTagColor" value="#9C27B0" class="form-control form-control-color" style="flex-shrink: 0; width: 40px; height: 36px; padding: 2px;">
-                                    <button id="simSaveBtn" class="btn btn-sm btn-primary flex-grow-1">Salvar Tag</button>
-                                </div>
+                <div class="feature-block">
+                    <h2><i class="fa fa-hand-pointer"></i> Manipulação de Tags nos Processos</h2>
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-7">
+                            <ul class="step-list">
+                                <li><span class="icon"><i class="fa fa-bolt"></i></span> <div><strong>Aplicar Tags:</strong> Clique com o botão direito sobre qualquer processo na lista para aplicar uma Tag Rápida instantaneamente.</div></li>
+                                <li><span class="icon"><i class="fa fa-pen"></i></span> <div><strong>Editar Tags:</strong> Modifique os metadados, cores ou títulos de tags já existentes diretamente pelo painel.</div></li>
+                                <li><span class="icon"><i class="fa fa-trash"></i></span> <div><strong>Excluir Tags / Excluir Todas:</strong> Remova tags individuais de um processo ou use a função de limpeza em lote para apagar todas as tags rápidas configuradas.</div></li>
+                                <li><span class="icon"><i class="fa fa-filter"></i></span> <div><strong>Excluir Tags Rápidas:</strong> Gerencie sua lista de favoritos removendo as que não usa mais nas opções.</div></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-5 text-center">
+                            <div class="media-box">
+                                <img src="tutorial/tags-aplicacao.gif" alt="Aplicando e Editando Tags" class='img-fluid rounded'>
                             </div>
+                        </div>
+                    </div>
+                </div>
 
-                            <div id="popupSimulationToast" class="toast-success"></div>
+                <div class="feature-block">
+                    <h2><i class="fa fa-sort-amount-down"></i> Ordenação de Processos</h2>
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-7">
+                            <p>Utilize o sistema inteligente de ordenação para listar os processos de acordo com a data de recebimento deles. Podendo ser listado do mais recente para o mais antigo ou do mais antigo para o mais recente</p>
+                        </div>
+                        <div class="col-md-5 text-center">
+                            <div class="media-box">
+                                <img src="tutorial/ordenar-processos.png" alt="Ordenação de Processos" class='img-fluid rounded'>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <p class="text-center text-muted mt-5">Sua extensão está pronta para uso!</p>
+            <div class="section-divider"></div>
+
+            <div class="mb-5">
+                <h3 class="text-uppercase fw-bold text-secondary mb-4"><i class="fa fa-folder-open"></i> 2. Acompanhamento e Pastas</h3>
+                <div class="feature-block">
+                    <h2><i class="fa fa-eye"></i> Acompanhar Pastas</h2>
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-7">
+                            <p>Monitore setores ou pastas específicas do sistema digital. A extensão avisa sempre que houver novas movimentações ou novos processos inseridos nos ambientes monitorados.</p>
+                        </div>
+                        <div class="col-md-5 text-center">
+                            <div class="media-box">
+                                <img src="tutorial/acompanhar-pastas.png" alt="Acompanhamento de Pastas" class='img-fluid rounded'>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="mb-5">
+                <h3 class="text-uppercase fw-bold text-secondary mb-4"><i class="fa fa-table-columns"></i> 3. Fluxo de Trabalho (Kanban)</h3>
+                <div class="feature-block">
+                    <h2><i class="fa fa-square-poll-horizontal"></i> Gestão Visual de Processos</h2>
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-7">
+                            <ul class="step-list">
+                                <li><span class="icon"><i class="fa fa-folder-plus"></i></span> <div><strong>Adicionar ao Kanban:</strong> Envie processos digitais para o seu quadro Kanban com um clique.</div></li>
+                                <li><span class="icon"><i class="fa fa-arrows-clip"></i></span> <div><strong>Mover Cards:</strong> Arraste e solte os processos entre as colunas personalizadas para alterar o status do fluxo.</div></li>
+                                <li><span class="icon"><i class="fa fa-box"></i></span> <div><strong>Processo Físico:</strong> Sinalize e rastreie de forma diferenciada os processos que possuem volumes físicos na repartição.</div></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-5 text-center">
+                            <div class="media-box">
+                                <img src="tutorial/kanban-fluxo.gif" alt="Demonstração do Kanban" class='img-fluid rounded'>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="mb-5">
+                <h3 class="text-uppercase fw-bold text-secondary mb-4"><i class="fa fa-file-shield"></i> 4. Gestão de Documentos e Arquivos</h3>
+                
+                <div class="feature-block">
+                    <h2><i class="fa fa-file-import"></i> Envio e Organização Automática</h2>
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-7">
+                            <ul class="step-list">
+                                <li><span class="icon"><i class="fa fa-cloud-arrow-up"></i></span> <div><strong>Envio de Documentos:</strong> Realize o upload em lote de arquivos PDF e minutas diretamente para as peças do processo.</div></li>
+                                <li><span class="icon"><i class="fa fa-folder-tree"></i></span> <div><strong>Organização de Arquivos:</strong> Padronização automática de nomenclaturas e separação de documentos por categorias inteligentes.</div></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-5 text-center">
+                            <div class="media-box">
+                                <img src="tutorial/organizacao-arquivos.png" alt="Organização de Arquivos" class='img-fluid rounded'>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="mb-5">
+                <h3 class="text-uppercase fw-bold text-secondary mb-4"><i class="fa fa-circle-half-stroke"></i> 5. Customização de Interface</h3>
+                <div class="feature-block">
+                    <h2><i class="fa fa-moon"></i> Modo Escuro (Dark Mode)</h2>
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-5">
+                            <p>Proteja sua visão durante longas jornadas de trabalho. O Modo Escuro adapta toda a interface do sistema para tons confortáveis. Sendo uma opção melhor do que a alteração de constante nativa da platadorma</p>
+                            <p class="text-muted small"><i class="fa fa-left-right"></i> Arraste a barra central do slider ao lado para comparar!</p>
+                        </div>
+                        <div class="col-md-12 d-flex justify-content-center">
+                            <img-comparison-slider>
+                                <figure slot="first" class="before">
+                                    <img width="100%" src="tutorial/before.png">
+                                    <figcaption>Antes (Padrão)</figcaption>
+                                </figure>
+                                <figure slot="second" class="after">
+                                    <img width="100%" src="tutorial/after.png">
+                                    <figcaption>Depois (Modo Escuro)</figcaption>
+                                </figure>
+                            </img-comparison-slider>
+
+                               
+                        </div>
+                        <div class="col-md-12 d-flex justify-content-center">
+                            <img-comparison-slider>
+                                <figure slot="first" class="before">
+                                    <img width="100%" src="tutorial/before2.png">
+                                    <figcaption>Antes (Padrão)</figcaption>
+                                </figure>
+                                <figure slot="second" class="after">
+                                    <img width="100%" src="tutorial/after2.png">
+                                    <figcaption>Depois (Modo Escuro)</figcaption>
+                                </figure>
+                            </img-comparison-slider>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="mb-5">
+                <h3 class="text-uppercase fw-bold text-secondary mb-4"><i class="fa fa-signature"></i> 6. Painel de Controle do Assinador</h3>
+                <div class="feature-block">
+                    <h2><i class="fa fa-table-list"></i> Recursos do Módulo de Assinaturas</h2>
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-7">
+                            <ul class="step-list">
+                                <li><span class="icon"><i class="fa fa-table"></i></span> <div><strong>Modo Tabela:</strong> Alterne a visualização padrão do assinador para um formato de tabela limpo, compacto e fácil de filtrar.</div></li>
+                                <li><span class="icon"><i class="fa fa-info-circle"></i></span> <div><strong>Informações Expandidas:</strong> Veja dados cruciais do processo logo na listagem inicial sem precisar abrir o processo inteiro.</div></li>
+                                <li><span class="icon"><i class="fa fa-file-signature"></i></span> <div><strong>Assinaturas:</strong> Status detalhado de quem já assinou e quais assinaturas ainda estão pendentes.</div></li>
+                                <li><span class="icon"><i class="fa fa-filter"></i></span> <div><strong>Pastas e Filtros:</strong> Triagem avançada de lotes de documentos enviados para conferência.</div></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-5 text-center">
+                            <div class="media-box">
+                                <img src="tutorial/painel-assinador.png" alt="Módulo Assinador" class='img-fluid rounded'>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="mb-5">
+                <h3 class="text-uppercase fw-bold text-secondary mb-4"><i class="fa fa-user-tie"></i> 7. Fluxo de Assinatura de Gabinete</h3>
+                <div class="feature-block">
+                    <h2><i class="fa fa-paper-plane"></i> Assinador Digital e Secretários</h2>
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-7">
+                            <p>Módulo especializado para o envio e despacho célere de documentos que exigem a assinatura digital direta dos Secretários e Chefias de Gabinete, centralizando o status do envio.</p>
+                        </div>
+                        <div class="col-md-5 text-center">
+                            <div class="media-box">
+                                <img src="tutorial/assinador-secretarios.gif" alt="Envio para Secretários" class='img-fluid rounded'>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="mb-5">
+                <h3 class="text-uppercase fw-bold text-secondary mb-4"><i class="fa fa-paste"></i> 8. Formalização e Comunicação</h3>
+                <div class="feature-block">
+                    <h2><i class="fa fa-briefcase"></i> Ferramentas de Contratos</h2>
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-7">
+                            <ul class="step-list">
+                                <li><span class="icon"><i class="fa fa-envelope-open-text"></i></span> <div><strong>E-mail Integrado:</strong> Modelos e envio de notificações para interessados direto da tela do processo.</div></li>
+                                <li><span class="icon"><i class="fa fa-calculator"></i></span> <div><strong>Cota e Cálculo:</strong> Lançamento de cotas e acompanhamento de valores contratuais.</div></li>
+                                <li><span class="icon"><i class="fa fa-file-contract"></i></span> <div><strong>Formalizar:</strong> Geração assistida de termos de contratos e termos aditivos padronizados.</div></li>
+                                <li><span class="icon"><i class="fa fa-list-check"></i></span> <div><strong>Quadro Resumo:</strong> Painel condensado com os dados mais vitais do contrato para conferência rápida.</div></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-5 text-center">
+                            <div class="media-box">
+                                <img src="tutorial/formalizacao-contratos.png" alt="Formalização de Contratos" class='img-fluid rounded'>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="mb-5">
+                <h3 class="text-uppercase fw-bold text-secondary mb-4"><i class="fa fa-link"></i> 9. Central de Acessos</h3>
+                <div class="feature-block">
+                    <h2><i class="fa fa-globe"></i> Sites e Links Úteis</h2>
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-7">
+                            <p>Um repositório de links rápidos integrado diretamente nas opções da extensão, conectando você aos diários oficiais, sistemas internos e portais de consulta sem precisar preencher favoritos no navegador.</p>
+                        </div>
+                        <div class="col-md-5 text-center">
+                            <div class="media-box">
+                                <img src="tutorial/links-uteis.png" alt="Links Úteis" class='img-fluid rounded'>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-center text-muted mt-5">Pronto! Sua extensão está configurada para maximizar sua produtividade.</p>
 
         </div>
     </div>
 
-        <!-- Importação do JS do SweetAlert2 LOCAL -->
-        <script src="js/sweetalert2.min.js"></script>
-        <!-- Importação do JS do Bootstrap 5 LOCAL -->
-        <script src="js/bootstrap.min.js"></script>
-    <script src="bem-vindo.js"></script>
-    
-<script src="theme.js"></script>
+    <script src="js/sweetalert2.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="theme.js"></script>
 </body>
 </html>

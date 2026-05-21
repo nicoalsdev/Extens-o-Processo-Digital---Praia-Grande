@@ -825,7 +825,7 @@ div .pg-pagination ul.pagination.nav > li.active > a, .pg-pagination.active{
 }
 
     .conteudo-aba-processo {
-    background: transparent !important; 
+    background: #1e1e1e !important; 
     border: none;
     }
 
