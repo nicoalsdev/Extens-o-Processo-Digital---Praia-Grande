@@ -65,10 +65,10 @@ function showConfirmation(title, text, confirmButtonText, icon = 'warning') {
 
 
 const DEFAULT_SETTINGS = {
-    sortHomepage: false,
+    sortHomepage: true,
     sortFolders: true,
     showTags: true,
-    menuType: 'Simples',
+    menuType: 'Avancado',//'Simples',
     darkMode: false // 👈 adicionar
 
 };
