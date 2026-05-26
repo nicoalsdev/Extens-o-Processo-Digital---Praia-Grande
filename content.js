@@ -3219,6 +3219,25 @@ function limparAlertaDaPasta(pastaId) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //FIM DAS FUNÇÕES
 
 

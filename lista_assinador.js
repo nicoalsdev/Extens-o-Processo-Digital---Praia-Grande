@@ -249,13 +249,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Listener do select de filtros
     document.getElementById("selectGrupo")?.addEventListener("change", filtrarMisto);
 
-    // Listener do Botão de Troca de Visualização (Tabela/Cards)
-    document.getElementById("toggleView")?.addEventListener("click", (e) => {
-        e.preventDefault();
-        modoTabela = !modoTabela;
-        localStorage.setItem("assinador_modo_tabela", modoTabela);
-        aplicarModoVisualizacao(todosDocumentos, false);
-    });
 
     // Input de busca por Enter
     document.getElementById("Busca")?.addEventListener("keydown", function (e) {
@@ -272,8 +265,6 @@ if (documentsList) {
         // Ações de grupos na Tabela
         const btnAddTab = e.target.closest(".btn-adicionar-ao-grupo");
         const btnRemTab = e.target.closest(".btn-remover-do-grupo");
-        // Ações de grupos nos Cards
-        const btnCardGrupo = e.target.closest(".btn-add-grupo-card");
         
         // Ações Utilitárias de link e cópia
         const btnCopy = e.target.closest('.btn-copy-link');
@@ -284,15 +275,7 @@ if (documentsList) {
         } else if (btnRemTab) {
             e.preventDefault();
             removerProcessoDoGrupo(btnRemTab.getAttribute("data-id"));
-        } else if (btnCardGrupo) {
-            e.preventDefault();
-            const id = btnCardGrupo.getAttribute("data-id");
-            if (btnCardGrupo.getAttribute("data-modo") === "rem") {
-                removerProcessoDoGrupo(id);
-            } else {
-                adicionarProcessoAoGrupo(id);
-            }
-        } else if (btnCopy) {
+        }else if (btnCopy) {
             const link = btnCopy.getAttribute('data-link');
             if (link) {
                 navigator.clipboard.writeText(link).then(() => showToast("success", "Link copiado!"));
@@ -809,98 +792,7 @@ function preloadListaBusca() {
     }, 100);
 }
 
-// ================================================
-// ATUALIZAÇÃO ASSÍNCRONA DE ASSINATURAS (CORREÇÃO FINAL DE CLASSE)
-// ================================================
 
-async function updateCardDetails(doc, cardElement) {
-    if (!cardElement) return;
-
-    const rawLink = doc.Link_x0020_Documento;
-    const link = sanitizeLinkField(rawLink);
-    const idAssinador = extrairIdAssinador(link || rawLink);
-
-    const signers = idAssinador ? await buscarAssinaturas(idAssinador) : [];
-    const concluidosAtuais = signers.length;
-    const totalEsperado = Number(doc.Contagem) || 0;
-
-    const assinadas = concluidosAtuais;
-    const total = totalEsperado;
-
-    // status calculado
-    let textoHeader = "Aguardando Assinaturas";
-    let newTextColorClass = "text-dark";
-    let additionalHeaderClasses = []; // bg / border / text-* que adicionaremos
-
-    if (total > 0 && assinadas >= total) {
-        textoHeader = "Pronto para convocar";
-        newTextColorClass = "text-success";
-        additionalHeaderClasses.push("bg-white", "text-dark", "border", "border-success");
-    } else if (assinadas > 0 && assinadas < total) {
-        textoHeader = "Aguardando Assinaturas";
-        newTextColorClass = "text-warning";
-        additionalHeaderClasses.push("bg-secondary", "text-white");
-    } else if (assinadas === 0 && total > 0) {
-        textoHeader = "Aguardando Assinaturas";
-        newTextColorClass = "text-danger";
-        additionalHeaderClasses.push("border", "border-danger");
-    } else {
-        // Caso sem contagem definida
-        textoHeader = "Sem contagem definida";
-        newTextColorClass = "text-muted";
-    }
-
-    const EditarBtn = `<a target="_blank" href="http://www.intra.pg/SEAD/_layouts/15/listform.aspx?PageType=6&ListId=%7BDA67FC64%2D1B63%2D4608%2DB859%2D8DE4BC9B1FD8%7D&ID=${doc.ID}" class="btn btn-outline-white btn-sm"><i class="fa fa-cog" aria-hidden="true"></i></a>`;
-    const btnGrupo = `<button class="btn btn-sm  btn-add-grupo" data-id="${doc.ID}">
-                    <i class="fa fa-folder-plus"></i>
-</button>`;
-    // Seleciona via data-attributes (mais confiável)
-const cardHeader = cardElement.querySelector('[data-card-header]');
-const cardFooterStrong = cardElement.querySelector('[data-card-footer-count]');
-const titleElement = cardElement.querySelector('[data-card-title]');
-
-    // Lista de classes de cor/borda que podemos querer remover antes de aplicar novas
-const colorsAndBorders = [
-    "bg-white", "bg-secondary",
-    "text-dark", "text-white", "text-success", "text-warning", "text-danger", "text-muted",
-    "border", "border-success", "border-danger"
-];
-
-    // Atualiza header: remove classes conflitantes e aplica as novas
-if (cardHeader) {
-        // garante que as classes base de layout existam
-    cardHeader.classList.add("card-header", "d-flex", "justify-content-between", "align-items-center", "p-2");
-
-        // remove classes de cores/bordas antigas
-    colorsAndBorders.forEach(c => cardHeader.classList.remove(c));
-
-        // adiciona as classes de estado calculadas
-    additionalHeaderClasses.forEach(c => cardHeader.classList.add(c));
-
-        // atualiza o conteúdo interno (preserva estrutura simples)
-    cardHeader.innerHTML = `
-        <span>${EditarBtn}</span>
-        <span class="flex-grow-1">${textoHeader}</span>
-
-
-        <span></span>
-    `;
-}
-
-    // Atualiza footer (contador)
-if (cardFooterStrong) {
-        // remove classes antigas e aplica a nova
-    colorsAndBorders.forEach(c => cardFooterStrong.classList.remove(c));
-    cardFooterStrong.classList.add(newTextColorClass);
-    cardFooterStrong.textContent = `${assinadas} / ${total}`;
-}
-
-    // Atualiza o título (classe de cor)
-if (titleElement) {
-    colorsAndBorders.forEach(c => titleElement.classList.remove(c));
-    titleElement.classList.add('text-dark');
-}
-}
 
 // =======================================================================
 // TRIANGULAÇÃO: SECRETARIAS x ASSINATADORES (função original do usuário)
@@ -964,109 +856,7 @@ function mapearAssinaturasPorSecretaria(assinaturas, secretarias, locaisProcesso
 }
 
 
-// ------------------------------
-// Render (cards) - Otimizado com isSearch
-// ------------------------------
-// ------------------------------
-// Render (cards) - Otimizado para SEMPRE usar dados SharePoint no primeiro render
-// ------------------------------
-// ------------------------------
-// Render (cards) - Otimizado para SEMPRE usar dados SharePoint no primeiro render
-// ------------------------------
-// Renomeei isSearch para isInitialLoad. Se true, significa que é a lista inicial do Assinador.
-async function renderLista(lista, isInitialLoad = true) {
 
-    let html = `<div class="row">`;
-
-    for (const doc of lista) {
-
-        const rawLink = doc.Link_x0020_Documento;
-        const link = sanitizeLinkField(rawLink);
-        const id = doc.ID;
-
-        const assinadas = Number(doc.Concluidos) || 0;
-        const total = Number(doc.Contagem) || 0;
-
-        // ============================
-        //   LÓGICA DE CORES / STATUS
-        // ============================
-        let classeHeader = "card-header d-flex justify-content-between align-items-center p-2";
-        let textoHeader = "Aguardando Assinaturas";
-        let footerColor = "text-dark";
-
-        if (total > 0 && assinadas >= total) {
-            classeHeader += " bg-white text-dark border border-success";
-            textoHeader = "Pronto para convocar";
-            footerColor = "text-success";
-        }
-        else if (assinadas > 0 && assinadas < total) {
-            classeHeader += " bg-secondary text-white";
-            textoHeader = "Aguardando Assinaturas";
-            footerColor = "text-warning";
-        }
-        else if (assinadas === 0 && total > 0) {
-            classeHeader += " border border-danger";
-            textoHeader = "Aguardando Assinaturas";
-            footerColor = "text-danger";
-        }
-
-        const editBtn = `
-            <a target="_blank" 
-               href="http://www.intra.pg/SEAD/_layouts/15/listform.aspx?PageType=6&ListId=%7BDA67FC64-1B63-4608-B859-8DE4BC9B1FD8%7D&ID=${id}"
-               class="btn btn-outline-white btn-sm">
-                <i class="fa fa-cog"></i>
-            </a>
-        `;
-        const valorFiltro = document.getElementById("selectGrupo")?.value || "todos";
-// Só mostra o botão de remover se o filtro começar explicitamente com "grupo:"
-        const isModoGrupo = valorFiltro.startsWith("grupo:");
-
-        const botaoGrupo = `
-    <button class="btn ${isModoGrupo ? 'btn-outline-danger' : ''} btn-sm" 
-            onclick="${isModoGrupo ? `removerProcessoDoGrupo('${doc.ID}')` : `adicionarProcessoAoGrupo('${doc.ID}')`}"
-            title="${isModoGrupo ? 'Remover deste grupo' : 'Adicionar a um grupo'}">
-        <i class="fa ${isModoGrupo ? 'fa-trash' : 'fa-folder-plus'}"></i>
-    </button>
-        `;
-
-        const cardId = `doc-card-${id}`;
-
-        html += `
-<div class="col-3 mb-3">
-  <div class="card text-center shadow-sm" id="${cardId}">
-
-    <div class="${classeHeader}" data-card-header>
-        <span>${editBtn}</span>
-            <span>${botaoGrupo}</span>
-        <span class="flex-grow-1">${textoHeader}</span>
-        <span></span>
-    </div>
-
-    <a href="${link || '#'}" target="_blank" class="text-decoration-none">
-      <div class="card-body">
-        <h5 class="card-title text-dark" data-card-title>${doc.Title || ""}</h5>
-        <p class="card-text small text-muted">${doc.Categoria || ""}</p>
-      </div>
-    </a>
-
-    <div class="card-footer text-muted">
-      Assinaturas: <strong data-card-footer-count class="${footerColor}">
-        ${assinadas} / ${total}
-      </strong>
-    </div>
-  </div>
-</div>
-        `;
-    }
-
-    html += "</div>";
-    documentsList.innerHTML = html;
-
-    // Atualização REAL dos contadores
-    if (isInitialLoad) {
-        startRealSignaturesUpdate(lista);
-    }
-}
 
 //CRIADORES - GRUPOS - FILTROS
 
@@ -1383,7 +1173,10 @@ function formatarData(dataISO) {
 // RENDERIZAÇÃO EM TABELA (NOVO)
 // ===================================================
 function renderTabela(lista) {
-
+    const container = document.getElementById("documents-list");
+    if (!container) return;
+    
+    container.innerHTML = "";
     let html = `
     <table id="documents-table" class="table table-bordered table-striped shadow-sm">
 
@@ -1582,24 +1375,6 @@ document.addEventListener('click', function (e) {
 
 
 
-// 🚨 NOVO: Inicia a busca real para cada documento em background
-function startRealSignaturesUpdate(documentos) {
-    // Usar setTimeout com um pequeno delay ou Promise.allSettled
-    // para não bloquear a thread principal em uma única iteração
-
-    documentos.forEach((doc, index) => {
-        // Um pequeno timeout para espaçar as chamadas e não sobrecarregar
-        setTimeout(async () => {
-            const cardElement = document.getElementById(`doc-card-${doc.ID}`);
-            if (cardElement) {
-                // Atualiza o card de forma assíncrona
-                await updateCardDetails(doc, cardElement);
-            }
-        }, 50 * index); // 50ms de delay entre cada atualização
-    });
-    
-    // NOTA: Não precisa de hideLoading() aqui, pois já foi feito na loadAssinador
-}
 
 // ------------------------------
 // Busca (10k) -> filtra e renderiza como cards também
@@ -1708,89 +1483,24 @@ async function loadAssinador() {
     //await renderLista(filtrados); 
     
     hideLoading();
-    ligarToggleButton();
     //console.log(todosDocumentos);
     renderizarOpcoesMistas();
-    aplicarModoVisualizacao(todosDocumentos, true);
+    aplicarModoVisualizacao(todosDocumentos);
 
 // 🚀 PRÉ-CARREGA A LISTA COMPLETA EM BACKGROUND PARA ACELERAR AS BUSCAS
     preloadListaBusca();
 }
 
-// ===================================================
-// BOTÃO DE TROCAR VISUALIZAÇÃO
-// ===================================================
-// ===================================================
-// BOTÃO DE TROCAR VISUALIZAÇÃO (AGORA COM LOCALSTORAGE)
-// ===================================================
-let modoTabela = localStorage.getItem("assinador_modo_tabela") === "true";
 
 // função unificada que aplica o modo visual (recebe a lista a ser renderizada)
 // isInitialLoad -> true somente quando é a primeira render após carregamento do SharePoint
-function aplicarModoVisualizacao(listaParaExibir = todosDocumentos, isInitialLoad = false) {
-    // garante que o botão existe (se por acaso foi injetado dinamicamente)
-    const toggleBtn = document.getElementById("toggleView");
-    if (toggleBtn) {
-        toggleBtn.innerText = modoTabela ? "🗂 Visualizar como Cards" : "📄 Visualizar como Tabela";
-    }
+function aplicarModoVisualizacao(listaParaExibir = todosDocumentos) {
     atualizarContagem(listaParaExibir.length);
-
-    if (modoTabela) {
-        // renderiza tabela
-        renderTabela(listaParaExibir || []);
-        // tabela não precisa de atualização de assinaturas assíncrona aqui
-    } else {
-        // renderiza cards
-        // renderLista mantém o html dos cards, mas vamos garantir a atualização das assinaturas
-        renderLista(listaParaExibir || [], false);
-
-        // FORÇAR atualização real de assinaturas para os cards atuais
-        // usa a função já existente startRealSignaturesUpdate
-        // se a listaParaExibir for diferente de todosDocumentos (ex.: resultado de busca),
-        // passamos essa lista para atualizar apenas os cards mostrados.
-        if (typeof startRealSignaturesUpdate === "function") {
-            startRealSignaturesUpdate(listaParaExibir || []);
-        } else {
-            // fallback: percorre e atualiza manualmente (robusto)
-            (listaParaExibir || []).forEach((doc, idx) => {
-                setTimeout(async () => {
-                    const cardElement = document.getElementById(`doc-card-${doc.ID}`);
-                    if (cardElement && typeof updateCardDetails === "function") {
-                        await updateCardDetails(doc, cardElement);
-                    }
-                }, 40 * idx);
-            });
-        }
-    }
+    renderTabela(listaParaExibir || []);
 }
 
-// Configura evento do botão (com proteção caso o botão ainda não exista no DOM)
-function ligarToggleButton() {
-    const btn = document.getElementById("toggleView");
-    if (!btn) {
-        console.warn("toggleView não encontrado — verifique se o botão está no HTML.");
-        return;
-    }
 
-    // prevenir dupla ligação
-    btn.removeEventListener?.("click", toggleClickHandler);
 
-    btn.addEventListener("click", toggleClickHandler);
-}
-
-function toggleClickHandler(e) {
-    e.preventDefault();
-
-    // Alterna o modo atual
-    modoTabela = !modoTabela;
-
-    // Salva no localStorage
-    localStorage.setItem("assinador_modo_tabela", modoTabela);
-
-    // Reaplica o modo de visualização usando a lista atualmente exibida
-
-    aplicarModoVisualizacao(todosDocumentos, false);
-}
 
 
 // ------------------------------
@@ -1865,14 +1575,144 @@ async function limparCacheBusca() {
 
 
 function garantirGrupo(boardName) {
-   let grupos = JSON.parse(localStorage.getItem("assinador_grupos")) || {};
-
-   if (!grupos[boardName]) {
-       grupos[boardName] = [];
-       localStorage.setItem("assinador_grupos", JSON.stringify(grupos));
-   }
+    let grupos = JSON.parse(localStorage.getItem("assinador_grupos")) || {};
+    if (!grupos[boardName]) {
+        grupos[boardName] = [];
+        localStorage.setItem("assinador_grupos", JSON.stringify(grupos));
+    }
 }
 
+
+// Função para inicializar os componentes visuais de forma segura
+function inicializarInterfaceModoVisual() {
+    // 1. Liga o evento de clique no botão
+    ligarToggleButton();
+    
+    // 2. Aplica o modo inicial que estava salvo no localStorage
+    // Passa a lista atual se ela já existir, ou espera o carregamento do SharePoint
+    const listaInicial = (typeof todosDocumentos !== 'undefined' && todosDocumentos) ? todosDocumentos : [];
+    aplicarModoVisualizacao(listaInicial, true);
+}
+
+// Executa assim que o DOM básico estiver pronto
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", inicializarInterfaceModoVisual);
+} else {
+    inicializarInterfaceModoVisual();
+}
+
+// 🚨 SEGUNDA CAMADA DE PROTEÇÃO (Para injeções dinâmicas de HTML/SharePoint):
+// Se o botão demorar para aparecer no DOM por causa de requisições assíncronas,
+// tentamos ligar ele novamente a cada 1 segundo até encontrá-lo (máximo 5 tentativas)
+let tentativasBotao = 0;
+const checarBotaoInterval = setInterval(() => {
+    const btn = document.getElementById("toggleView");
+    if (btn) {
+        ligarToggleButton();
+        // Atualiza o texto inicial do botão baseado no localStorage
+        btn.innerText = modoTabela ? "🗂 Visualizar como Cards" : "📄 Visualizar como Tabela";
+        clearInterval(checarBotaoInterval);
+    }
+    tentativasBotao++;
+    if (tentativasBotao >= 5) clearInterval(checarBotaoInterval);
+}, 1000);
+
+
+
+// 1. Configuração única e segura para os cliques de delegação do container principal
+function inicializarDelegacaoCliques() {
+    const container = document.getElementById("documents-list");
+    if (!container) return;
+
+    // Remove para evitar duplicados caso a função seja chamada mais de uma vez
+    container.removeEventListener("click", tratarCliquesContainer);
+    container.addEventListener("click", tratarCliquesContainer);
+}
+
+function tratarCliquesContainer(e) {
+    // Identifica o botão clicado (mesmo se clicar no ícone interno)
+    const btnAdd = e.target.closest(".btn-adicionar-ao-grupo");
+    const btnRem = e.target.closest(".btn-remover-do-grupo");
+    const btnCopy = e.target.closest('.btn-copy-link');
+
+    if (btnAdd) {
+        e.preventDefault();
+        adicionarProcessoAoGrupo(btnAdd.getAttribute("data-id"));
+    } 
+    else if (btnRem) {
+        e.preventDefault();
+        removerProcessoDoGrupo(btnRem.getAttribute("data-id"));
+    }
+    else if (btnCardGrupo) {
+        e.preventDefault();
+        const id = btnCardGrupo.getAttribute("data-id");
+        if (btnCardGrupo.getAttribute("data-modo") === "rem") {
+            removerProcessoDoGrupo(id);
+        } else {
+            adicionarProcessoAoGrupo(id);
+        }
+    }
+    else if (btnCopy) {
+        e.preventDefault();
+        const link = btnCopy.getAttribute('data-link');
+        if (link) {
+            navigator.clipboard.writeText(link).then(() => showToast("success", "Link copiado!"));
+        }
+    }
+}
+
+// 2. Ouvinte de verificação de parâmetros da URL pós-carga
+async function verificarParametrosURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const termoBusca = urlParams.get('busca');
+    if (termoBusca) {
+        setTimeout(() => {
+            executarBusca(termoBusca);
+        }, 500);
+    }
+}
+
+// 3. ATIVAÇÃO COMPLETA NO FLUXO CORRETO DE CARREGAMENTO
+// Removemos a chamada duplicada do fim do arquivo para centralizar tudo aqui
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // Inicializa a interface de grupos do localStorage antes do render
+    atualizarSelectGrupos();
+
+    // Executa a carga principal dos documentos vindos do SharePoint
+    loadAssinador().then(() => {
+        // Liga os eventos dinâmicos que dependem dos elementos renderizados
+        inicializarDelegacaoCliques();
+        ligarToggleButton();
+        verificarParametrosURL();
+    });
+
+    // Configuração Botão Voltar (Extensão)
+    const btnVoltar = document.getElementById('VoltaAssinador');
+    if (btnVoltar) {
+        btnVoltar.addEventListener("click", (event) => {
+            event.preventDefault();
+            chrome.storage.local.remove("assinador_preferencia", () => {
+                chrome.runtime.sendMessage({ action: "goToOriginalAssinador" });
+            });
+        });
+    }
+
+    // Configuração Botões Globais do Menu Superior
+    document.getElementById('btnCriarGrupo')?.addEventListener('click', criarNovoGrupo);
+    document.getElementById('btnGerenciarGrupos')?.addEventListener('click', deletarGrupoAtual);
+
+    // Listener do select de filtros estruturado globalmente
+    document.getElementById("selectGrupo")?.addEventListener("change", filtrarMisto);
+
+    // Input de busca por Enter
+    document.getElementById("Busca")?.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            executarBusca();
+        }
+    });
+});
 
 // Coloque isto dentro do seu init ou no final do arquivo
 document.getElementById("documents-list")?.addEventListener("click", function(e) {
@@ -1891,3 +1731,5 @@ document.getElementById("documents-list")?.addEventListener("click", function(e)
         removerProcessoDoGrupo(id);
     }
 });
+
+
