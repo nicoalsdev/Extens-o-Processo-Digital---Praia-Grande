@@ -366,6 +366,13 @@ div.form-upload, form.form-upload {
 .glyphicon:hover,
 a:hover .fa,
 a:hover .glyphicon {
+    color: #ffffff !important;
+}
+
+a.item:hover .fa,
+a.item:hover .glyphicon,
+a.item .fa:hover,
+a.item .glyphicon:hover {
     color: #1e1e1e !important;
     cursor: pointer;
 }
@@ -602,7 +609,7 @@ span:not([class*="tag"]):not([class*="tags"]):not([class*="badge"]) {
         background-color: #187318 !important;
         color: #fff !important;
     }
-     a.btn-success,min btn btn-primary {
+     a.btn-success,min btn btn-primary,button.btn-success {
         background-color: #043f04 !important;
         color: #fff !important;
     }
