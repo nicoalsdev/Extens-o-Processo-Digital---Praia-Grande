@@ -56,7 +56,7 @@ secretarias.forEach((secretaria, index) => {
 
     const spanTexto = document.createElement('span');
     spanTexto.classList.add('checkbox-text');
-    spanTexto.textContent = secretaria.abreviacao;
+    spanTexto.textContent = secretaria.extra + " " + secretaria.abreviacao;
 
     labelContainer.appendChild(checkbox);
     labelContainer.appendChild(spanTexto);
@@ -350,9 +350,9 @@ const dataFormatada = `Aos ${diaExtenso} de ${mes} de ${anoExtenso}`;
             }
 
               if(numSecretarias > 1){
-                 quartotexto +=`<span style='font-size:9.5pt;font-family:"Century Gothic",sans-serif;color:#000;'>, referentes à Lei Complementar Municipal nº. 913/2022 alterada pela Lei Complementar nº. 1.011/2025.</span></p>`;
+                 quartotexto +=`<span style='font-size:9.5pt;font-family:"Century Gothic",sans-serif;color:#000;'>, todos por atribuição conferida através do artigo 10A da Lei Complementar nº. 1.011/2025 e alterações posteriores.</span></p>`;
             }else{
-                quartotexto +=`<span style='font-size:9.5pt;font-family:"Century Gothic",sans-serif;color:#000;'>, referente à Lei Complementar Municipal nº. 913/2022 alterada pela Lei Complementar nº. 1.011/2025.</span></p>`;
+                quartotexto +=`<span style='font-size:9.5pt;font-family:"Century Gothic",sans-serif;color:#000;'>, por atribuição conferida através do artigo 10A da Lei Complementar nº. 1.011/2025 e alterações posteriores.</span></p>`;
             }
 
 

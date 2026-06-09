@@ -498,9 +498,9 @@ function renderizarCheckboxes() {
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" 
                        value="${sec.abreviacao}" 
-                       id="check${sec.abreviacao.replace(/\s+/g, '')}">
-                <label class="form-check-label" for="check${sec.abreviacao.replace(/\s+/g, '')}">
-                    ${sec.abreviacao}
+                       id="check${sec.extra}${sec.abreviacao.replace(/\s+/g, '')}">
+                <label class="form-check-label" for="check${sec.extra}${sec.abreviacao.replace(/\s+/g, '')}">
+                   ${sec.extra} ${sec.abreviacao}
                 </label>
             </div>
         `;
