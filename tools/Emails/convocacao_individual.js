@@ -1,3 +1,9 @@
+  /*
+<p style='margin:0cm;margin-bottom:.0001pt;font-size:15px;font-family:"Calibri",sans-serif;'><strong><u><span style='font-size:15px;font-family:"Calibri",sans-serif;color:red;background:yellow;'>Obs.:</span></u></strong><u style="text-align:start;"><span style="font-size:15px;font-family:Calibri;color:red;background:yellow;"> Informamos que nos dias ${data.feriado}<strong><span style='font-family:"Calibri",sans-serif;'>&nbsp;e ${data.ponto},&nbsp;</span></strong> n&atilde;o haver&aacute; expediente administrativo, em raz&atilde;o dos feriados e pontos facultativos, conforme <strong><span style='font-family:"Calibri",sans-serif;'>Lei e&nbsp;</span></strong> <strong><span style='font-family:"Calibri",sans-serif;'>Decretos n&ordm;. 1506/2010 e 8286/2025.</span></strong></span></u></p>
+
+  */
+
+
 // Variável global para armazenar o texto gerado
 let corpoEmailGlobal = "";
 let tituloEmailGlobal = "";
@@ -145,8 +151,6 @@ function executarCalculoDataPadrao(inputInicio, inputFim) {
 
 <p style='margin:0cm;margin-bottom:.0001pt;font-size:15px;font-family:"Calibri",sans-serif;'><u><span style='font-size:13px;font-family:"Century Gothic",sans-serif;'>Caso n&atilde;o seja poss&iacute;vel realizar a assinatura diretamente pelo link, acesse o mesmo endere&ccedil;o e utilize a op&ccedil;&atilde;o &lsquo;<strong>VERS&Atilde;O DE IMPRESS&Atilde;O&rsquo;.&nbsp;</strong>Fa&ccedil;a o download do arquivo em PDF, assine as folhas <strong>XXX</strong> e <strong>XXX</strong> utilizando o GOV.BR ou Certificado Digital E-CPF, e nos encaminhe o documento assinado em resposta a este e-mail.</span></u></p>
 <p style='margin:0cm;margin-bottom:.0001pt;font-size:15px;font-family:"Calibri",sans-serif;'><span style='font-size:13px;font-family:"Century Gothic",sans-serif;'>&nbsp;</span></p>
-<p style='margin:0cm;margin-bottom:.0001pt;font-size:15px;font-family:"Calibri",sans-serif;'><span style='font-size:13px;font-family:"Century Gothic",sans-serif;'>Ap&oacute;s as assinaturas<span style="color:black;">, vossa via ficar&aacute; dispon&iacute;vel para retirada. N&atilde;o remetemos o documento por <em>e-mail</em>, tampouco por Correios.</span></span></p>
-
 <p style='margin:0cm;margin-bottom:.0001pt;font-size:15px;font-family:"Calibri",sans-serif;'><span style='font-size:13px;font-family:"Century Gothic",sans-serif;'>Coloco-me &agrave; disposi&ccedil;&atilde;o para mais esclarecimentos.</span></p>
 `;
             const outputDiv = document.getElementById('output_email');
