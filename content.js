@@ -2906,8 +2906,9 @@ async function adicionarSelectPastaMenu() {
         // Divisor visual interno das opções
         if (todasAsPastasMapeadas.length > 0) {
             const optDivider = document.createElement('option');
-            optDivider.textContent = '────────────────────────';
-            optDivider.disabled = true;
+            optDivider.textContent = '──────── Mover para Pasta ─────────';
+            optDivider.disabled = true; // Mantém desabilitado para o usuário não conseguir clicar nele
+            optDivider.style.textAlign = 'center'; // Centraliza o texto (alguns navegadores dão suporte a isso no select nativo)
             select.appendChild(optDivider);
         }
 
@@ -2917,7 +2918,7 @@ async function adicionarSelectPastaMenu() {
 
             const opt = document.createElement('option');
             opt.value = pasta.codigo;
-            opt.textContent = `📁 Mover para: ${pasta.nome.toUpperCase()}`;
+            opt.textContent = `📁 ${pasta.nome.toUpperCase()}`;
             select.appendChild(opt);
         });
 
