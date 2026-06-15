@@ -2805,6 +2805,318 @@ function adicionarBotaoPastaMenu() {
     });
 }
 
+async function adicionarSelectPastaMenu() {
+    if (!isProcessoDigital()) return;
+
+    const idProcesso = String(getProcessIdFromDetailUrl()).trim();
+    if (!idProcesso) return;
+
+    try {
+        // 1. Acessa o cache do chrome.storage da sua extensão
+        const resultado = await new Promise((resolve) => {
+            chrome.storage.local.get(['mapeamentoPastasProcessos'], (res) => {
+                resolve(res || {});
+            });
+        });
+
+        const estruturaPastas = resultado.mapeamentoPastasProcessos || {};
+        
+        let pastaAtual = null;
+        let todasAsPastasMapeadas = [];
+
+        // 2. Varre a estrutura para extrair a pasta atual e mapear as outras
+        for (const [codigoGrupo, pastas] of Object.entries(estruturaPastas)) {
+            for (const [nomePasta, dadosPasta] of Object.entries(pastas)) {
+                
+                // Evita colocar na lista se for lixo ou mapeamento inválido da própria caixa de entrada
+                if (!dadosPasta.codigo || String(dadosPasta.codigo) === '0' || nomePasta.toUpperCase() === 'CAIXA DE ENTRADA') continue;
+
+                todasAsPastasMapeadas.push({
+                    codigo: dadosPasta.codigo,
+                    nome: nomePasta
+                });
+
+                if (dadosPasta.processos && dadosPasta.processos.length > 0) {
+                    const encontrou = dadosPasta.processos.some(p => String(p.id).trim() === idProcesso);
+                    if (encontrou) {
+                        pastaAtual = {
+                            nomePasta: nomePasta,
+                            codigoPasta: dadosPasta.codigo
+                        };
+                    }
+                }
+            }
+        }
+
+        // Localiza o botão "Recibo" nativo na página para ancoragem
+        const btnRecibo = document.querySelector('a[data-target="#modal-recibo"]');
+        if (!btnRecibo) {
+            console.warn("⚠️ Botão Recibo não foi encontrado para ancoragem.");
+            return;
+        }
+
+        // Evita duplicar o componente na tela
+        if (document.querySelector('.btn-pasta-atual-processo-container')) return;
+
+        const textoPastaExibicao = pastaAtual ? pastaAtual.nomePasta.toUpperCase() : 'CAIXA DE ENTRADA';
+
+        // 3. Criação do CONTAINER que imita perfeitamente o seu botão original
+        const btnContainer = document.createElement('div');
+        btnContainer.className = 'btn btn-default btn-pasta-atual-processo-container';
+        btnContainer.title = `Pasta Atual do Processo: ${textoPastaExibicao}`;
+        btnContainer.style.display = 'inline-block';
+        btnContainer.style.marginLeft = '5px';
+        btnContainer.style.position = 'relative'; 
+        btnContainer.style.verticalAlign = 'middle';
+        btnContainer.style.cursor = 'pointer';
+
+        // 4. Injeta exatamente o HTML do design original
+        btnContainer.innerHTML = `
+            <i class="fa fa-folder-open" aria-hidden="true"></i>
+            <span>Pasta: ${textoPastaExibicao}</span>
+        `;
+
+        // 5. Elemento SELECT camuflado (Fica invisível por cima do botão)
+        const select = document.createElement('select');
+        select.style.position = 'absolute';
+        select.style.top = '0';
+        select.style.left = '0';
+        select.style.width = '100%';
+        select.style.height = '100%';
+        select.style.opacity = '0'; 
+        select.style.cursor = 'pointer';
+        select.style.appearance = 'none'; 
+        select.style.webkitAppearance = 'none';
+
+        // Option informativa padrão
+        const optPadrao = document.createElement('option');
+        optPadrao.value = '';
+        optPadrao.textContent = `📋 Pasta Atual: ${textoPastaExibicao}`;
+        optPadrao.selected = true;
+        select.appendChild(optPadrao);
+
+        // 6. Opção ÚNICA de Caixa de Entrada (Apenas se já estiver em alguma pasta)
+        if (pastaAtual) {
+            const optDesvincular = document.createElement('option');
+            optDesvincular.value = 'DESVINCULAR';
+            optDesvincular.textContent = '📥 Mover para: CAIXA DE ENTRADA';
+            select.appendChild(optDesvincular);
+        }
+
+        // Divisor visual interno das opções
+        if (todasAsPastasMapeadas.length > 0) {
+            const optDivider = document.createElement('option');
+            optDivider.textContent = '────────────────────────';
+            optDivider.disabled = true;
+            select.appendChild(optDivider);
+        }
+
+        // 7. Popula o menu com as pastas do seu cache (Sem duplicar a atual)
+        todasAsPastasMapeadas.forEach(pasta => {
+            if (pastaAtual && String(pastaAtual.codigoPasta) === String(pasta.codigo)) return;
+
+            const opt = document.createElement('option');
+            opt.value = pasta.codigo;
+            opt.textContent = `📁 Mover para: ${pasta.nome.toUpperCase()}`;
+            select.appendChild(opt);
+        });
+
+        // 8. Evento de escuta para mudanças no Select com atualização dinâmica de cache
+        select.addEventListener('change', async (e) => {
+            const valorSelecionado = e.target.value;
+            if (!valorSelecionado) return;
+
+            select.disabled = true;
+
+            try {
+                // Cenário A: Mover para Caixa de Entrada (Desvincular)
+                if (valorSelecionado === 'DESVINCULAR') {
+                    if (pastaAtual && pastaAtual.codigoPasta) {
+                        console.log(`⏳ Removendo processo ${idProcesso} da pasta...`);
+                        await removerProcessoDaPasta(idProcesso, pastaAtual.codigoPasta);
+                        
+                        // Atualiza o cache tirando o processo da pasta antiga
+                        await atualizarCacheProcessoPasta(idProcesso, pastaAtual.codigoPasta, null, estruturaPastas);
+                        console.log('✔ Processo movido para a Caixa de Entrada.');
+                    }
+                } 
+                // Cenário B: Trocar de pasta ou Vincular uma nova
+                else {
+                    // Se ele já estava em uma pasta diferente, roda o Desvincular nativo do site primeiro
+                    if (pastaAtual && pastaAtual.codigoPasta) {
+                        console.log(`⏳ Desvinculando da pasta anterior antes de mudar...`);
+                        await removerProcessoDaPasta(idProcesso, pastaAtual.codigoPasta);
+                    }
+
+                    console.log(`⏳ Vinculando processo ${idProcesso} à pasta de código ${valorSelecionado}...`);
+                    await adicionarProcessoAPasta(idProcesso, valorSelecionado);
+                    
+                    // Atualiza o cache inserindo na nova pasta (e tirando da antiga se existisse)
+                    const codigoAntigo = pastaAtual ? pastaAtual.codigoPasta : null;
+                    await atualizarCacheProcessoPasta(idProcesso, codigoAntigo, valorSelecionado, estruturaPastas);
+                    console.log('✔ Processo vinculado com sucesso.');
+                }
+
+                // Aguarda o alerta visual fixar na tela e atualiza
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+
+            } catch (error) {
+                console.error('❌ Erro durante a transição de pastas do processo:', error);
+                alert('Ocorreu um erro ao atualizar a pasta. Por favor, tente novamente.');
+                select.disabled = false;
+                select.value = '';
+            }
+        });
+
+        // Adiciona o select oculto dentro do botão e injeta após o Recibo
+        btnContainer.appendChild(select);
+        btnRecibo.insertAdjacentElement('afterend', btnContainer);
+        console.log(`✔ Botão interativo (${textoPastaExibicao}) injetado.`);
+
+    } catch (err) {
+        console.error('❌ Erro geral ao processar o select de pastas:', err);
+    }
+}
+
+// Executa o Ajax exato fornecido para a vinculação, injetando o código dinâmico direto no window
+async function adicionarProcessoAPasta(idProcesso, valorSelecionado) {
+    return new Promise((resolve, reject) => {
+        try {
+            const disparador = document.createElement('div');
+            disparador.setAttribute('onclick', `
+                $.ajax({
+                    url: '/CaixaEntrada/VincularProcessoAPasta',
+                    data: { pasta: "${valorSelecionado}", processo: "${idProcesso}" },
+                    success: function (result) {
+                        if (result === 'False') {
+                            if (typeof window.addAlert === 'function') window.addAlert('warning', 'Processo não pertence ao grupo da pasta');
+                        }
+                        else if (result === 'True') {
+                            if (typeof window.addAlert === 'function') window.addAlert('success', 'Processo adicionado a pasta com sucesso');
+                        }
+                        else if (result === 'Erro') {
+                            if (typeof window.addAlert === 'function') window.addAlert('warning', 'Não foi possível inserir o processo na pasta');
+                        }
+                        document.dispatchEvent(new CustomEvent('AJAX_VINCULO_CONCLUIDO', { detail: { sucesso: true } }));
+                    },
+                    error: function () {
+                        if (typeof window.addAlert === 'function') window.addAlert('warning', 'Não foi possível inserir o processo na pasta');
+                        document.dispatchEvent(new CustomEvent('AJAX_VINCULO_CONCLUIDO', { detail: { sucesso: false } }));
+                    }
+                });
+            `);
+
+            const checarRetorno = (e) => {
+                document.removeEventListener('AJAX_VINCULO_CONCLUIDO', checarRetorno);
+                resolve();
+            };
+            document.addEventListener('AJAX_VINCULO_CONCLUIDO', checarRetorno);
+
+            document.body.appendChild(disparador);
+            disparador.click();
+            disparador.remove();
+        } catch (err) {
+            reject(err);
+        }
+    });
+}
+
+async function removerProcessoDaPasta(idProcesso, codigoPasta) {
+    return new Promise((resolve, reject) => {
+        try {
+            const disparador = document.createElement('div');
+            
+            // CORREÇÃO DEFINITIVA: Força o caminho absoluto correto (/CaixaEntrada/DesvincularProcessoAPasta)
+            // mantendo a estrutura exata do payload que o servidor espera { codigoPasta, codigoProcesso }
+            disparador.setAttribute('onclick', `
+                $.ajax({
+                    url: "/CaixaEntrada/DesvincularProcessoAPasta",
+                    type: "GET", // Altere para "POST" se notar no DevTools que o site usa POST nesta rota
+                    data: { 
+                        codigoPasta: "${codigoPasta}", 
+                        codigoProcesso: "${idProcesso}" 
+                    },
+                    success: function (result) {
+                        if (typeof window.addAlert === 'function') {
+                            window.addAlert('success', 'Processo removido da pasta com sucesso');
+                        }
+                        document.dispatchEvent(new CustomEvent('AJAX_DESVINCULO_CONCLUIDO', { detail: { sucesso: true } }));
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error("Erro na requisição de desvínculo:", textStatus, errorThrown);
+                        if (typeof window.addAlert === 'function') {
+                            window.addAlert('warning', 'Não foi possível remover o processo da pasta');
+                        }
+                        document.dispatchEvent(new CustomEvent('AJAX_DESVINCULO_CONCLUIDO', { detail: { sucesso: false } }));
+                    }
+                });
+            `);
+
+            const checarRetorno = (e) => {
+                document.removeEventListener('AJAX_DESVINCULO_CONCLUIDO', checarRetorno);
+                resolve(); // Avança para atualizar o cache local do chrome.storage
+            };
+            document.addEventListener('AJAX_DESVINCULO_CONCLUIDO', checarRetorno);
+
+            document.body.appendChild(disparador);
+            disparador.click();
+            disparador.remove();
+        } catch (err) {
+            reject(err);
+        }
+    });
+}
+
+async function atualizarCacheProcessoPasta(idProcesso, codigoPastaAntiga, codigoPastaNova, estruturaPastas) {
+    let alterouCache = false;
+    const idProcNum = Number(idProcesso);
+
+    // 1. Se estava em uma pasta antiga, remove o processo de lá de dentro no cache
+    if (codigoPastaAntiga) {
+        for (const [grupo, pastas] of Object.entries(estruturaPastas)) {
+            for (const [nomePasta, dadosPasta] of Object.entries(pastas)) {
+                if (String(dadosPasta.codigo) === String(codigoPastaAntiga) && dadosPasta.processos) {
+                    const index = dadosPasta.processos.findIndex(p => Number(p.id) === idProcNum || String(p.id).trim() === idProcesso);
+                    if (index !== -1) {
+                        dadosPasta.processos.splice(index, 1);
+                        alterouCache = true;
+                    }
+                }
+            }
+        }
+    }
+
+    // 2. Se foi definido para uma nova pasta, adiciona o processo nela no cache
+    if (codigoPastaNova) {
+        for (const [grupo, pastas] of Object.entries(estruturaPastas)) {
+            for (const [nomePasta, dadosPasta] of Object.entries(pastas)) {
+                if (String(dadosPasta.codigo) === String(codigoPastaNova)) {
+                    if (!dadosPasta.processos) dadosPasta.processos = [];
+                    
+                    // Evita duplicar por segurança
+                    const jaExiste = dadosPasta.processos.some(p => Number(p.id) === idProcNum);
+                    if (!jaExiste) {
+                        dadosPasta.processos.push({ id: idProcNum });
+                        alterouCache = true;
+                    }
+                }
+            }
+        }
+    }
+
+    // 3. Salva a nova estrutura de volta para o chrome storage se houve mudanças
+    if (alterouCache) {
+        await new Promise((resolve) => {
+            chrome.storage.local.set({ mapeamentoPastasProcessos: estruturaPastas }, () => {
+                resolve();
+            });
+        });
+        console.log(`🔄 Cache local atualizado: Processo ${idProcesso} mapeado da pasta [${codigoPastaAntiga}] para [${codigoPastaNova}].`);
+    }
+}
+
 // 1. FUNÇÃO CORRIGIDA: Extrai a estrutura usando Regex (mais seguro que URLSearchParams em strings parciais)
 function extrairEstruturaPastas() {
     const estruturaPastas = {};
@@ -3492,7 +3804,8 @@ if (window.location.href.includes('/CaixaEntrada/GerenciarPastas')) {
             initializeProcessoDetailTags();
             checkAndPromptTagRemovalOnDetail();
             addSearchProcess();
-            adicionarBotaoPastaMenu();
+            //adicionarBotaoPastaMenu();
+            adicionarSelectPastaMenu();
         }
     });
 }, 150);
