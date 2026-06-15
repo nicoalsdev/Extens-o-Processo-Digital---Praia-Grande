@@ -36,8 +36,8 @@
     // Tipos DOc
     const TIPOS_DOCUMENTOS = [{"codigo":"47","nome":"ABAIXO-ASSINADO"},{"codigo":"48","nome":"ACÓRDÃO"},{"codigo":"49","nome":"ACORDO"},{"codigo":"50","nome":"ALVARÁ"},{"codigo":"310","nome":"ALVARÁ DE REGULARIZAÇÃO"},{"codigo":"267","nome":"ANÁLISE DE AMOSTRA"},{"codigo":"263","nome":"ANTEPROJETO"},{"codigo":"308","nome":"APÓLICE"},{"codigo":"29","nome":"APRESENTAÇÃO"},{"codigo":"302","nome":"ART / RRT"},{"codigo":"51","nome":"ASSENTO"},{"codigo":"19","nome":"ATA"},{"codigo":"307","nome":"ATA DE ASSEMBLEIA"},{"codigo":"266","nome":"ATA DE REGISTRO DE PREÇOS"},{"codigo":"52","nome":"ATESTADO"},{"codigo":"53","nome":"ATO"},{"codigo":"54","nome":"AUTO"},{"codigo":"229","nome":"AUTO DE ARREMATAÇÃO"},{"codigo":"15","nome":"AUTORIZAÇÃO"},{"codigo":"274","nome":"AUTORIZAÇÃO CONTRATAÇÃO DIRETA"},{"codigo":"283","nome":"AUTORIZAÇÃO DE FORNECIMENTO"},{"codigo":"293","nome":"AVALIAÇÃO"},{"codigo":"304","nome":"AVCB"},{"codigo":"55","nome":"AVISO"},{"codigo":"271","nome":"AVISO DE CONTRATAÇÃO DIRETA"},{"codigo":"22","nome":"BALANCETE"},{"codigo":"56","nome":"BANDO"},{"codigo":"57","nome":"BILHETE"},{"codigo":"253","nome":"BOLETIM DE OCORRÊNCIA"},{"codigo":"10","nome":"BOLETO"},{"codigo":"58","nome":"BREVE"},{"codigo":"59","nome":"CARTA"},{"codigo":"60","nome":"CARTA ABERTA"},{"codigo":"230","nome":"CARTA DE ARREMATAÇÃO"},{"codigo":"61","nome":"CARTA DE CHAMADA"},{"codigo":"62","nome":"CARTA DE LEI"},{"codigo":"63","nome":"CARTA DE PERDÃO"},{"codigo":"64","nome":"CARTA DE SESMARIA"},{"codigo":"65","nome":"CARTA DE VALIDADE"},{"codigo":"66","nome":"CARTA DECLARATÓRIA"},{"codigo":"67","nome":"CARTA INTERNACIONAL"},{"codigo":"68","nome":"CARTA OU MEMORANDO DIPLOMÁTICO"},{"codigo":"69","nome":"CARTA PARTIDA OU DE DEFERIMENTO"},{"codigo":"70","nome":"CARTA PATENTE"},{"codigo":"71","nome":"CARTA PATENTE OU CARTA DE AUTORIZAÇÃO"},{"codigo":"72","nome":"CARTA PRECATÓRIA"},{"codigo":"73","nome":"CARTA RÉGIA"},{"codigo":"74","nome":"CARTA REVERSAL"},{"codigo":"75","nome":"CARTA TESTEMUNHÁVEL"},{"codigo":"9","nome":"CARTA/AR"},{"codigo":"76","nome":"CARTÃO DE CRÉDITO"},{"codigo":"77","nome":"CARTÃO DE PONTO"},{"codigo":"79","nome":"CARTÃO DE VISITA, DE CONTATO COMERCIAL OU PROFISSIONAL"},{"codigo":"78","nome":"CARTAZ"},{"codigo":"80","nome":"CÉDULA DE ELEIÇÃO"},{"codigo":"81","nome":"CÉDULA DE IDENTIDADE"},{"codigo":"82","nome":"CENSO"},{"codigo":"21","nome":"CERTIDÃO"},{"codigo":"303","nome":"CERTIDÃO DE ÓBITO"},{"codigo":"305","nome":"CERTIDÃO NEGATIVA CARTÓRIO"},{"codigo":"84","nome":"CERTIFICADO"},{"codigo":"289","nome":"CERTIFICADO DE REGISTRO CADASTRAL"},{"codigo":"85","nome":"CHEQUE"},{"codigo":"86","nome":"CIRCULAR"},{"codigo":"87","nome":"CITAÇÃO"},{"codigo":"247","nome":"CNPJ"},{"codigo":"246","nome":"CÓDIGO"},{"codigo":"88","nome":"COMPROMISSO"},{"codigo":"284","nome":"COMPROVANTE"},{"codigo":"255","nome":"COMPROVANTE DE INSCRIÇÃO"},{"codigo":"242","nome":"COMPROVANTE DE PAGAMENTO"},{"codigo":"8","nome":"COMPROVANTE DE RESIDÊNCIA"},{"codigo":"89","nome":"COMUNICAÇÃO/PAPER"},{"codigo":"90","nome":"COMUNICADO"},{"codigo":"298","nome":"CONCILIAÇÃO BANCÁRIA"},{"codigo":"91","nome":"CONSTITUIÇÃO"},{"codigo":"92","nome":"CONSULTA"},{"codigo":"93","nome":"CONTA"},{"codigo":"94","nome":"CONTA CORRENTE"},{"codigo":"6","nome":"CONTRATO"},{"codigo":"268","nome":"CONTRATO ADMINISTRATIVO"},{"codigo":"95","nome":"CONVENÇÃO"},{"codigo":"96","nome":"CONVÊNIO"},{"codigo":"97","nome":"CONVITE"},{"codigo":"98","nome":"CONVOCAÇÃO"},{"codigo":"99","nome":"CÓPIA AUTÊNTICA"},{"codigo":"100","nome":"CORRESPONDÊNCIA INTERNA"},{"codigo":"1","nome":"COTA"},{"codigo":"248","nome":"CPF"},{"codigo":"101","nome":"CRACHÁ"},{"codigo":"102","nome":"CRONOGRAMA"},{"codigo":"31","nome":"CROQUIS"},{"codigo":"103","nome":"CURRÍCULO DE CURSO"},{"codigo":"104","nome":"CURRICULUM VITAE"},{"codigo":"105","nome":"DEBÊNTURE"},{"codigo":"44","nome":"DECENDIAIS"},{"codigo":"106","nome":"DECISÃO"},{"codigo":"4","nome":"DECLARAÇÃO"},{"codigo":"107","nome":"DECRETO"},{"codigo":"108","nome":"DECRETO-LEI"},{"codigo":"109","nome":"DELIBERAÇÃO"},{"codigo":"23","nome":"DEMONSTRATIVO"},{"codigo":"110","nome":"DEPOIMENTO"},{"codigo":"42","nome":"DEPÓSITO"},{"codigo":"290","nome":"DESCRITIVO"},{"codigo":"111","nome":"DESIGNAÇÃO"},{"codigo":"112","nome":"DESPACHO"},{"codigo":"306","nome":"DEVOLUÇÃO CARTÓRIO"},{"codigo":"113","nome":"DEVOLUTIVA"},{"codigo":"114","nome":"DIÁRIO"},{"codigo":"115","nome":"DIPLOMA"},{"codigo":"116","nome":"DIRETRIZES ORÇAMENTÁRIAS"},{"codigo":"117","nome":"DISSERTAÇÃO"},{"codigo":"291","nome":"DOCUMENTO"},{"codigo":"262","nome":"DOCUMENTO DE FORMALIZAÇÃO DE DEMANDA (DFD)"},{"codigo":"5","nome":"DOCUMENTO DE IDENTIFICAÇÃO"},{"codigo":"118","nome":"DOSSIÊ"},{"codigo":"119","nome":"EDITAL"},{"codigo":"11","nome":"E-MAIL"},{"codigo":"120","nome":"EMBARGO"},{"codigo":"121","nome":"EMENDA"},{"codigo":"122","nome":"EMENTA"},{"codigo":"299","nome":"ENCARGOS TRABALHISTAS"},{"codigo":"123","nome":"ESCALA"},{"codigo":"124","nome":"ESCRITO DE SECRETÁRIO"},{"codigo":"125","nome":"ESCRITURA"},{"codigo":"240","nome":"ESPELHO DE DECRETO"},{"codigo":"28","nome":"ESPELHO DO IPTU"},{"codigo":"126","nome":"ESTATUTO"},{"codigo":"254","nome":"ESTUDO"},{"codigo":"260","nome":"ESTUDO TÉCNICO PRELIMINAR - (ETP)"},{"codigo":"258","nome":"EXAME MÉDICO"},{"codigo":"127","nome":"EXPEDIENTE"},{"codigo":"128","nome":"EXPOSIÇÃO DE MOTIVOS"},{"codigo":"7","nome":"EXTRATO"},{"codigo":"129","nome":"EXTRATO BANCÁRIO"},{"codigo":"130","nome":"FATURA"},{"codigo":"131","nome":"FÉ DE OFÍCIO"},{"codigo":"132","nome":"FICHA"},{"codigo":"309","nome":"FICHA TÉCNICA"},{"codigo":"133","nome":"FILIPETA"},{"codigo":"134","nome":"FLUXOGRAMA"},{"codigo":"135","nome":"FOLHA"},{"codigo":"43","nome":"FOLHA DE PAGAMENTO"},{"codigo":"136","nome":"FOLHETO/FOLDER"},{"codigo":"137","nome":"FORAL"},{"codigo":"138","nome":"FÓRMULA/FORMULÁRIO"},{"codigo":"13","nome":"FORMULÁRIO"},{"codigo":"139","nome":"GRADE CURRICULAR"},{"codigo":"140","nome":"GUIA"},{"codigo":"141","nome":"HISTÓRICO ESCOLAR"},{"codigo":"300","nome":"HOLERITE"},{"codigo":"142","nome":"HOMOLOGAÇÃO"},{"codigo":"12","nome":"IMAGEM"},{"codigo":"276","nome":"IMPUGNAÇÃO EDITAL"},{"codigo":"143","nome":"INDICAÇÃO"},{"codigo":"270","nome":"INDICAÇÃO DE AGENTE DE CONTRATAÇÃO/EQUIPE DE APOIO"},{"codigo":"144","nome":"INFORMAÇÃO"},{"codigo":"145","nome":"INFORMAÇÃO COMERCIAL"},{"codigo":"146","nome":"INFORMAÇÃO DE SERVIÇO"},{"codigo":"147","nome":"INFORME"},{"codigo":"148","nome":"INSTRUÇÃO DE SERVIÇO"},{"codigo":"149","nome":"INSTRUÇÃO NORMATIVA"},{"codigo":"150","nome":"INVENTÁRIO"},{"codigo":"151","nome":"INVENTÁRIO POST MORTEM"},{"codigo":"252","nome":"JUSTIFICATIVA"},{"codigo":"152","nome":"LANÇAMENTO"},{"codigo":"241","nome":"LANÇAMENTO DE DECRETO"},{"codigo":"153","nome":"LAUDO"},{"codigo":"154","nome":"LAYOUT"},{"codigo":"33","nome":"LEGISLAÇÃO"},{"codigo":"155","nome":"LEI"},{"codigo":"37","nome":"LEIAUTE"},{"codigo":"156","nome":"LEMBRETE"},{"codigo":"157","nome":"LEVANTAMENTO ESTATÍSTICO"},{"codigo":"158","nome":"LEVANTAMENTO TOPOGRÁFICO"},{"codigo":"256","nome":"LICENÇA"},{"codigo":"39","nome":"LISTA DE PRESENÇA"},{"codigo":"288","nome":"LISTA DE VERIFICAÇÃO CONTRATAÇÃO DIRETA"},{"codigo":"287","nome":"LISTA DE VERIFICAÇÃO LICITAÇÃO"},{"codigo":"159","nome":"LISTA/LISTAGEM"},{"codigo":"245","nome":"MANIFESTAÇÃO"},{"codigo":"231","nome":"MANIFESTAÇÃO JURÍDICA"},{"codigo":"38","nome":"MANUAL"},{"codigo":"30","nome":"MAPA"},{"codigo":"232","nome":"MATRICULA C.R.I."},{"codigo":"275","nome":"MATRIZ DE RISCOS"},{"codigo":"36","nome":"MEMORANDO"},{"codigo":"301","nome":"MEMORIAL DESCRITIVO"},{"codigo":"32","nome":"MINUTA"},{"codigo":"269","nome":"MINUTA DE EDITAL"},{"codigo":"238","nome":"NOTA DE CANCELAMENTO DE RESTOS A PAGAR"},{"codigo":"239","nome":"NOTA DE DEDUÇÃO DE RECEITA"},{"codigo":"234","nome":"NOTA DE EMPENHO"},{"codigo":"237","nome":"NOTA DE ESTORNO DE EMPENHO"},{"codigo":"235","nome":"NOTA DE LIQUIDAÇÃO"},{"codigo":"20","nome":"NOTA FISCAL"},{"codigo":"24","nome":"NOTIFICAÇÃO"},{"codigo":"14","nome":"OFÍCIO"},{"codigo":"160","nome":"ORÇAMENTO"},{"codigo":"236","nome":"ORDEM DE PAGAMENTO"},{"codigo":"35","nome":"ORDEM DE SERVIÇO"},{"codigo":"161","nome":"ORDEM DO DIA"},{"codigo":"162","nome":"ORDENAÇÕES"},{"codigo":"163","nome":"ORGANOGRAMA"},{"codigo":"251","nome":"ORTOFOTO"},{"codigo":"46","nome":"PAGAMENTO"},{"codigo":"164","nome":"PANFLETO"},{"codigo":"165","nome":"PAPELETA"},{"codigo":"297","nome":"PARECER DO CONSELHO"},{"codigo":"295","nome":"PARECER JURÍDICO"},{"codigo":"294","nome":"PARECER TÉCNICO"},{"codigo":"167","nome":"PARTILHA DE SUCESSÃO"},{"codigo":"168","nome":"PARTITURA"},{"codigo":"169","nome":"PASSAPORTE"},{"codigo":"170","nome":"PAUTA"},{"codigo":"257","nome":"PESQUISA"},{"codigo":"286","nome":"PESQUISA DE PREÇOS"},{"codigo":"171","nome":"PETIÇÃO"},{"codigo":"172","nome":"PLANILHA"},{"codigo":"173","nome":"PLANO"},{"codigo":"174","nome":"PLANTA"},{"codigo":"34","nome":"PORTARIA"},{"codigo":"175","nome":"PORTULANO"},{"codigo":"176","nome":"POSTURA"},{"codigo":"177","nome":"PRECATÓRIO"},{"codigo":"178","nome":"PRESTAÇÃO DE CONTAS"},{"codigo":"292","nome":"PROCESSO FÍSICO"},{"codigo":"180","nome":"PROCURAÇÃO"},{"codigo":"181","nome":"PROGRAMA"},{"codigo":"182","nome":"PROJETO"},{"codigo":"264","nome":"PROJETO BÁSICO"},{"codigo":"265","nome":"PROJETO EXECUTIVO"},{"codigo":"183","nome":"PRONTUÁRIO"},{"codigo":"184","nome":"PRONUNCIAMENTO"},{"codigo":"185","nome":"PROPOSIÇÃO"},{"codigo":"186","nome":"PROPOSTA"},{"codigo":"187","nome":"PROSPECTO"},{"codigo":"188","nome":"PROTOCOLADO"},{"codigo":"27","nome":"PROTOCOLO"},{"codigo":"189","nome":"PROVA"},{"codigo":"190","nome":"PROVISÃO"},{"codigo":"25","nome":"PUBLICAÇÃO"},{"codigo":"191","nome":"QUADRO"},{"codigo":"249","nome":"QUADRO DE DESCRIÇÃO DE ITEM"},{"codigo":"250","nome":"QUADRO DE DESCRIÇÃO DE SERVIÇOS"},{"codigo":"192","nome":"QUESTIONÁRIO"},{"codigo":"193","nome":"RASCUNHO"},{"codigo":"194","nome":"RAZÃO"},{"codigo":"195","nome":"RECEITA"},{"codigo":"196","nome":"RECENSEAMENTO"},{"codigo":"41","nome":"RECIBO"},{"codigo":"197","nome":"RECOMENDAÇÃO"},{"codigo":"198","nome":"RECORTE/CLIP"},{"codigo":"199","nome":"RECURSO"},{"codigo":"277","nome":"RECURSO ADMINISTRATIVO"},{"codigo":"200","nome":"REGIMENTO"},{"codigo":"201","nome":"REGISTRO"},{"codigo":"202","nome":"REGISTRO CIVIL"},{"codigo":"203","nome":"REGISTRO PAROQUIAL"},{"codigo":"204","nome":"REGULAMENTO"},{"codigo":"205","nome":"RELAÇÃO"},{"codigo":"206","nome":"RELAÇÃO DE REMESSA"},{"codigo":"18","nome":"RELATÓRIO"},{"codigo":"278","nome":"RELATÓRIO E DESPACHO DE IMPUGNAÇÃO"},{"codigo":"279","nome":"RELATÓRIO E DESPACHO DE RECURSO ADMINISTRATIVO"},{"codigo":"207","nome":"RELEASE"},{"codigo":"3","nome":"REPRESENTAÇÃO"},{"codigo":"2","nome":"REQUERIMENTO"},{"codigo":"233","nome":"REQUERIMENTO DESARQUIVAMENTO"},{"codigo":"208","nome":"REQUISIÇÃO"},{"codigo":"244","nome":"REQUISIÇÃO DE COMPRAS"},{"codigo":"296","nome":"RESCISÃO TRABALHISTA"},{"codigo":"209","nome":"RESIDÊNCIA"},{"codigo":"210","nome":"RESOLUÇÃO"},{"codigo":"281","nome":"RESPOSTA DE ESCLARECIMENTO"},{"codigo":"211","nome":"RESUMO"},{"codigo":"212","nome":"ROL"},{"codigo":"213","nome":"ROTEIRO"},{"codigo":"214","nome":"SINOPSE"},{"codigo":"215","nome":"SOLICITAÇÃO"},{"codigo":"285","nome":"SOLICITAÇÃO DE EMPENHO"},{"codigo":"280","nome":"SOLICITAÇÃO DE ESCLARECIMENTO"},{"codigo":"216","nome":"TABELA"},{"codigo":"217","nome":"TALONÁRIO"},{"codigo":"218","nome":"TELEGRAMA"},{"codigo":"219","nome":"TERMO"},{"codigo":"40","nome":"TERMO DE CONFISSÃO DE DÍVIDA E ACORDO DE PARCELAMENTO"},{"codigo":"282","nome":"TERMO DE HOMOLOGAÇÃO"},{"codigo":"17","nome":"TERMO DE NOTIFICAÇÃO"},{"codigo":"272","nome":"TERMO DE RATIFICAÇÃO DE DISPENSA"},{"codigo":"273","nome":"TERMO DE RATIFICAÇÃO DE INEXIGIBILIDADE"},{"codigo":"261","nome":"TERMO DE REFERÊNCIA (TR)"},{"codigo":"243","nome":"TERMO DE RETIFICAÇÃO"},{"codigo":"220","nome":"TESE"},{"codigo":"221","nome":"TESTAMENTO"},{"codigo":"222","nome":"TESTE"},{"codigo":"259","nome":"TÍTULO"},{"codigo":"223","nome":"TÍTULO DE CRÉDITO"},{"codigo":"224","nome":"TRABALHO DE CONCLUSÃO DE CURSO (TCC)"},{"codigo":"16","nome":"TRANSFERÊNCIA DE RESPONSABILIDADE"},{"codigo":"225","nome":"TRASLADO"},{"codigo":"226","nome":"VALE"},{"codigo":"227","nome":"VOLANTE"},{"codigo":"228","nome":"WARRANT"}];
 
-const estiloPopover = document.createElement('style');
-estiloPopover.textContent = `
+    const estiloPopover = document.createElement('style');
+    estiloPopover.textContent = `
     /* Esconde absolutamente qualquer popover que contenha este título específico */
     .popover:has(.popover-title:contains("Cadastro de e-mails")),
     .popover:has(h3:contains("Cadastro de e-mails")),
@@ -47,43 +47,43 @@ estiloPopover.textContent = `
         opacity: 0 !important;
         pointer-events: none !important;
     }
-`;
-document.head.appendChild(estiloPopover);
+    `;
+    document.head.appendChild(estiloPopover);
 
 
 // Cria um observador para detectar e remover o popover assim que ele surgir no HTML
-const monitorarEApagarPopover = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node) => {
+    const monitorarEApagarPopover = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
             // Verifica se o nó adicionado é uma div de popover
-            if (node.nodeType === 1 && node.classList.contains('popover')) {
-                const titulo = node.querySelector('.popover-title');
-                if (titulo && titulo.textContent.includes('Cadastro de e-mails')) {
-                    console.log('🛡️ Extensão bloqueou e removeu o popover automático.');
+                if (node.nodeType === 1 && node.classList.contains('popover')) {
+                    const titulo = node.querySelector('.popover-title');
+                    if (titulo && titulo.textContent.includes('Cadastro de e-mails')) {
+                        console.log('🛡️ Extensão bloqueou e removeu o popover automático.');
                     node.remove(); // Remove o elemento do HTML na hora
                 }
             }
         });
+        });
     });
-});
 
-const linkEmail = document.getElementById('emailPopover');
-if (linkEmail) {
+    const linkEmail = document.getElementById('emailPopover');
+    if (linkEmail) {
     // Remove completamente os gatilhos que o Bootstrap usa para ler e criar o popover
-    linkEmail.removeAttribute('data-toggle');
-    linkEmail.removeAttribute('data-trigger');
-    linkEmail.removeAttribute('data-original-title');
-    linkEmail.removeAttribute('data-content');
-    
+        linkEmail.removeAttribute('data-toggle');
+        linkEmail.removeAttribute('data-trigger');
+        linkEmail.removeAttribute('data-original-title');
+        linkEmail.removeAttribute('data-content');
+
     // Substitui por um título nativo comum do navegador caso ainda queira um mini-tooltip padrão
-    linkEmail.title = "Gerenciar E-mails"; 
-}
+        linkEmail.title = "Gerenciar E-mails"; 
+    }
 
 // Inicia o monitoramento no body da página
-monitorarEApagarPopover.observe(document.body, {
-    childList: true,
-    subtree: true
-});
+    monitorarEApagarPopover.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
 
     // ===== Floating menu creation (Mantido) =====
     const tagMenu = document.createElement('div');
@@ -176,35 +176,35 @@ monitorarEApagarPopover.observe(document.body, {
         console.log(` ✨ [MATCH EXATO] Documento ${indice}: Prioridade máxima: RELATÓRIO (Código 18).`);
     }
     else if(nomeArquivoComEspacos.includes('Tribunal de Contas do Estado de São Paulo') || nomeArquivoComEspacos.includes('AUDESP')){
-         tipoEncontrado = TIPOS_DOCUMENTOS.find(doc => doc.codigo === '284');
-        console.log(` ✨ [MATCH EXATO] Documento ${indice}: Prioridade máxima: COMPROVANTE (Código 284).`);
-    }
-
-        // --- 2. REGRA GERAL (Maior comprimento de match) ---
-    if (!tipoEncontrado) {
-
-        TIPOS_DOCUMENTOS.forEach(doc => {
-                // Remove acentos e padroniza o nome do documento
-            const nomeDoc = doc.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
-
-                // Verifica se o NOME DO DOCUMENTO ESTÁ CONTIDO no nome do arquivo
-            if (nomeArquivoLimpo.includes(nomeDoc)) {
-
-                    // CRITÉRIO DE ESPECIFICIDADE: O match mais longo é o mais específico (ex: "CONTRATO" vence "ATO")
-                if (nomeDoc.length > melhorMatchLength) {
-                    melhorMatchLength = nomeDoc.length;
-                    tipoEncontrado = doc;
-                }
-            }
-        });
-
-        if(tipoEncontrado) {
-           console.log(`      ✨ [MATCH LONGO] Documento ${indice}: Arquivo "${nomeArquivoOriginal}" corresponde a "${tipoEncontrado.nome}" (Código: ${tipoEncontrado.codigo})`);
-       }
+       tipoEncontrado = TIPOS_DOCUMENTOS.find(doc => doc.codigo === '284');
+       console.log(` ✨ [MATCH EXATO] Documento ${indice}: Prioridade máxima: COMPROVANTE (Código 284).`);
    }
 
+        // --- 2. REGRA GERAL (Maior comprimento de match) ---
+   if (!tipoEncontrado) {
 
-   if (tipoEncontrado) {
+    TIPOS_DOCUMENTOS.forEach(doc => {
+                // Remove acentos e padroniza o nome do documento
+        const nomeDoc = doc.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+
+                // Verifica se o NOME DO DOCUMENTO ESTÁ CONTIDO no nome do arquivo
+        if (nomeArquivoLimpo.includes(nomeDoc)) {
+
+                    // CRITÉRIO DE ESPECIFICIDADE: O match mais longo é o mais específico (ex: "CONTRATO" vence "ATO")
+            if (nomeDoc.length > melhorMatchLength) {
+                melhorMatchLength = nomeDoc.length;
+                tipoEncontrado = doc;
+            }
+        }
+    });
+
+    if(tipoEncontrado) {
+     console.log(`      ✨ [MATCH LONGO] Documento ${indice}: Arquivo "${nomeArquivoOriginal}" corresponde a "${tipoEncontrado.nome}" (Código: ${tipoEncontrado.codigo})`);
+ }
+}
+
+
+if (tipoEncontrado) {
             // 2. Define o valor no SELECT
     selectElement.value = tipoEncontrado.codigo;
 
@@ -277,12 +277,12 @@ function selecionarDocumento(linha, indice, onCompleteCallback) {
     const inputDescricao = linha.querySelector(`input[name="descricao.${indice}"]`);
 
     if (!selectTipoDocumento || !inputDescricao) {
-       console.error(`   ❌ [SETUP] Documento ${indice}: SELECT ou INPUT não encontrados.`);
-       if (onCompleteCallback) onCompleteCallback(); 
-       return;
-   }
+     console.error(`   ❌ [SETUP] Documento ${indice}: SELECT ou INPUT não encontrados.`);
+     if (onCompleteCallback) onCompleteCallback(); 
+     return;
+ }
 
-   let attempts = 0;
+ let attempts = 0;
         const maxAttempts = 60; // 3 segundos (60 * 50ms)
 
         const checkInputAndSelect = () => {
@@ -478,7 +478,7 @@ function selecionarDocumento(linha, indice, onCompleteCallback) {
     // FUNÇÕES AUXILIARES (omitidas por brevidade, mas devem estar no arquivo)
     // =========================================================================
 
-       function isGerenciarPastaUrl() {
+    function isGerenciarPastaUrl() {
         const url = window.location.href.toLowerCase();
         return url.includes('/CaixaEntrada/GerenciarPastas');
     }
@@ -865,34 +865,34 @@ function selecionarDocumento(linha, indice, onCompleteCallback) {
      * Verifica o destino atual na página de detalhes e, se não for o destino excluído,
      * dispara o alerta para remoção de tags do processo.
      */
-   function checkAndPromptTagRemovalOnDetail() {
+    function checkAndPromptTagRemovalOnDetail() {
     // 1. Verifica se estamos na URL correta (Página de Detalhes do Processo).
-    const idProcesso = getProcessIdFromTramiteNovoUrl() || getProcessIdFromDetailUrl(); 
-    if (!idProcesso) {
-        return;
-    }
+        const idProcesso = getProcessIdFromTramiteNovoUrl() || getProcessIdFromDetailUrl(); 
+        if (!idProcesso) {
+            return;
+        }
 
     // 2. OBTÉM O DESTINO/UNIDADE ATUAL exibido na tela.
-    const seEncontraEmSpan = Array.from(document.querySelectorAll('span.text-primary'))
+        const seEncontraEmSpan = Array.from(document.querySelectorAll('span.text-primary'))
         .find(span => span.textContent.trim() === 'Se encontra em:');
 
-    let destinoAtual = 'Destino Desconhecido';
+        let destinoAtual = 'Destino Desconhecido';
 
-    if (seEncontraEmSpan) {
-        const destinoSpan = seEncontraEmSpan.nextElementSibling;
-        if (destinoSpan && destinoSpan.tagName === 'SPAN') {
-            destinoAtual = destinoSpan.textContent.trim();
+        if (seEncontraEmSpan) {
+            const destinoSpan = seEncontraEmSpan.nextElementSibling;
+            if (destinoSpan && destinoSpan.tagName === 'SPAN') {
+                destinoAtual = destinoSpan.textContent.trim();
+            }
         }
-    }
 
     // Buscamos ambos os dados no storage ao mesmo tempo para evitar múltiplos aninhamentos
-    chrome.storage.local.get(['dadosPessoais', 'processTags'], (resultado) => {
-        
+        chrome.storage.local.get(['dadosPessoais', 'processTags'], (resultado) => {
+
         // 3. CONDIÇÃO DE EXCLUSÃO: Verifica se o destino bate
-        if (resultado.dadosPessoais) {
-            const destinoCapturado = resultado.dadosPessoais.destino;
-            if (destinoCapturado && destinoAtual === destinoCapturado.trim()) {
-                console.log(`[Tags] Destino atual é ${destinoCapturado}. A remoção de tags é ignorada.`);
+            if (resultado.dadosPessoais) {
+                const destinoCapturado = resultado.dadosPessoais.destino;
+                if (destinoCapturado && destinoAtual === destinoCapturado.trim()) {
+                    console.log(`[Tags] Destino atual é ${destinoCapturado}. A remoção de tags é ignorada.`);
                 return; // Agora este return funciona logicamente porque impede a execução do código abaixo
             }
         }
@@ -903,7 +903,7 @@ function selecionarDocumento(linha, indice, onCompleteCallback) {
         // Verifica se existe pelo menos uma tag associada a este processo.
         const hasTags = Object.keys(allTags).some(tagInstanceId =>
             tagInstanceId.startsWith(idProcesso + '-')
-        );
+            );
 
         if (!hasTags) {
             return;
@@ -918,21 +918,21 @@ function selecionarDocumento(linha, indice, onCompleteCallback) {
             confirmationText,
             confirmationButtonText,
             'warning'
-        ).then(confirmed => {
-            if (confirmed) {
+            ).then(confirmed => {
+                if (confirmed) {
                 // Remove as tags do storage e da visualização
-                removeAllTags(idProcesso, allTags);
-                
+                    removeAllTags(idProcesso, allTags);
+
                 // Notificação de sucesso após a remoção
-                const numero = allTags[Object.keys(allTags).find(k => k.startsWith(idProcesso + '-'))]?.processNumber || idProcesso;
-                showToast('success', `Todas as tags do processo ${numero} foram removidas.`);
-            } else {
+                    const numero = allTags[Object.keys(allTags).find(k => k.startsWith(idProcesso + '-'))]?.processNumber || idProcesso;
+                    showToast('success', `Todas as tags do processo ${numero} foram removidas.`);
+                } else {
                 // Notifica que as tags foram mantidas.
-                showToast('info', `As tags do processo ${idProcesso} foram mantidas.`);
-            }
+                    showToast('info', `As tags do processo ${idProcesso} foram mantidas.`);
+                }
+            });
         });
-    });
-}
+    }
 
 
     /**
@@ -1101,28 +1101,28 @@ function selecionarDocumento(linha, indice, onCompleteCallback) {
 
         applyAllTags();
 
-console.log('Adicionando paginação');
+        console.log('Adicionando paginação');
 // Função interna para executar a clonagem
  // --- LÓGICA DE PAGINAÇÃO REFORÇADA ---
-    const clonarPaginacao = () => {
-        const destino = document.getElementById('documentos-processo-interno') || document.getElementById('documentos-processo');
-        const original = document.querySelector('.paginacao-simples:not(#paginacao-clonada-footer)');
-        
-        if (!destino || !original) return;
+        const clonarPaginacao = () => {
+            const destino = document.getElementById('documentos-processo-interno') || document.getElementById('documentos-processo');
+            const original = document.querySelector('.paginacao-simples:not(#paginacao-clonada-footer)');
 
-        const textoAtual = original.innerText;
-        const cloneExistente = document.getElementById('paginacao-clonada-footer');
+            if (!destino || !original) return;
 
-        if (!cloneExistente || cloneExistente.dataset.originalText !== textoAtual) {
-            cloneExistente?.remove();
+            const textoAtual = original.innerText;
+            const cloneExistente = document.getElementById('paginacao-clonada-footer');
 
-            const clone = original.cloneNode(true);
-            clone.id = 'paginacao-clonada-footer';
-            clone.classList.add('justify-content-end');
-            clone.dataset.originalText = textoAtual;
-            
+            if (!cloneExistente || cloneExistente.dataset.originalText !== textoAtual) {
+                cloneExistente?.remove();
+
+                const clone = original.cloneNode(true);
+                clone.id = 'paginacao-clonada-footer';
+                clone.classList.add('justify-content-end');
+                clone.dataset.originalText = textoAtual;
+
             // CSS AJUSTADO PARA ALINHAMENTO À DIREITA
-            clone.style.cssText = `
+                clone.style.cssText = `
                 margin-top: 25px !important;
                 border-top: 1px solid #ddd !important;
                 padding-top: 15px !important;
@@ -1132,31 +1132,31 @@ console.log('Adicionando paginação');
                 gap: 10px !important;
                 width: 100% !important;
                 clear: both !important;
-            `;
+                `;
 
-            destino.appendChild(clone);
+                destino.appendChild(clone);
 
             // Sincroniza cliques
-            clone.querySelectorAll('a[page-documento-processo]').forEach((btn, idx) => {
-                btn.onclick = (e) => {
-                    e.preventDefault();
-                    const originais = document.querySelectorAll('.paginacao-simples:not(#paginacao-clonada-footer) a[page-documento-processo]');
-                    if (originais[idx]) originais[idx].click();
-                };
-            });
-        }
-    };
+                clone.querySelectorAll('a[page-documento-processo]').forEach((btn, idx) => {
+                    btn.onclick = (e) => {
+                        e.preventDefault();
+                        const originais = document.querySelectorAll('.paginacao-simples:not(#paginacao-clonada-footer) a[page-documento-processo]');
+                        if (originais[idx]) originais[idx].click();
+                    };
+                });
+            }
+        };
 
     // Mantemos os gatilhos de atualização
-    const paginacaoInterval = setInterval(clonarPaginacao, 1000);
-    setTimeout(() => clearInterval(paginacaoInterval), 10000);
+        const paginacaoInterval = setInterval(clonarPaginacao, 1000);
+        setTimeout(() => clearInterval(paginacaoInterval), 10000);
 
-    const containerParaObservar = document.getElementById('documentos-processo') || document.body;
-    if (containerParaObservar && !containerParaObservar.dataset.observerPaginacaoSet) {
-        const observer = new MutationObserver(() => clonarPaginacao());
-        observer.observe(containerParaObservar, { childList: true, subtree: true, characterData: true });
-        containerParaObservar.dataset.observerPaginacaoSet = "true";
-    }
+        const containerParaObservar = document.getElementById('documentos-processo') || document.body;
+        if (containerParaObservar && !containerParaObservar.dataset.observerPaginacaoSet) {
+            const observer = new MutationObserver(() => clonarPaginacao());
+            observer.observe(containerParaObservar, { childList: true, subtree: true, characterData: true });
+            containerParaObservar.dataset.observerPaginacaoSet = "true";
+        }
 
     }
 
@@ -1230,12 +1230,12 @@ console.log('Adicionando paginação');
     function adicionarBotaoAssinador() {
 
         chrome.storage.local.get(['dadosPessoais', 'processTags'], (resultado) => {
-        
-        if(resultado.dadosPessoais != EXPEDIENTE){
-            return;
-        }
 
-    });
+            if(resultado.dadosPessoais != EXPEDIENTE){
+                return;
+            }
+
+        });
 
 
         if (!isProcessoDigital()) {
@@ -1310,64 +1310,64 @@ console.log('Adicionando paginação');
 
 
 
-    async function loadExtraKanbanData(processId) {
-        const data = await chrome.storage.local.get(["processData"]);
-        const info = data.processData?.[processId];
+    function loadExtraKanbanData(idProcesso) {
+    // 1. Tenta buscar os elementos na tela
+    let divPrazo = document.getElementById(`processo-prazo-${idProcesso}`);
+    let divDescricao = document.getElementById(`processo-descricao-${idProcesso}`);
 
-        // Se não tem nada para exibir, pare
-        if (!info?.dataPrazo && !info?.description) return;
+    chrome.storage.local.get('processData', (result) => {
+        const processData = result.processData || {};
+        const processo = processData[idProcesso] || {};
+        
+        const dataPrazoRaw = processo.dataPrazo || '';
+        const descricaoRaw = processo.description || '';
 
-        // Criar a nova linha apenas quando necessário
-        const secondRow = document.createElement('div');
-        secondRow.className = 'row mt-2';
+        // Formata a data ISO (2026-06-20) para o padrão BR (20/06/2026)
+        const dataFormatada = dataPrazoRaw && dataPrazoRaw.includes('-') 
+            ? dataPrazoRaw.split('-').reverse().join('/') 
+            : dataPrazoRaw;
 
-        const secondCol = document.createElement('div');
-        secondCol.className = 'col-sm-6';
-
-        const innerRow = document.createElement('div');
-        innerRow.className = 'row';
-
-        // ---- PRAZO ----
-        if (info?.dataPrazo) {
-            const prazoCol = document.createElement('div');
-            prazoCol.className = 'col-sm-6';
-            prazoCol.id = `processo-prazo-${processId}`;
-
-            const prazoBR = info.dataPrazo.split("-").reverse().join("/");
-
-            prazoCol.innerHTML = `
-            <i class="fa fa-calendar fa-2x text-muted"></i>
-            <span class="ms-2"><strong>Prazo:</strong> ${prazoBR}</span>
+        // SE JÁ EXISTIREM NA TELA: Apenas atualiza o conteúdo interno (Evita Duplicação)
+        if (divPrazo && divDescricao) {
+            divPrazo.innerHTML = `
+                <i class="fa fa-calendar fa-2x text-muted"></i>
+                <span class="ms-2"><strong>Prazo:</strong> ${dataFormatada || 'Não definido'}</span>
             `;
-            innerRow.appendChild(prazoCol);
-        }
-
-        // ---- DESCRIÇÃO ----
-        if (info?.description) {
-            const descCol = document.createElement('div');
-            descCol.className = 'col-sm-6';
-            descCol.id = `processo-descricao-${processId}`;
-
-            descCol.innerHTML = `
-            <i class="fa fa-quote-left fa-2x text-muted"></i>
-            <span class="ms-2">${info.description}</span>
+            divDescricao.innerHTML = `
+                <i class="fa fa-quote-left fa-2x text-muted"></i>
+                <span class="ms-2">${descricaoRaw || 'Sem comentários'}</span>
             `;
-            innerRow.appendChild(descCol);
+            return; // Para a execução aqui pois já atualizou
         }
 
-        // Se nada foi criado (segurança extra)
-        if (!innerRow.children.length) return;
+        // SE NÃO EXISTIREM NA TELA: Vamos criar a estrutura completa pela primeira vez
+        // Procura o container de tags para injetar logo abaixo dele
+        const tagContainer = document.getElementById('processo-detail-tag-container');
+        if (!tagContainer) return; // Se não achar o ponto de inserção do próprio site, cancela
 
-        // Montar estrutura
-        secondCol.appendChild(innerRow);
-        secondRow.appendChild(secondCol);
+        // Cria a linha principal (row) para as informações extras do Kanban
+        const rowExtra = document.createElement('div');
+        rowExtra.className = 'row mt-2';
+        
+        rowExtra.innerHTML = `
+            <div class="col-sm-12">
+                <div class="row">
+                    <div class="col-sm-6" id="processo-prazo-${idProcesso}">
+                        <i class="fa fa-calendar fa-2x text-muted"></i>
+                        <span class="ms-2"><strong>Prazo:</strong> ${dataFormatada || 'Não definido'}</span>
+                    </div>
+                    <div class="col-sm-6" id="processo-descricao-${idProcesso}">
+                        <i class="fa fa-quote-left fa-2x text-muted"></i>
+                        <span class="ms-2">${descricaoRaw || 'Sem comentários'}</span>
+                    </div>
+                </div>
+            </div>
+        `;
 
-        // Inserir abaixo da linha original (onde estão as tags)
-        const rowParent = document.querySelector('#processo-detail-tag-container')?.parentElement;
-        if (rowParent) {
-            rowParent.parentElement.insertBefore(secondRow, rowParent.nextSibling);
-        }
-    }
+        // Injeta na página logo após o bloco de tags do processo
+        tagContainer.parentElement.appendChild(rowExtra);
+    });
+}
 
 
 
@@ -1510,31 +1510,31 @@ console.log('Adicionando paginação');
         });
     }
 
-async function reestruturarLayoutProcesso(item) {
-    const areaSituacao = item.querySelector('div[name="areasituacao"]');
-    if (!areaSituacao) return;
+    async function reestruturarLayoutProcesso(item) {
+        const areaSituacao = item.querySelector('div[name="areasituacao"]');
+        if (!areaSituacao) return;
 
     // 1. Ajusta a áreasituação para alinhar tudo à ESQUERDA (Situação + Tags)
-    areaSituacao.classList.remove('pull-right');
-    Object.assign(areaSituacao.style, {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        flexWrap: 'wrap',
-        gap: '0px'
-    });
+        areaSituacao.classList.remove('pull-right');
+        Object.assign(areaSituacao.style, {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            flexWrap: 'wrap',
+            gap: '0px'
+        });
 
     // 2. Filtra os metadados e REMOVE o hífen indesejado
-    const nodes = Array.from(areaSituacao.childNodes);
-    const metadadosParaMover = nodes.filter(node => {
-        const isSituacao = node.nodeType === 1 && node.classList.contains('situacao-caixa-entrada');
-        const isTagContainer = node.nodeType === 1 && node.classList.contains('tag-container');
-        
+        const nodes = Array.from(areaSituacao.childNodes);
+        const metadadosParaMover = nodes.filter(node => {
+            const isSituacao = node.nodeType === 1 && node.classList.contains('situacao-caixa-entrada');
+            const isTagContainer = node.nodeType === 1 && node.classList.contains('tag-container');
+
         // --- NOVO: Lógica para identificar e remover o hífen ---
-        const isHifen = (node.nodeType === 1 && node.textContent.trim() === '-') || 
-        (node.nodeType === 3 && node.textContent.trim() === '-');
-        
-        if (isHifen) {
+            const isHifen = (node.nodeType === 1 && node.textContent.trim() === '-') || 
+            (node.nodeType === 3 && node.textContent.trim() === '-');
+
+            if (isHifen) {
             node.remove(); // Remove o elemento do DOM permanentemente
             return false;
         }
@@ -1542,29 +1542,29 @@ async function reestruturarLayoutProcesso(item) {
         return !isSituacao && !isTagContainer;
     });
 
-    if (metadadosParaMover.length === 0) return;
+        if (metadadosParaMover.length === 0) return;
 
     // 3. Localiza o ponto de inserção
-    const colRequerente = item.querySelector('.col-sm-8.cxEntrada');
-    if (colRequerente) {
-        let novaCol = item.querySelector('.col-metadados-custom');
-        if (!novaCol) {
-            novaCol = document.createElement('div');
-            novaCol.className = 'col-sm-4 col-metadados-custom';
-            
-            Object.assign(novaCol.style, {
-                fontSize: '11px',
-                color: '#666',
+        const colRequerente = item.querySelector('.col-sm-8.cxEntrada');
+        if (colRequerente) {
+            let novaCol = item.querySelector('.col-metadados-custom');
+            if (!novaCol) {
+                novaCol = document.createElement('div');
+                novaCol.className = 'col-sm-4 col-metadados-custom';
+
+                Object.assign(novaCol.style, {
+                    fontSize: '11px',
+                    color: '#666',
                 textAlign: 'right', // Alinha o texto à direita
                 float: 'right',     // Flutua a div para a direita
                 marginTop: '2px'
             });
-            
-            colRequerente.parentNode.insertBefore(novaCol, colRequerente.nextSibling);
+
+                colRequerente.parentNode.insertBefore(novaCol, colRequerente.nextSibling);
+            }
+            metadadosParaMover.forEach(node => novaCol.appendChild(node));
         }
-        metadadosParaMover.forEach(node => novaCol.appendChild(node));
     }
-}
 
 
 
@@ -2701,14 +2701,14 @@ function injetarAtalhosDescricao() {
 function addSearchProcess() {
 
 
-        chrome.storage.local.get(['dadosPessoais', 'processTags'], (resultado) => {
-        
+    chrome.storage.local.get(['dadosPessoais', 'processTags'], (resultado) => {
+
         if(resultado.dadosPessoais != EXPEDIENTE){
             return;
         }
 
     });
-        
+
     // pega o número do processo da tela
     const numeroProcessoEl = document.getElementById('numero-processo');
     if (!numeroProcessoEl) return;
@@ -2827,7 +2827,7 @@ async function adicionarSelectPastaMenu() {
         // 2. Varre a estrutura para extrair a pasta atual e mapear as outras
         for (const [codigoGrupo, pastas] of Object.entries(estruturaPastas)) {
             for (const [nomePasta, dadosPasta] of Object.entries(pastas)) {
-                
+
                 // Evita colocar na lista se for lixo ou mapeamento inválido da própria caixa de entrada
                 if (!dadosPasta.codigo || String(dadosPasta.codigo) === '0' || nomePasta.toUpperCase() === 'CAIXA DE ENTRADA') continue;
 
@@ -2981,81 +2981,156 @@ async function adicionarSelectPastaMenu() {
 // =========================================================================
 // BOTÕES DE EDIÇÃO RÁPIDA: PRAZO E COMENTÁRIOS DO KANBAN
 // =========================================================================
+function garantirProcessData(processData, processId) {
+    if (!processData[processId]) {
+        processData[processId] = {
+            processNumber: "",
+            board: "",
+            description: "",
+            dataPrazo: "",
+            enteredBoardAt: Date.now(),
+            lastMove: Date.now(),
+            history: []
+        };
+    }
+
+    if (!processData[processId].history) {
+        processData[processId].history = [];
+    }
+
+    return processData[processId];
+}
+
+// Converte de AAAA-MM-DD para DD/MM/AAAA
+function formatarParaDataBR(dataISO) {
+    if (!dataISO) return '';
+    const partes = dataISO.split('-');
+    if (partes.length === 3) {
+        const [ano, mes, dia] = partes;
+        return `${dia}/${mes}/${ano}`;
+    }
+    return dataISO;
+}
+
 function adicionarBotoesCamposRapidosKanban(idProcesso, selectPastaContainer) {
     if (!selectPastaContainer || document.getElementById('btn-editar-prazo-rapido')) return;
 
-    // --- 1. BOTÃO DE PRAZO (DATA) ---
+    // ==========================
+    // BOTÃO PRAZO
+    // ==========================
     const btnPrazo = document.createElement('button');
     btnPrazo.id = 'btn-editar-prazo-rapido';
-    btnPrazo.className = 'btn btn-default ';
+    btnPrazo.className = 'btn btn-default';
     btnPrazo.title = 'Prazo do Kanban';
-    //btnPrazo.style.marginRight = '4px';
-    btnPrazo.innerHTML = `<i class="fa fa-calendar text-muted" aria-hidden="true"></i> <span>Prazo</span>`;
+    btnPrazo.innerHTML = `
+        <i class="fa fa-calendar text-muted" aria-hidden="true"></i>
+        <span>Prazo</span>
+    `;
 
     btnPrazo.addEventListener('click', (e) => {
         e.preventDefault();
+
         chrome.storage.local.get('processData', (result) => {
             const processData = result.processData || {};
             const currentData = processData[idProcesso] || {};
             const currentVal = currentData.dataPrazo || '';
+           
 
             Swal.fire({
                 title: 'Prazo do Kanban',
                 html: `
-                    <div style="text-align: left; font-size: 14px; margin-bottom: 8px;">
+                    <div style="text-align:left;font-size:14px;margin-bottom:8px;">
                         Selecione a data limite do processo:
                     </div>
-                    <input type="date" id="swal-input-date" class="swal2-input" style="margin-top: 0;" value="${currentVal}">
-                `,
-                showCancelButton: true,
-                showDenyButton: !!currentVal,
-                confirmButtonText: 'Salvar',
-                denyButtonText: 'Remover Data',
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#3085d6',
-                denyButtonColor: '#d33',
-                focusConfirm: false,
-                preConfirm: () => {
-                    return document.getElementById('swal-input-date').value;
-                }
-            }).then((res) => {
-                if (res.isConfirmed) {
-                    if (!processData[idProcesso]) processData[idProcesso] = {};
-                    processData[idProcesso].dataPrazo = res.value;
-                    processData[idProcesso].lastMove = Date.now();
-
-                    chrome.storage.local.set({ processData }, () => {
-                        showToast('success', 'Data de prazo salva com sucesso!');
-                        if (typeof loadExtraKanbanData === 'function') loadExtraKanbanData(idProcesso);
-                    });
-                } else if (res.isDenied) {
-                    if (processData[idProcesso]) {
-                        delete processData[idProcesso].dataPrazo;
-                        processData[idProcesso].lastMove = Date.now();
-                        
-                        if (Object.keys(processData[idProcesso]).length <= 1 && processData[idProcesso].lastMove) {
-                            delete processData[idProcesso];
-                        }
+                    <input
+                        type="date"
+                        id="swal-input-date"
+                        class="swal2-input"
+                        style="margin-top:0;"
+                       value="${currentVal ? currentVal.split('-').reverse().join('/') : ''}">
+        `,
+                    showCancelButton: true,
+                    showDenyButton: !!currentVal ? currentVal.split('-').reverse().join('/') : '',
+                    confirmButtonText: 'Salvar',
+                    denyButtonText: 'Remover Data',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#3085d6',
+                    denyButtonColor: '#d33',
+                    focusConfirm: false,
+                    preConfirm: () => {
+                        return document.getElementById('swal-input-date').value;
                     }
-                    chrome.storage.local.set({ processData }, () => {
-                        showToast('success', 'Prazo removido do processo.');
-                        if (typeof loadExtraKanbanData === 'function') loadExtraKanbanData(idProcesso);
-                    });
-                }
+                }).then((res) => {
+
+                    if (res.isConfirmed) {
+
+                       let dataPrazo = res.value || ''; 
+
+// Se a data vier no formato brasileiro (DD/MM/AAAA), converte para ISO (AAAA-MM-DD)
+if (dataPrazo && dataPrazo.includes('/')) {
+    const partes = dataPrazo.split('/');
+    if (partes.length === 3) {
+        const [dia, mes, ano] = partes;
+        dataPrazo = `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+    }
+}
+                        const processo = garantirProcessData(processData, idProcesso);
+
+                        processo.dataPrazo = dataPrazo;
+                        processo.lastMove = Date.now();
+
+                        processo.history.push({
+                            date: Date.now(),
+                            action: `Prazo alterado para ${dataPrazo}`
+                        });
+
+                        chrome.storage.local.set({ processData }, () => {
+                            showToast('success', 'Prazo salvo!');
+
+                            if (typeof loadExtraKanbanData === 'function') {
+                                loadExtraKanbanData(idProcesso);
+                            }
+                        });
+
+                    } else if (res.isDenied) {
+
+                        const processo = garantirProcessData(processData, idProcesso);
+
+                        processo.dataPrazo = '';
+                        processo.lastMove = Date.now();
+
+                        processo.history.push({
+                            date: Date.now(),
+                            action: 'Prazo removido'
+                        });
+
+                        chrome.storage.local.set({ processData }, () => {
+                            showToast('success', 'Prazo removido.');
+
+                            if (typeof loadExtraKanbanData === 'function') {
+                                loadExtraKanbanData(idProcesso);
+                            }
+                        });
+                    }
+                });
             });
-        });
     });
 
-    // --- 2. BOTÃO DE COMENTÁRIOS ---
+    // ==========================
+    // BOTÃO COMENTÁRIO
+    // ==========================
     const btnComment = document.createElement('button');
     btnComment.id = 'btn-editar-comment-rapido';
     btnComment.className = 'btn btn-default';
     btnComment.title = 'Comentários do Kanban';
-    //btnComment.style.marginRight = '4px';
-    btnComment.innerHTML = `<i class="fa fa-comment text-muted" aria-hidden="true"></i> <span>Comentário</span>`;
+    btnComment.innerHTML = `
+        <i class="fa fa-comment text-muted" aria-hidden="true"></i>
+        <span>Comentário</span>
+    `;
 
     btnComment.addEventListener('click', (e) => {
         e.preventDefault();
+
         chrome.storage.local.get('processData', (result) => {
             const processData = result.processData || {};
             const currentData = processData[idProcesso] || {};
@@ -3064,50 +3139,75 @@ function adicionarBotoesCamposRapidosKanban(idProcesso, selectPastaContainer) {
             Swal.fire({
                 title: 'Comentários do Kanban',
                 html: `
-                    <textarea id="swal-input-comment" class="swal2-textarea" 
-                        style="width: 90%; height: 140px; margin: 0 auto; font-family: sans-serif; font-size: 14px;" 
-                        placeholder="Escreva anotações internas para o quadro Kanban...">${currentVal}</textarea>
-                `,
-                showCancelButton: true,
-                showDenyButton: !!currentVal,
-                confirmButtonText: 'Salvar',
-                denyButtonText: 'Remover Texto',
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#3085d6',
-                denyButtonColor: '#d33',
-                focusConfirm: false,
-                preConfirm: () => {
-                    return document.getElementById('swal-input-comment').value;
-                }
-            }).then((res) => {
-                if (res.isConfirmed) {
-                    if (!processData[idProcesso]) processData[idProcesso] = {};
-                    processData[idProcesso].description = res.value;
-                    processData[idProcesso].lastMove = Date.now();
-
-                    chrome.storage.local.set({ processData }, () => {
-                        showToast('success', 'Comentário updated!');
-                        if (typeof loadExtraKanbanData === 'function') loadExtraKanbanData(idProcesso);
-                    });
-                } else if (res.isDenied) {
-                    if (processData[idProcesso]) {
-                        delete processData[idProcesso].description;
-                        processData[idProcesso].lastMove = Date.now();
-
-                        if (Object.keys(processData[idProcesso]).length <= 1 && processData[idProcesso].lastMove) {
-                            delete processData[idProcesso];
-                        }
+                    <textarea
+                        id="swal-input-comment"
+                        class="swal2-textarea"
+                        style="width:90%;height:140px;margin:0 auto;font-family:sans-serif;font-size:14px;"
+                        placeholder="Escreva anotações internas para o quadro Kanban..."
+                    >${currentVal}</textarea>
+                    `,
+                    showCancelButton: true,
+                    showDenyButton: !!currentVal,
+                    confirmButtonText: 'Salvar',
+                    denyButtonText: 'Remover Texto',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#3085d6',
+                    denyButtonColor: '#d33',
+                    focusConfirm: false,
+                    preConfirm: () => {
+                        return document.getElementById('swal-input-comment').value;
                     }
-                    chrome.storage.local.set({ processData }, () => {
-                        showToast('success', 'Comentário apagado.');
-                        if (typeof loadExtraKanbanData === 'function') loadExtraKanbanData(idProcesso);
-                    });
-                }
+                }).then((res) => {
+
+                    if (res.isConfirmed) {
+
+                        const texto = res.value || '';
+
+                        const processo = garantirProcessData(processData, idProcesso);
+
+                        processo.description = texto;
+                        processo.lastMove = Date.now();
+
+                        processo.history.push({
+                            date: Date.now(),
+                            action: 'Descrição alterada'
+                        });
+
+                        chrome.storage.local.set({ processData }, () => {
+                            showToast('success', 'Comentário salvo!');
+
+                            if (typeof loadExtraKanbanData === 'function') {
+                                loadExtraKanbanData(idProcesso);
+                            }
+                        });
+
+                    } else if (res.isDenied) {
+
+                        const processo = garantirProcessData(processData, idProcesso);
+
+                        processo.description = '';
+                        processo.lastMove = Date.now();
+
+                        processo.history.push({
+                            date: Date.now(),
+                            action: 'Descrição removida'
+                        });
+
+                        chrome.storage.local.set({ processData }, () => {
+                            showToast('success', 'Comentário removido.');
+
+                            if (typeof loadExtraKanbanData === 'function') {
+                                loadExtraKanbanData(idProcesso);
+                            }
+                        });
+                    }
+                });
             });
-        });
     });
 
-    // Injeta os dois botões no DOM imediatamente à ESQUERDA do container do select de pastas
+    // ==========================
+    // INSERÇÃO DOS BOTÕES
+    // ==========================
     selectPastaContainer.parentNode.insertBefore(btnPrazo, selectPastaContainer);
     selectPastaContainer.parentNode.insertBefore(btnComment, selectPastaContainer);
 }
@@ -3442,7 +3542,7 @@ function consultarPastaDoProcesso(idProcesso) {
 
             for (const [codigoGrupo, pastas] of Object.entries(estruturaPastas)) {
                 for (const [nomePasta, dadosPasta] of Object.entries(pastas)) {
-                    
+
                     if (!dadosPasta.processos || dadosPasta.processos.length === 0) continue;
                     
                     // Mostra quais IDs existem na pasta para você comparar visualmente no console
@@ -3561,13 +3661,13 @@ function atualizarBadgesPastas() {
             // Varre a estrutura real multinível gerada pelo seu mapeador (Grupo -> NomePasta)
           let temAlerta = false; // Inicializa a flag de alerta como falsa
 
-            for (const codigoGrupo in dadosMapeados) {
-                const grupo = dadosMapeados[codigoGrupo];
-                for (const nomePasta in grupo) {
-                    const dadosPasta = grupo[nomePasta];
-                    if (String(dadosPasta.codigo) === String(pastaId)) {
-                        if (dadosPasta.processos && Array.isArray(dadosPasta.processos)) {
-                            quantidadeAtual = dadosPasta.processos.length;
+          for (const codigoGrupo in dadosMapeados) {
+            const grupo = dadosMapeados[codigoGrupo];
+            for (const nomePasta in grupo) {
+                const dadosPasta = grupo[nomePasta];
+                if (String(dadosPasta.codigo) === String(pastaId)) {
+                    if (dadosPasta.processos && Array.isArray(dadosPasta.processos)) {
+                        quantidadeAtual = dadosPasta.processos.length;
                             temAlerta = dadosPasta.alertaNovo || false; // 🚨 Captura o estado de alerta salvo no storage
                             encontrouNoMapeamento = true;
                             break;
@@ -3899,7 +3999,7 @@ setTimeout(async () => {
         }
 
         if (isPastaUrl2() || isPastaUrl()) {
-         
+
 
             await carregarEAgruparTodasAsPaginas();
             initializeFeatures();
@@ -3907,27 +4007,27 @@ setTimeout(async () => {
 
 
             // Exemplo de execução
-            if (window.location.href.includes('/CaixaEntrada')) {
+        if (window.location.href.includes('/CaixaEntrada')) {
                 // 1. Extrai a lista do HTML atual da home
-                console.log("🏁 Página inicial detectada. Atualizando processos...");
-                
+            console.log("🏁 Página inicial detectada. Atualizando processos...");
+
                 // 1. Extrai a lista do HTML atual da página
-                const estruturaMapeada = extrairEstruturaPastas();
-                
+            const estruturaMapeada = extrairEstruturaPastas();
+
                 // 2. Se encontrou pastas na página, executa a busca e armazenamento
-                if (Object.keys(estruturaMapeada).length > 0) {
-                    mapearProcessosDasPastas(estruturaMapeada);
-                }
+            if (Object.keys(estruturaMapeada).length > 0) {
+                mapearProcessosDasPastas(estruturaMapeada);
             }
+        }
 
 
-if (window.location.href.includes('/CaixaEntrada/GerenciarPastas')) {
-    console.log('Injetando controle de Badges na Tabela...');
-    injetarSwitchesGerenciamento();
-}
+        if (window.location.href.includes('/CaixaEntrada/GerenciarPastas')) {
+            console.log('Injetando controle de Badges na Tabela...');
+            injetarSwitchesGerenciamento();
+        }
 
     // Executa a renderização dos Badges
-    atualizarBadgesPastas();
+        atualizarBadgesPastas();
 
 
 
