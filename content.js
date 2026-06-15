@@ -2907,8 +2907,8 @@ async function adicionarSelectPastaMenu() {
         if (todasAsPastasMapeadas.length > 0) {
             const optDivider = document.createElement('option');
             optDivider.textContent = '──────── Mover para Pasta ─────────';
-            optDivider.disabled = true; // Mantém desabilitado para o usuário não conseguir clicar nele
-            optDivider.style.textAlign = 'center'; // Centraliza o texto (alguns navegadores dão suporte a isso no select nativo)
+            optDivider.disabled = true; 
+            optDivider.style.textAlign = 'center'; 
             select.appendChild(optDivider);
         }
 
@@ -2930,20 +2930,15 @@ async function adicionarSelectPastaMenu() {
             select.disabled = true;
 
             try {
-                // Cenário A: Mover para Caixa de Entrada (Desvincular)
                 if (valorSelecionado === 'DESVINCULAR') {
                     if (pastaAtual && pastaAtual.codigoPasta) {
                         console.log(`⏳ Removendo processo ${idProcesso} da pasta...`);
                         await removerProcessoDaPasta(idProcesso, pastaAtual.codigoPasta);
-                        
-                        // Atualiza o cache tirando o processo da pasta antiga
                         await atualizarCacheProcessoPasta(idProcesso, pastaAtual.codigoPasta, null, estruturaPastas);
                         console.log('✔ Processo movido para a Caixa de Entrada.');
                     }
                 } 
-                // Cenário B: Trocar de pasta ou Vincular uma nova
                 else {
-                    // Se ele já estava em uma pasta diferente, roda o Desvincular nativo do site primeiro
                     if (pastaAtual && pastaAtual.codigoPasta) {
                         console.log(`⏳ Desvinculando da pasta anterior antes de mudar...`);
                         await removerProcessoDaPasta(idProcesso, pastaAtual.codigoPasta);
@@ -2952,13 +2947,11 @@ async function adicionarSelectPastaMenu() {
                     console.log(`⏳ Vinculando processo ${idProcesso} à pasta de código ${valorSelecionado}...`);
                     await adicionarProcessoAPasta(idProcesso, valorSelecionado);
                     
-                    // Atualiza o cache inserindo na nova pasta (e tirando da antiga se existisse)
                     const codigoAntigo = pastaAtual ? pastaAtual.codigoPasta : null;
                     await atualizarCacheProcessoPasta(idProcesso, codigoAntigo, valorSelecionado, estruturaPastas);
                     console.log('✔ Processo vinculado com sucesso.');
                 }
 
-                // Aguarda o alerta visual fixar na tela e atualiza
                 setTimeout(() => {
                     window.location.reload();
                 }, 1000);
@@ -2976,9 +2969,147 @@ async function adicionarSelectPastaMenu() {
         btnRecibo.insertAdjacentElement('afterend', btnContainer);
         console.log(`✔ Botão interativo (${textoPastaExibicao}) injetado.`);
 
+        // [CORREÇÃO]: Chamar a função de injeção dos botões rápidos KANBAN 
+        // APÓS o contêiner já estar devidamente inserido no DOM da página
+        adicionarBotoesCamposRapidosKanban(idProcesso, btnContainer);
+
     } catch (err) {
         console.error('❌ Erro geral ao processar o select de pastas:', err);
     }
+}
+
+// =========================================================================
+// BOTÕES DE EDIÇÃO RÁPIDA: PRAZO E COMENTÁRIOS DO KANBAN
+// =========================================================================
+function adicionarBotoesCamposRapidosKanban(idProcesso, selectPastaContainer) {
+    if (!selectPastaContainer || document.getElementById('btn-editar-prazo-rapido')) return;
+
+    // --- 1. BOTÃO DE PRAZO (DATA) ---
+    const btnPrazo = document.createElement('button');
+    btnPrazo.id = 'btn-editar-prazo-rapido';
+    btnPrazo.className = 'btn btn-default ';
+    btnPrazo.title = 'Prazo do Kanban';
+    //btnPrazo.style.marginRight = '4px';
+    btnPrazo.innerHTML = `<i class="fa fa-calendar text-muted" aria-hidden="true"></i> <span>Prazo</span>`;
+
+    btnPrazo.addEventListener('click', (e) => {
+        e.preventDefault();
+        chrome.storage.local.get('processData', (result) => {
+            const processData = result.processData || {};
+            const currentData = processData[idProcesso] || {};
+            const currentVal = currentData.dataPrazo || '';
+
+            Swal.fire({
+                title: 'Prazo do Kanban',
+                html: `
+                    <div style="text-align: left; font-size: 14px; margin-bottom: 8px;">
+                        Selecione a data limite do processo:
+                    </div>
+                    <input type="date" id="swal-input-date" class="swal2-input" style="margin-top: 0;" value="${currentVal}">
+                `,
+                showCancelButton: true,
+                showDenyButton: !!currentVal,
+                confirmButtonText: 'Salvar',
+                denyButtonText: 'Remover Data',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#3085d6',
+                denyButtonColor: '#d33',
+                focusConfirm: false,
+                preConfirm: () => {
+                    return document.getElementById('swal-input-date').value;
+                }
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    if (!processData[idProcesso]) processData[idProcesso] = {};
+                    processData[idProcesso].dataPrazo = res.value;
+                    processData[idProcesso].lastMove = Date.now();
+
+                    chrome.storage.local.set({ processData }, () => {
+                        showToast('success', 'Data de prazo salva com sucesso!');
+                        if (typeof loadExtraKanbanData === 'function') loadExtraKanbanData(idProcesso);
+                    });
+                } else if (res.isDenied) {
+                    if (processData[idProcesso]) {
+                        delete processData[idProcesso].dataPrazo;
+                        processData[idProcesso].lastMove = Date.now();
+                        
+                        if (Object.keys(processData[idProcesso]).length <= 1 && processData[idProcesso].lastMove) {
+                            delete processData[idProcesso];
+                        }
+                    }
+                    chrome.storage.local.set({ processData }, () => {
+                        showToast('success', 'Prazo removido do processo.');
+                        if (typeof loadExtraKanbanData === 'function') loadExtraKanbanData(idProcesso);
+                    });
+                }
+            });
+        });
+    });
+
+    // --- 2. BOTÃO DE COMENTÁRIOS ---
+    const btnComment = document.createElement('button');
+    btnComment.id = 'btn-editar-comment-rapido';
+    btnComment.className = 'btn btn-default';
+    btnComment.title = 'Comentários do Kanban';
+    //btnComment.style.marginRight = '4px';
+    btnComment.innerHTML = `<i class="fa fa-comment text-muted" aria-hidden="true"></i> <span>Comentário</span>`;
+
+    btnComment.addEventListener('click', (e) => {
+        e.preventDefault();
+        chrome.storage.local.get('processData', (result) => {
+            const processData = result.processData || {};
+            const currentData = processData[idProcesso] || {};
+            const currentVal = currentData.description || '';
+
+            Swal.fire({
+                title: 'Comentários do Kanban',
+                html: `
+                    <textarea id="swal-input-comment" class="swal2-textarea" 
+                        style="width: 90%; height: 140px; margin: 0 auto; font-family: sans-serif; font-size: 14px;" 
+                        placeholder="Escreva anotações internas para o quadro Kanban...">${currentVal}</textarea>
+                `,
+                showCancelButton: true,
+                showDenyButton: !!currentVal,
+                confirmButtonText: 'Salvar',
+                denyButtonText: 'Remover Texto',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#3085d6',
+                denyButtonColor: '#d33',
+                focusConfirm: false,
+                preConfirm: () => {
+                    return document.getElementById('swal-input-comment').value;
+                }
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    if (!processData[idProcesso]) processData[idProcesso] = {};
+                    processData[idProcesso].description = res.value;
+                    processData[idProcesso].lastMove = Date.now();
+
+                    chrome.storage.local.set({ processData }, () => {
+                        showToast('success', 'Comentário updated!');
+                        if (typeof loadExtraKanbanData === 'function') loadExtraKanbanData(idProcesso);
+                    });
+                } else if (res.isDenied) {
+                    if (processData[idProcesso]) {
+                        delete processData[idProcesso].description;
+                        processData[idProcesso].lastMove = Date.now();
+
+                        if (Object.keys(processData[idProcesso]).length <= 1 && processData[idProcesso].lastMove) {
+                            delete processData[idProcesso];
+                        }
+                    }
+                    chrome.storage.local.set({ processData }, () => {
+                        showToast('success', 'Comentário apagado.');
+                        if (typeof loadExtraKanbanData === 'function') loadExtraKanbanData(idProcesso);
+                    });
+                }
+            });
+        });
+    });
+
+    // Injeta os dois botões no DOM imediatamente à ESQUERDA do container do select de pastas
+    selectPastaContainer.parentNode.insertBefore(btnPrazo, selectPastaContainer);
+    selectPastaContainer.parentNode.insertBefore(btnComment, selectPastaContainer);
 }
 
 // Executa o Ajax exato fornecido para a vinculação, injetando o código dinâmico direto no window

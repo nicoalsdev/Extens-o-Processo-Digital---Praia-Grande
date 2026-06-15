@@ -1614,12 +1614,17 @@ function enableAutoRefresh() {
 
         // modo Mock — não gera loop
     setInterval(() => {
-      if (isRefreshing) return;
-
-      isRefreshing = true;
-      init().then(() => {
-        isRefreshing = false;
-    });
+     chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === 'local' && (changes.processData || changes.processTags)) {
+        console.log("🔄 Mudança detectada no storage! Atualizando o quadro Kanban...");
+        if (!isRefreshing) {
+            isRefreshing = true;
+            init().then(() => {
+                setTimeout(() => (isRefreshing = false), 200);
+            });
+        }
+    }
+});
   }, 1500);
 }
 }
