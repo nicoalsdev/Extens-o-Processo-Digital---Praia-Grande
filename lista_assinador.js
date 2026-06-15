@@ -1608,9 +1608,9 @@ let tentativasBotao = 0;
 const checarBotaoInterval = setInterval(() => {
     const btn = document.getElementById("toggleView");
     if (btn) {
-        ligarToggleButton();
+        //ligarToggleButton();
         // Atualiza o texto inicial do botão baseado no localStorage
-        btn.innerText = modoTabela ? "🗂 Visualizar como Cards" : "📄 Visualizar como Tabela";
+        //btn.innerText = modoTabela ? "🗂 Visualizar como Cards" : "📄 Visualizar como Tabela";
         clearInterval(checarBotaoInterval);
     }
     tentativasBotao++;
