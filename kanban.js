@@ -2,8 +2,43 @@
  let cachedBoards = [];
 // NOVO: Controle para garantir que o listener de refresh só seja anexado uma vez
  let autoRefreshListenerAttached = false;
+//LOAD
 
- const view_board = true;
+const DEFAULT_SETTINGS = {
+    sortHomepage: true,
+    sortFolders: true,
+    showTags: true,
+    menuType: 'Avancado',//'Simples',
+    darkMode: false, // 👈 adicionar
+    showBoard: true
+
+
+};
+var view_board = DEFAULT_SETTINGS.showBoard;
+// --- CÓDIGO EXISTENTE NO KANBAN.JS ---
+chrome.storage.local.get('userSettings', (data) => {
+    const settings = { ...DEFAULT_SETTINGS, ...data.userSettings };
+    console.log(settings);
+    view_board = settings.showBoard;
+});
+
+// --- ADICIONE ESTE BLOCO LOGO ABAIXO ---
+if (typeof chrome !== 'undefined' && chrome.storage) {
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+        if (areaName === 'local' && changes.userSettings) {
+            const newSettings = changes.userSettings.newValue || {};
+            // Atualiza a variável de controle da visualização
+            if (typeof newSettings.showBoard !== 'undefined') {
+                view_board = newSettings.showBoard;
+                
+                // Se a função init existir, recarrega o quadro com a nova configuração
+                if (typeof init === 'function') {
+                    init();
+                }
+            }
+        }
+    });
+}
  // MOCK do storage (substitua por chrome.storage.local na extensão)
  const mockStorage = {
    predefinedTags: [{}
@@ -28,7 +63,7 @@ function sortPredefinedTags(tags) {
 });
 }
 
-
+   
 
 // Abrir modal ao clicar no botão "+"
 document.addEventListener("click", (e) => {

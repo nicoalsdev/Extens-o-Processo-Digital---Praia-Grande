@@ -69,7 +69,8 @@ const DEFAULT_SETTINGS = {
     sortFolders: true,
     showTags: true,
     menuType: 'Avancado',//'Simples',
-    darkMode: false // 👈 adicionar
+    darkMode: false, // 👈 adicionar
+    showBoard: true
 
 };
 
@@ -97,12 +98,13 @@ function escapeHtml(s) {
 function loadSettings() {
     chrome.storage.local.get('userSettings', (data) => {
         const settings = { ...DEFAULT_SETTINGS, ...data.userSettings };
-
-        // Switches originais
+        //console.log(settings);
+        // Switches originais   
         document.getElementById('sortHomepage').checked = settings.sortHomepage;
         document.getElementById('sortFolders').checked = settings.sortFolders;
         document.getElementById('showTags').checked = settings.showTags;
         document.getElementById('darkMode').checked = settings.darkMode;
+        document.getElementById('showBoard').checked = settings.showBoard;
 
           const isDark = document.getElementById('darkMode').checked;
 
@@ -123,6 +125,7 @@ function loadSettings() {
 
 // 2. Salva uma única configuração
 function saveSetting(key, value) {
+    
     chrome.storage.local.get('userSettings', (data) => {
         const currentSettings = data.userSettings || {};
         currentSettings[key] = value;
@@ -628,6 +631,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('showTags').addEventListener('change', (e) => {
         saveSetting('showTags', e.target.checked);
+    });
+    document.getElementById('showBoard').addEventListener('change', (e) => {
+        saveSetting('showBoard', e.target.checked);
     });
 
 document.getElementById('darkMode').addEventListener('change', (e) => {

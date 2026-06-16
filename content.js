@@ -12,7 +12,8 @@
         sortHomepage: true,
         sortFolders: true,
         showTags: true,
-        menuType: 'Avancado'//'Simples'
+        menuType: 'Avancado',//'Simples'
+        showBoard: true;
     };
     let isMenuOpening = false; // Flag para evitar que o clique feche o menu imediatamente
     let observer = null;
@@ -1350,7 +1351,7 @@ function selecionarDocumento(linha, indice, onCompleteCallback) {
         rowExtra.className = 'row mt-2';
         
         rowExtra.innerHTML = `
-            <div class="col-sm-12">
+            <div class="col-sm-12 mb-3">
                 <div class="row">
                     <div class="col-sm-6" id="processo-prazo-${idProcesso}">
                         <i class="fa fa-calendar fa-2x text-muted"></i>
