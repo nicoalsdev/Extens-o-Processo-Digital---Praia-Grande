@@ -319,6 +319,14 @@ div.form-upload, form.form-upload {
     border-radius: 12px !important;
 }
 
+            .linha-documento-grupo>.nome{
+            width: 60%;
+            }
+             div.linha-documento-grupo>.tipo{
+            width: 15%;
+            text-align: center !important;
+            }
+
 
         `;
 
