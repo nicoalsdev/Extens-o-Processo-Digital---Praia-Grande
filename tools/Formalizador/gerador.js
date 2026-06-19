@@ -243,8 +243,7 @@ deselecionarTudoBtn.addEventListener('click', (e) => {
 <p style='margin-top:0cm;margin-right:0cm;margin-bottom:.0001pt;margin-left:0cm;font-size:9.5pt;font-family:"Century Gothic",sans-serif;text-align:justify;'><strong><span style="font-family:Century Gothic;">Nome: </span></strong><strong><span style="font-family:Century Gothic;color:black;">XXXXXX</span></strong><span style="font-family:Century Gothic;color:black;">&nbsp;</span></p>
 <p style='margin-top:0cm;margin-right:0cm;margin-bottom:.0001pt;margin-left:0cm;font-size:9.5pt;font-family:"Century Gothic",sans-serif;text-align:justify;'><strong><span style="font-family:Century Gothic;">Cargo: </span></strong><span style="font-family:Century Gothic;">S&oacute;cio &ndash; administrador.</span></p>
 <p style='margin-top:0cm;margin-right:0cm;margin-bottom:.0001pt;margin-left:0cm;font-size:9.5pt;font-family:"Century Gothic",sans-serif;text-align:justify;'><strong><span style="font-family:Century Gothic;">CPF:</span></strong><span style="font-family:Century Gothic;">&nbsp;</span><span style="font-family:Century Gothic;color:black;">XXXXXX</span></p>
-<p><strong><span style='font-size:9.5pt;font-family:"Century Gothic",sans-serif;'>Assinatura:</span></strong><span style='font-size:9.5pt;font-family:"Century Gothic",sans-serif;'>&nbsp;_________________________________________________________________________________</span></p>
-  <p style="font-family:'Century Gothic','CenturyGothic', Arial, sans-serif;font-size:9.5pt;border-bottom:3px solid #000;<strong>&nbsp;</strong></p>
+<p style="font-family:'Century Gothic','CenturyGothic', Arial, sans-serif;font-size:9.5pt;border-bottom:3px solid #000;<strong>&nbsp;</strong></p>
     <p style='margin-top:0cm;margin-right:0cm;margin-bottom:12.0pt;margin-left:0cm;font-size:9.5pt;font-family:"Century Gothic",sans-serif;text-align:justify;line-height:125%;border:none;padding:0cm;'><s><span style="font-family:Century Gothic;"><span style="text-decoration:none;">&nbsp;</span></span></s></p>
 <p style='margin-top:0cm;margin-right:0cm;margin-bottom:12.0pt;margin-left:0cm;font-size:9.5pt;font-family:"Century Gothic",sans-serif;text-align:justify;line-height:125%;'><strong><u><span style="font-family:Century Gothic;">DEMAIS RESPONS&Aacute;VEIS(*):</span></u></strong></p>
 <p style='margin-top:0cm;margin-right:0cm;margin-bottom:12.0pt;margin-left:0cm;font-size:9.5pt;font-family:"Century Gothic",sans-serif;text-align:justify;'><strong><span style="font-family:Century Gothic;">Tipo de ato sob sua responsabilidade: _______________________________________________________</span></strong></p>
@@ -429,3 +428,5 @@ btnTexto3.addEventListener("click", () => selecionarTexto(3));
        // gerarEmailButton.addEventListener("click", gerarEmail);
 
 });
+
+//<p><strong><span style='font-size:9.5pt;font-family:"Century Gothic",sans-serif;'>Assinatura:</span></strong><span style='font-size:9.5pt;font-family:"Century Gothic",sans-serif;'>&nbsp;_________________________________________________________________________________</span></p>
