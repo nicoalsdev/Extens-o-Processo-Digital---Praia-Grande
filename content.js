@@ -13,7 +13,11 @@
         sortFolders: true,
         showTags: true,
         menuType: 'Avancado',//'Simples'
+<<<<<<< HEAD
         showBoard: true
+=======
+        showBoard: true;
+>>>>>>> ce2067a4e12f76fe94193bb7d7c0baba3ccb5960
     };
     let isMenuOpening = false; // Flag para evitar que o clique feche o menu imediatamente
     let observer = null;
