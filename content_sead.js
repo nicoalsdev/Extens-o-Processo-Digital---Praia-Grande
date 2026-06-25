@@ -1,8 +1,8 @@
-    function isPastaUrl() {
-        const url = window.location.href;
-        const pastaBaseUrl = 'https://assinadordigitalexterno.praiagrande.sp.gov.br/';
-        return url.startsWith(pastaBaseUrl);
-    }
+function isPastaUrl() {
+    const url = window.location.href;
+    const pastaBaseUrl = 'https://assinadordigitalexterno.praiagrande.sp.gov.br/';
+    return url.startsWith(pastaBaseUrl);
+}
 
 // ======================================================
 // FUNÇÃO: Aguardar até encontrar um campo no DOM real
@@ -33,72 +33,40 @@ let preenchimentoExecutado = false;
 // ======================================================
 // Marcar Secretarias
 // ======================================================
-/**
- * Função auxiliar para criar uma pausa assíncrona.
- * @param {number} ms - Milissegundos para esperar.
- */
- /**
- * Função auxiliar para criar uma pausa assíncrona.
- * @param {number} ms - Milissegundos para esperar.
- */
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-/**
- * Marca os checkboxes correspondentes aos setores, adicionando um atraso de 500ms entre cada marcação.
- * Restaura 'cb.checked = true' e adiciona evento 'input' para máxima compatibilidade.
- * @param {HTMLElement} container - O elemento pai que contém os checkboxes.
- * @param {string[]} setores - Array de strings com os valores dos setores a serem marcados.
- */
 async function marcarSetores(container, setores) {
-    // Busca inputs com valor definido (evita placeholders)
     const checkboxes = container.querySelectorAll("input[type='checkbox'][value]");
 
-    // Itera sobre cada setor que precisa ser marcado
     for (const setor of setores) {
         let marcado = false;
 
-        // Itera sobre todos os checkboxes disponíveis
         for (const cb of checkboxes) {
             const title = cb.getAttribute("title")?.trim();
             const value = cb.getAttribute("value")?.trim();
 
             if (title === setor || value === setor) {
-                
-                // 1. REFORÇO OBRIGATÓRIO: Força o estado do DOM
                 cb.checked = true; 
-                
-                // 2. Foca no elemento (como feito antes, ajuda na inicialização do script nativo)
                 cb.focus();
-
-                // 3. Simula a entrada de dados (INPUT) antes do click/change
-                // Isso pode ser o que o InfoPath está esperando para detectar a mudança.
                 cb.dispatchEvent(new Event("input", { bubbles: true })); 
-                
-                // 4. Simula o clique para acionar a função nativa do SharePoint
                 cb.dispatchEvent(new Event("click", { bubbles: true }));
-                
-                // 5. Simula a mudança (CHANGE)
                 cb.dispatchEvent(new Event("change", { bubbles: true }));
 
                 console.log("🟢 Setor marcado:", setor);
                 marcado = true;
-
-                // Quebra o loop interno para ir para o próximo setor
                 break;
             }
         }
         
         if (marcado) {
-            // Atraso de 500ms
             await sleep(300);
         } else {
             console.warn(`Setor não encontrado: ${setor}`);
         }
     }
 }
-
 
 // ======================================================
 // LISTENER PRINCIPAL
@@ -109,9 +77,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
     if (preenchimentoExecutado) {
         console.log("⚠ Ignorando: preenchimento já executado.");
-        // Se a execução for ignorada, você ainda precisa responder se retornou 'true' antes,
-        // mas como você faz um 'return' antecipado, você evita o 'return true' no final.
-        // A maneira mais segura de tratar este caso é NÃO retornar true E responder imediatamente:
         sendResponse({ status: "ignorado", detalhes: "preenchimento já executado" });
         return; 
     }
@@ -119,79 +84,64 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     preenchimentoExecutado = true;
     console.log("🔵 Mensagem recebida:", msg);
 
-    // 🔴 PASSO 1: MOSTRA O BLOQUEIO DE TELA
     showLoadingOverlay();
 
-    // ** PASSO 1: Chamada Assíncrona que Recebe sendResponse **
     (async () => {
         try {
-            // Campos reais do InfoPath
             const idTitulo = "V1_I1_T1";
             const idLink = "V1_I1_T2";
             const idCheckboxes = "V1_I1_MSC8";
-            const idCheckboxes2 = "V1_I1_MSC9"; // Novo ID do campo
+            const idCheckboxes2 = "V1_I1_MSC9";
+            
+            const idCategoria = "V1_I1_D3"; 
+            const idData = "V1_I1_T4";      
 
             console.log("⏳ Aguardando campos do formulário...");
 
-
-
-
-            
-
-
-
-
-            // Aguarda e preenche os campos principais
             const tituloEl = await waitField(idTitulo);
             const linkEl = await waitField(idLink);
+            const categoriaEl = await waitField(idCategoria);
+            const dataEl = await waitField(idData);
 
             if (!tituloEl) throw new Error("❌ Campo TÍTULO não encontrado");
             if (!linkEl) throw new Error("❌ Campo LINK não encontrado");
 
-            // Preenchimento estável
             preencherCampo(tituloEl, msg.titulo);
             preencherCampo(linkEl, msg.link);
             
-             // Lógica de marcação
-        // 1. Captura a primeira lista (V1_I1_MSC8) e marca
-    const listaEl = await waitField(idCheckboxes);
-    
-    if (listaEl && msg.setores?.length) {
-        await marcarSetores(listaEl, msg.setores); 
-    }
-    
-    // 2. RECUPERA A SEGUNDA LISTA APÓS A PRIMEIRA TER SIDO MARCADA
-    // (Isso garante que, se o DOM mudou, pegamos o elemento atualizado)
-    const listaEl2 = await waitField(idCheckboxes2); 
-    
-    // 3. Marca a segunda lista
-    if (listaEl2 && msg.setores?.length) {
-        await marcarSetores(listaEl2, msg.setores); 
-    }
+            if (msg.categoria) {
+               await selecionarDropdown(idCategoria, msg.categoria); 
+            }
+            if (dataEl && msg.data) {
+                preencherCampo(dataEl, msg.data);
+            }
 
-        console.log("🟢 Preenchido com sucesso!");
+            const listaEl = await waitField(idCheckboxes);
+            if (listaEl && msg.setores?.length) {
+                await marcarSetores(listaEl, msg.setores); 
+            }
+            
+            const listaEl2 = await waitField(idCheckboxes2); 
+            if (listaEl2 && msg.setores?.length) {
+                await marcarSetores(listaEl2, msg.setores); 
+            }
 
-            // ** PASSO 2: CHAMA sendResponse EM CASO DE SUCESSO **
+            console.log("🟢 Preenchido com sucesso!");
             sendResponse({ status: "sucesso", titulo: msg.titulo });
 
         } catch (error) {
             console.error("❌ Erro durante o preenchimento:", error.message);
-            
-            // ** PASSO 3: CHAMA sendResponse EM CASO DE ERRO **
             sendResponse({ status: "erro", detalhes: error.message });
         } finally {
-            // 🟢 GARANTE QUE O OVERLAY SERÁ REMOVIDO NO FINAL
             hideLoadingOverlay();
         }
     })();
 
-    // ** PASSO 4: Retorna true para manter o canal aberto **
     return true; 
 });
 
-
 // ======================================================
-// Preenche o campo de forma estável (InfoPath é chato)
+// Preenche o campo de forma estável
 // ======================================================
 function preencherCampo(campo, valor) {
     campo.value = valor;
@@ -202,7 +152,6 @@ function preencherCampo(campo, valor) {
 
     console.log("🟢 Preenchido:", campo.getAttribute("originalid"), valor);
 
-    // Refaz preenchimento caso InfoPath recrie o DOM
     setTimeout(() => {
         const originalId = campo.getAttribute("originalid");
         const novoCampo = document.querySelector(`[originalid="${originalId}"]`);
@@ -217,17 +166,13 @@ function preencherCampo(campo, valor) {
     }, 1000);
 }
 
-
-
 // ======================================================
 // FUNÇÕES DE BLOQUEIO DE TELA
 // ======================================================
-
 function showLoadingOverlay(message = "Preenchendo formulário automaticamente...") {
     const overlay = document.createElement('div');
     overlay.id = 'extension-loading-overlay';
     
-    // Adiciona o CSS do overlay (se não estiver em um arquivo CSS separado)
     const style = document.createElement('style');
     style.textContent = `
         #extension-loading-overlay {
@@ -258,5 +203,102 @@ function hideLoadingOverlay() {
     const overlay = document.getElementById('extension-loading-overlay');
     if (overlay) {
         overlay.remove();
+    }
+}
+
+// ======================================================
+// Preenche campos do tipo Select (Dropdown) no InfoPath
+// ======================================================
+async function selecionarDropdown(originalId, valor) {
+    console.log(`🔎 Aguardando dropdown carregar as opções. Procurando por: [${valor}]`);
+    
+    if (!originalId || !valor) return;
+
+    let selectEl = null;
+    let indexEncontrado = -1;
+    let valorReal = "";
+
+    const limparString = (str) => {
+        if (!str) return "";
+        return String(str).normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase().replace(/\s+/g, " ");
+    };
+
+    const valorBuscado = limparString(valor);
+
+    // Loop de espera: tenta por até 5 segundos (25 tentativas de 200ms)
+    for (let tentativa = 0; tentativa < 25; tentativa++) {
+        selectEl = document.querySelector(`[originalid="${originalId}"]`);
+        
+        if (selectEl) {
+            // "Cutuca" o InfoPath com um evento de foco para forçá-lo a carregar a lista
+            selectEl.dispatchEvent(new Event("focus", { bubbles: true }));
+            selectEl.dispatchEvent(new Event("mousedown", { bubbles: true }));
+            
+            const options = selectEl.options || selectEl.querySelectorAll("option");
+            
+            // Se tiver mais de 1 opção (a vazia + as opções reais), as opções carregaram!
+            if (options.length > 1) {
+                for (let i = 0; i < options.length; i++) {
+                    const valOption = limparString(options[i].value);
+                    const textoOption = limparString(options[i].textContent || options[i].innerText);
+
+                    if (valOption === valorBuscado || textoOption === valorBuscado) {
+                        indexEncontrado = i;
+                        valorReal = options[i].value;
+                        break;
+                    }
+                }
+
+                if (indexEncontrado !== -1) {
+                    break; // Encontrou a opção correta, sai do loop de espera!
+                }
+            }
+        }
+        // Espera 200ms antes de verificar de novo
+        await sleep(200);
+    }
+
+    if (!selectEl) {
+        console.warn(`⚠ Dropdown [${originalId}] não apareceu na tela.`);
+        return;
+    }
+
+    if (indexEncontrado !== -1) {
+        const options = selectEl.options || selectEl.querySelectorAll("option");
+        
+        selectEl.dispatchEvent(new Event("focus", { bubbles: true }));
+        selectEl.selectedIndex = indexEncontrado;
+        if(options[indexEncontrado]) options[indexEncontrado].selected = true;
+        selectEl.value = valorReal; 
+        
+        selectEl.dispatchEvent(new Event("input", { bubbles: true }));
+        selectEl.dispatchEvent(new Event("change", { bubbles: true }));
+        selectEl.dispatchEvent(new Event("blur", { bubbles: true }));
+        
+        console.log(`🟢 Dropdown preenchido com sucesso: "${valorReal}"`);
+        
+        // Reforço
+        setTimeout(() => {
+            const novoSelect = document.querySelector(`[originalid="${originalId}"]`);
+            if (novoSelect && novoSelect.selectedIndex !== indexEncontrado) {
+                novoSelect.dispatchEvent(new Event("focus", { bubbles: true }));
+                novoSelect.selectedIndex = indexEncontrado;
+                novoSelect.value = valorReal;
+                novoSelect.dispatchEvent(new Event("change", { bubbles: true }));
+            }
+        }, 1000);
+
+    } else {
+        // Se após 5 segundos as opções não carregaram ou não achou o valor
+        console.warn(`❌ Valor "[${valor}]" não encontrado! O select tinha apenas:`);
+        const options = selectEl.options || selectEl.querySelectorAll("option");
+        for (let i = 0; i < options.length; i++) {
+            console.log(`- Opção ${i}: value="${options[i].value}", texto="${options[i].textContent || options[i].innerText}"`);
+        }
+        
+        // Tentativa de "força bruta" injetando o valor na marra
+        console.log(`🛠️ Tentando forçar o valor na marra...`);
+        selectEl.value = valor;
+        selectEl.dispatchEvent(new Event("change", { bubbles: true }));
     }
 }

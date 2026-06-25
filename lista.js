@@ -1,6 +1,6 @@
   const SIGNED_DOCUMENTS_KEY = 'signedDocuments';
-        const documentsList = document.getElementById('documents-list');
-        const emptyMessage = document.getElementById('empty-message');
+  const documentsList = document.getElementById('documents-list');
+  const emptyMessage = document.getElementById('empty-message');
 
 
         //let documentosAgrupados = {}; // ← acessível em todo o código
@@ -12,7 +12,7 @@
          */
 
 
-         function renderGroupCard(processo, grupo, docMaisRecente) {
+  function renderGroupCard(processo, grupo, docMaisRecente) {
 
     const cardWrapper = document.createElement("div");
     cardWrapper.className = "col-12 col-sm-6 col-md-4 col-lg-3";
@@ -24,7 +24,7 @@
 
     card.innerHTML = `
         <div class="card-body d-flex flex-column">
-            
+        
             <h6 class="fw-bold text-primary">
                 ${grupo[0].empresa || "EMPRESA DESCONHECIDA"}<br>
                 Processo: ${processo}
@@ -127,23 +127,23 @@ function renderList() {
 }
 
 
-        function showToast(message, icon = 'info') {
-            Swal.fire({
-                toast: true,
-                position: 'bottom-end',
-                icon: icon,
-                title: message,
-                showConfirmButton: false,
-                timer: 4000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                }
-            });
+function showToast(message, icon = 'info') {
+    Swal.fire({
+        toast: true,
+        position: 'bottom-end',
+        icon: icon,
+        title: message,
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
         }
+    });
+}
 
-        function createItemHTML(item, index) {
+function createItemHTML(item, index) {
     return `
         <li class="list-group-item">
 
@@ -169,23 +169,23 @@ function renderList() {
          * @param {string} isoString Data em formato ISO.
          * @returns {string} Data e hora formatadas.
          */
-        function formatDateTime(isoString) {
-            if (!isoString) return 'Data Desconhecida';
-            const date = new Date(isoString);
-            
+function formatDateTime(isoString) {
+    if (!isoString) return 'Data Desconhecida';
+    const date = new Date(isoString);
+    
             // Opções de formatação para data e hora
-            const options = {
-                day: '2-digit', month: '2-digit', year: 'numeric',
-                hour: '2-digit', minute: '2-digit',
-                hour12: false
-            };
-            
-            try {
-                return date.toLocaleTimeString('pt-BR', options);
-            } catch (e) {
-                return date.toLocaleTimeString(undefined, options);
-            }
-        }
+    const options = {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+        hour12: false
+    };
+    
+    try {
+        return date.toLocaleTimeString('pt-BR', options);
+    } catch (e) {
+        return date.toLocaleTimeString(undefined, options);
+    }
+}
 
 function buscarAssinaturas(id, cardElement) {
 
@@ -217,7 +217,7 @@ function buscarAssinaturas(id, cardElement) {
             }
 
         }
-    );
+        );
 }
 
 /**
@@ -239,7 +239,7 @@ function agruparDocumentosPorProcesso(documentos) {
          * Renderiza um único item da lista.
          * @param {Object} doc O objeto do documento.
          */
-    function renderDocumentItem(doc) {
+function renderDocumentItem(doc) {
     const dateStr = formatDateTime(doc.dataSalvo);
 
     const cardWrapper = document.createElement('div');
@@ -268,7 +268,7 @@ function agruparDocumentosPorProcesso(documentos) {
             </div>
 
             <div class="d-flex justify-content-between">
-               
+     
 
                 <button 
                     class="btn btn-sm btn-danger delete-btn"
@@ -310,7 +310,7 @@ async function deleteProcess(processo) {
     showToast("Processo removido!", "success");
     //renderAll();
 }
-    
+
 
 document.addEventListener("click", function (e) {
 
@@ -329,7 +329,7 @@ document.addEventListener("click", function (e) {
         if (setoresContainer) {
             // Busca todos os inputs marcados DENTRO do container global
             setoresMarcados = [...setoresContainer.querySelectorAll("input:checked")]
-                .map(i => i.value);
+            .map(i => i.value);
         }
         
         console.log("Setores Marcados (Global):", setoresMarcados);
@@ -338,21 +338,29 @@ document.addEventListener("click", function (e) {
         // --------------------------------------------------------
 
 // --- NOVA LÓGICA DE DATA ---
-    const hoje = new Date();
-    const dataPrazo = new Date(hoje);
-    dataPrazo.setDate(hoje.getDate() + 7);
+        const hoje = new Date();
+        const dataPrazo = new Date(hoje);
+        dataPrazo.setDate(hoje.getDate() + 7);
 
     // Formata para DD/MM/YYYY
-    const prazoFormatado = dataPrazo.toLocaleDateString('pt-BR'); 
+        const prazoFormatado = dataPrazo.toLocaleDateString('pt-BR'); 
     // ---------------------------
 
         const empresa = btn.dataset.empresa || '';
         const processo = btn.dataset.processo || '';
         const link = btn.dataset.link || '';
         const titulo = `${empresa} - ${processo}`;
+        const categoriaVal = document.getElementById('categoria').value; // Pega a categoria do select
 
+        let dataFormatada = "";
+        const dataVal = document.getElementById('data').value;
+        if (dataVal) {
+    // Converte de AAAA-MM-DD para DD/MM/AAAA (formato InfoPath)
+            const partes = dataVal.split('-');
+            dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`; 
+        }
         const urlSharepoint =
-            "https://www.intra.pg/SEAD/Lists/AssDigital/Item/newifs.aspx?List=da67fc64-1b63-4608-b859-8de4bc9b1fd8&Source=http%3A%2F%2Fwww.intra.pg%2FSEAD%2FSitePages%2Fassd2.aspx&RootFolder=&Web=8e1dc9f9-9ceb-4c32-9146-0572f2adb824";
+        "https://www.intra.pg/SEAD/Lists/AssDigital/Item/newifs.aspx?List=da67fc64-1b63-4608-b859-8de4bc9b1fd8&Source=http%3A%2F%2Fwww.intra.pg%2FSEAD%2FSitePages%2Fassd2.aspx&RootFolder=&Web=8e1dc9f9-9ceb-4c32-9146-0572f2adb824";
 
         // Cria a aba
         chrome.tabs.create({ url: urlSharepoint }, function (tab) {
@@ -375,14 +383,16 @@ document.addEventListener("click", function (e) {
                         titulo,
                         link,
                         prazo: prazoFormatado,
-                        setores: setoresMarcados // Usa o array capturado globalmente
-                    }, (response) => {
-                        if (chrome.runtime.lastError) {
-                            console.error("Erro sendMessage:", chrome.runtime.lastError.message);
-                        } else {
-                            console.log("Resposta do content_sead:", response);
-                        }
-                    });
+                setores: setoresMarcados, // Usa o array capturado globalmente
+                categoria: categoriaVal,  // <-- NOVO CAMPO ADICIONADO
+                data: dataFormatada       // <-- NOVO CAMPO ADICIONADO
+            }, (response) => {
+                if (chrome.runtime.lastError) {
+                    console.error("Erro sendMessage:", chrome.runtime.lastError.message);
+                } else {
+                    console.log("Resposta do content_sead:", response);
+                }
+            });
 
                     // remove o listener (uma vez enviado, não precisamos mais)
                     chrome.tabs.onUpdated.removeListener(onUpdated);
@@ -399,14 +409,17 @@ document.addEventListener("click", function (e) {
                         action: "preencher_sead",
                         titulo,
                         link,
-                        setores: setoresMarcados
-                    }, (response) => {
-                        if (chrome.runtime.lastError) {
-                            console.warn("Fallback sendMessage falhou:", chrome.runtime.lastError.message);
-                        } else {
-                            console.log("Fallback resposta:", response);
-                        }
-                    });
+                       prazo: prazoFormatado,     // Adicionado aqui para manter igual ao principal
+                       setores: setoresMarcados,
+                categoria: categoriaVal,   // <-- NOVO CAMPO NO FALLBACK TAMBÉM
+                data: dataFormatada        // <-- NOVO CAMPO NO FALLBACK TAMBÉM
+            }, (response) => {
+                if (chrome.runtime.lastError) {
+                    console.warn("Fallback sendMessage falhou:", chrome.runtime.lastError.message);
+                } else {
+                    console.log("Fallback resposta:", response);
+                }
+            });
                 } catch (e) {
                     console.warn("Erro no fallback sendMessage:", e);
                 }
@@ -458,7 +471,7 @@ if (deleteBtn) {
     }
 });
 
-document.addEventListener("DOMContentLoaded", function() {
+  document.addEventListener("DOMContentLoaded", function() {
     const selectAllBtn = document.getElementById("select-all-setores-btn");
     const setoresContainer = document.querySelector(".setores-container");
     let allChecked = false; // Estado inicial: nada marcado
@@ -483,7 +496,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 });
 
-function renderizarCheckboxes() {
+  function renderizarCheckboxes() {
     const container = document.getElementById('container-checkboxes-dinamicas');
     if (!container || typeof secretarias === 'undefined') return;
 
@@ -511,51 +524,51 @@ function renderizarCheckboxes() {
         /**
          * Carrega e exibe a lista de documentos.
          */
-        async function loadDocuments() {
-            try {
+async function loadDocuments() {
+    try {
                 // Obtém a API de armazenamento da extensão.
-                if (typeof chrome === 'undefined' || !chrome.storage) {
-                    console.error("API de chrome.storage não disponível.");
-                    emptyMessage.style.display = 'block';
-                    document.getElementById('clear-all-btn').style.display = 'none';
-                    return;
-                }
-                
-                const result = await chrome.storage.local.get([SIGNED_DOCUMENTS_KEY]);
-                const documents = result[SIGNED_DOCUMENTS_KEY] || [];
+        if (typeof chrome === 'undefined' || !chrome.storage) {
+            console.error("API de chrome.storage não disponível.");
+            emptyMessage.style.display = 'block';
+            document.getElementById('clear-all-btn').style.display = 'none';
+            return;
+        }
+        
+        const result = await chrome.storage.local.get([SIGNED_DOCUMENTS_KEY]);
+        const documents = result[SIGNED_DOCUMENTS_KEY] || [];
 
                 // Limpa a lista antes de renderizar
-                documentsList.innerHTML = '';
+        documentsList.innerHTML = '';
 
-                if (documents.length === 0) {
-                    emptyMessage.style.display = 'block';
-                    document.getElementById('clear-all-btn').style.display = 'none';
-                } else {
-                    emptyMessage.style.display = 'none';
-                    document.getElementById('clear-all-btn').style.display = 'inline-block';
-                    
+        if (documents.length === 0) {
+            emptyMessage.style.display = 'block';
+            document.getElementById('clear-all-btn').style.display = 'none';
+        } else {
+            emptyMessage.style.display = 'none';
+            document.getElementById('clear-all-btn').style.display = 'inline-block';
+            
                     // Renderiza os documentos
-                    documents.forEach(renderDocumentItem);
+            documents.forEach(renderDocumentItem);
 
-                }
-
-            } catch (error) {
-                console.error("Erro ao carregar documentos:", error);
-                showToast('Erro ao carregar a lista de documentos.', 'error');
-            }
         }
+
+    } catch (error) {
+        console.error("Erro ao carregar documentos:", error);
+        showToast('Erro ao carregar a lista de documentos.', 'error');
+    }
+}
 
         /**
          * Confirma a exclusão de um único documento usando SweetAlert2.
          * @param {string} docId ID do documento (GUID ou Link Curto).
          * @param {string} docProcesso Número do processo para exibição.
          */
-        window.confirmDelete = function(docId, docProcesso) {
-            Swal.fire({
-                title: 'Tem certeza?',
-                html: `Você deseja remover o documento <strong>${docProcesso}</strong> da sua lista?`,
-                icon: 'warning',
-                showCancelButton: true,
+window.confirmDelete = function(docId, docProcesso) {
+    Swal.fire({
+        title: 'Tem certeza?',
+        html: `Você deseja remover o documento <strong>${docProcesso}</strong> da sua lista?`,
+        icon: 'warning',
+        showCancelButton: true,
                 confirmButtonColor: '#dc3545', // Cor vermelha customizada
                 cancelButtonColor: '#6c757d', // Cor cinza (secondary)
                 confirmButtonText: 'Sim, remover!',
@@ -645,30 +658,30 @@ function renderizarCheckboxes() {
         }
 
 
-document.addEventListener("click", function(e) {
-    const btn = e.target.closest("button");
+        document.addEventListener("click", function(e) {
+            const btn = e.target.closest("button");
 
-    if (!btn) return;
+            if (!btn) return;
 
     // Botão EXCLUIR
-    if (btn.dataset.action === "delete") {
-        const id = btn.dataset.id;
-        const processo = btn.dataset.processo;
-        confirmDelete(id, processo);
-    }
+            if (btn.dataset.action === "delete") {
+                const id = btn.dataset.id;
+                const processo = btn.dataset.processo;
+                confirmDelete(id, processo);
+            }
 
     // Botão LIMPAR TODOS
-    if (btn.id === "clear-all-btn") {
-        confirmClearAll();
-    }
-});
+            if (btn.id === "clear-all-btn") {
+                confirmClearAll();
+            }
+        });
 
 
 
-window.confirmDelete = confirmDelete;
-window.deleteDocument = deleteDocument;
-window.confirmClearAll = confirmClearAll;
-window.clearAllDocuments = clearAllDocuments;
+        window.confirmDelete = confirmDelete;
+        window.deleteDocument = deleteDocument;
+        window.confirmClearAll = confirmClearAll;
+        window.clearAllDocuments = clearAllDocuments;
         // Inicia o carregamento da lista
         document.addEventListener('DOMContentLoaded', loadDocuments);
 
@@ -680,8 +693,8 @@ chrome.storage.onChanged.addListener((changes, area) => {
 });
 */
 
-chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === "local" && changes[SIGNED_DOCUMENTS_KEY]) {
-        loadDocuments(); 
-    }
-});
+        chrome.storage.onChanged.addListener((changes, area) => {
+            if (area === "local" && changes[SIGNED_DOCUMENTS_KEY]) {
+                loadDocuments(); 
+            }
+        });

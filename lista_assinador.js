@@ -1414,9 +1414,9 @@ async function executarBusca(termoManual = null) {
         
         // Compara o termo limpo com o título e ID também limpos
         const tituloLimpo = normalizarParaBusca(item.Title);
-        const idString = String(item.ID);
+        //const idString = String(item.ID);
 
-        return tituloLimpo.includes(valorLimpo) || idString.includes(valorLimpo);
+        return tituloLimpo.includes(valorLimpo) ;//|| idString.includes(valorLimpo);
     });
     const filtroAtivo = document.getElementById("selectGrupo")?.value;
     if (filtroAtivo && filtroAtivo !== "todos") {

@@ -5,8 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Lista de Documentos Assinados</title>
 
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+        
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
         
         <!-- Importação do Bootstrap 5 LOCAL -->
         <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -98,7 +98,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="d-inline-block" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.5rem;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M10 15h4M12 17v-4"></path></svg>
                     Subir Para o Assinador ADM
                 </h1>
-            <button id="clear-all-btn" class="btn btn-sm btn-danger rounded-pill fw-semibold">
+                <button id="clear-all-btn" class="btn btn-sm btn-danger rounded-pill fw-semibold">
 
                     Limpar Todos
                 </button>
@@ -107,60 +107,78 @@
 
         <div class="container" style="padding-top: 90px;">
             
-<div class="card mb-4 shadow-sm bg-white">
-    
-   <div class="card-header border-bottom d-flex justify-content-between align-items-center">
-    <h5 class="fw-bold mb-0 text-primary-color">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-diagram-3-fill" viewBox="0 0 16 16" style="vertical-align: sub; margin-right: 0.5rem;">
-            <path fill-rule="evenodd" d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6h-1A1.5 1.5 0 0 1 6 4.5zM2.5 9A1.5 1.5 0 0 1 4 7.5h1A1.5 1.5 0 0 1 6.5 9v1.5a1.5 1.5 0 0 1-1.5 1.5h-1A1.5 1.5 0 0 1 2.5 10.5zm6 0a1.5 1.5 0 0 1 1.5-1.5h1A1.5 1.5 0 0 1 12.5 9v1.5a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5z"/>
-        </svg>
-        Selecione os Setores Envolvidos:
-    </h5>
-    
-    <div>
-        <button id="select-all-setores-btn" class="btn btn-sm btn-outline-success    me-2" type="button">
-            Selecionar Todos
-        </button>
-        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSetores" aria-expanded="false" aria-controls="collapseSetores">
-            Mostrar/Esconder
-        </button>
-    </div>
-</div>
-    
-    <div class="collapse" id="collapseSetores">
-        <div class="card-body setores-container">
-            <div class="row g-2" id="container-checkboxes-dinamicas">
+            <div class="card mb-4 shadow-sm bg-white">
+                
+               <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-primary-color">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-diagram-3-fill" viewBox="0 0 16 16" style="vertical-align: sub; margin-right: 0.5rem;">
+                        <path fill-rule="evenodd" d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6h-1A1.5 1.5 0 0 1 6 4.5zM2.5 9A1.5 1.5 0 0 1 4 7.5h1A1.5 1.5 0 0 1 6.5 9v1.5a1.5 1.5 0 0 1-1.5 1.5h-1A1.5 1.5 0 0 1 2.5 10.5zm6 0a1.5 1.5 0 0 1 1.5-1.5h1A1.5 1.5 0 0 1 12.5 9v1.5a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5z"/>
+                    </svg>
+                    Selecione os Setores Envolvidos:
+                </h5>
+                
+                <div>
+                    <button id="select-all-setores-btn" class="btn btn-sm btn-outline-success    me-2" type="button">
+                        Selecionar Todos
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSetores" aria-expanded="false" aria-controls="collapseSetores">
+                        Mostrar/Esconder
+                    </button>
+                </div>
             </div>
+            
+            <div class="collapse" id="collapseSetores">
+                <div class="card-body setores-container">
+                    <div class="row g-2" id="container-checkboxes-dinamicas">
+                    </div>
+                    <div class="row g-3 mb-3 text-dark">
+                        <div class="col-12 col-md-6">
+                            <label for="categoria" class="form-label fw-semibold">Categoria:</label>
+                            <select id="categoria" class="form-select border-secondary-subtle">
+                                <option value="" selected>Selecione uma categoria...</option>
+                                <option value="Contrato">Contrato</option>
+                                <option value="Encerramento">Encerramento</option>
+                                <option value="Prorrogação">Prorrogação</option>
+                                <option value="Retificação">Retificação</option>
+                                <option value="Termo de Ata">Termo de Ata</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label for="data" class="form-label fw-semibold">Data:</label>
+                            <input type="date" id="data" class="form-control border-secondary-subtle">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>  
+
+        <!-- Div para a mensagem de lista vazia -->
+        <div id="empty-message" class="text-center p-5 bg-white rounded-3 shadow-sm" style="display:none;">
+            <p class="h5 text-secondary fw-medium mb-2">Sua lista de documentos está vazia.</p>
+            <p class="text-muted">Os documentos assinados aparecerão aqui automaticamente.</p>
+        </div>
+
+        <!-- Lista de Documentos -->
+        <div class="container mt-4">
+            <div class="row g-3" id="documents-list"></div>
         </div>
     </div>
-</div>  
-
-            <!-- Div para a mensagem de lista vazia -->
-            <div id="empty-message" class="text-center p-5 bg-white rounded-3 shadow-sm" style="display:none;">
-                <p class="h5 text-secondary fw-medium mb-2">Sua lista de documentos está vazia.</p>
-                <p class="text-muted">Os documentos assinados aparecerão aqui automaticamente.</p>
-            </div>
-
-            <!-- Lista de Documentos -->
-            <div class="container mt-4">
-        <div class="row g-3" id="documents-list"></div>
-    </div>
-        </div>
 
 
-        
-        <!-- Container para toasts de notificação (O SweetAlert2 gerencia isso, não precisamos de um container customizado, mas vamos mantê-lo vazio para o caso de algum script antigo o referenciar) -->
-        <div id="custom-toast-container" style="display:none;"></div>
+    
+    <!-- Container para toasts de notificação (O SweetAlert2 gerencia isso, não precisamos de um container customizado, mas vamos mantê-lo vazio para o caso de algum script antigo o referenciar) -->
+    <div id="custom-toast-container" style="display:none;"></div>
 
-        <script src="lista.js"></script>
+    <script src="lista.js"></script>
 
-        <!-- Importação do JS do SweetAlert2 LOCAL -->
-        <script src="js/sweetalert2.min.js"></script>
-        <!-- Importação do JS do Bootstrap 5 LOCAL -->
-        <script src="js/bootstrap.min.js"></script>
-    </body>
+    <!-- Importação do JS do SweetAlert2 LOCAL -->
+    <script src="js/sweetalert2.min.js"></script>
+    <!-- Importação do JS do Bootstrap 5 LOCAL -->
+    <script src="js/bootstrap.min.js"></script>
+</body>
 
 <script src="theme.js"></script>
 
-    <script src="secretarias.js"></script>
-    </html>
+<script src="secretarias.js"></script>
+</html>
