@@ -327,6 +327,26 @@ div.form-upload, form.form-upload {
             text-align: center !important;
             }
 
+        /* ===============================
+   MGC THEME
+=============================== */
+
+                .jarviswidget>div {
+    background-color: #403f3d !important;
+}
+
+            #header {
+    background-image: linear-gradient(to bottom, #3a3633, #3a3633);
+      }
+
+#content {
+    BACKGROUND-COLOR: #1d1d1d;
+}
+
+
+            .fundoMedio {
+    background-color: rgb(29 29 29);
+}
 
         `;
 
@@ -874,6 +894,7 @@ footer.layout-principal-rodape.rodape.simples {
 .pg-panel {
     border: 0px solid #efefef;
 }
+
                 ` : ''}
             `;
 
@@ -970,7 +991,7 @@ if (darkModeToggle) {
 // Inicialização corrigida
     function init() {
     refreshTheme(); // Carrega o estado atual ao abrir a página
-    createThemeControls();
+    //createThemeControls();
     
     chrome.storage.onChanged.addListener((changes) => {
         if (changes.customTheme || changes.userSettings) {
