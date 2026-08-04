@@ -169,6 +169,7 @@ chrome.omnibox.onInputEntered.addListener((text) => {
 // ========================================================================
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 const ORIGINAL_ASSINADOR_URL = "https://www.intra.pg/SEAD/SitePages/assd2.aspx"; // <--- MANTENHA O URL CORRETO AQUI!
+const GOOGLE_SHEETS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxduFhre4_KdwnZLhwsseSUOEBoQ1PtwvX4MwT5ctC1c0OFVGv7LaTW4B0ESfgEosaD/exec";
 
     // 🚨 CORREÇÃO ESSENCIAL: Define tabId usando o objeto sender
     // Se a mensagem não veio de uma aba (e.g., popup), sender.tab pode ser nulo.
@@ -233,9 +234,93 @@ case "openNewViewTab":
     url: chrome.runtime.getURL("lista_assinador.html")
 });
 
- 
  break;
+
+
+case "removerStatusSheets":
+    fetch(GOOGLE_SHEETS_WEBAPP_URL, {
+        method: "POST",
+        redirect: "follow",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ 
+            acao: "remover", 
+            id: msg.id 
+        })
+    })
+    .then(res => res.text())
+    .then(text => {
+        try {
+            const data = JSON.parse(text);
+            sendResponse({ success: true, data });
+        } catch (e) {
+            // Se o Google redirecionou mas a exclusão ocorreu na planilha
+            console.warn("⚠️ Resposta do Apps Script após remoção não veio em JSON puro:", text);
+            sendResponse({ success: true, warning: "Removido na planilha com redirecionamento HTML" });
+        }
+    })
+    .catch(err => {
+        console.error("❌ Erro ao remover do Sheets:", err);
+        sendResponse({ success: false, error: err.toString() });
+    });
+
+    return true; // Mantémanal aberto para a resposta assíncrona
+
+break;
  
+ 
+case "salvarStatusSheets":
+    chrome.storage.local.get(['dadosPessoais'], (result) => {
+        const dadosPessoais = result.dadosPessoais || {};
+        const nomeUsuario = dadosPessoais.nome || "Usuário Interno";
+
+        fetch(GOOGLE_SHEETS_WEBAPP_URL, {
+            method: "POST",
+            redirect: "follow",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ 
+                id: msg.id, 
+                status: msg.status,
+                usuario: nomeUsuario 
+            })
+        })
+        .then(res => res.text())
+        .then(text => {
+            try {
+                const data = JSON.parse(text);
+                sendResponse({ success: true, data: data });
+            } catch (e) {
+                console.error("❌ Resposta inválida do Sheets:", text);
+                sendResponse({ success: false, error: "Resposta não JSON do Sheets" });
+            }
+        })
+        .catch(err => {
+            console.error("❌ Erro no POST do Sheets:", err);
+            sendResponse({ success: false, error: err.toString() });
+        });
+    });
+    return true; // IMPRESCINDÍVEL: mantém a porta de comunicação aberta até o fetch responder!
+
+case "obterStatusSheets":
+    fetch(GOOGLE_SHEETS_WEBAPP_URL, {
+        method: "GET",
+        redirect: "follow"
+    })
+    .then(res => res.text())
+    .then(text => {
+        try {
+            const data = JSON.parse(text);
+            sendResponse({ success: true, data: data });
+        } catch (e) {
+            console.error("❌ Erro ao parsear GET do Sheets:", text);
+            sendResponse({ success: false, data: {} });
+        }
+    })
+    .catch(err => {
+        console.error("❌ Erro no GET do Sheets:", err);
+        sendResponse({ success: false, data: {} });
+    });
+    return true; // IMPRESCINDÍVEL: mantém a porta de comunicação aberta até o fetch responder!
+
 case "goToOriginalAssinador":
                 // ATUALIZA a aba atual (tabId) com o URL externo (Original)
     chrome.tabs.update(tabId, {
@@ -289,6 +374,7 @@ case "capturarDadosCompletos": {
     });
     return true; 
 }
+break;
 
 case "prepareBatchUpload":
     // Recebe a lista de arquivos. Nota: Se forem muitos arquivos grandes, 

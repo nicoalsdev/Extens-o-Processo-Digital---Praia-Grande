@@ -16,7 +16,8 @@
   "host_permissions": [
     "https://www.intra.pg/*",
     "https://loginunicointerno.praiagrande.sp.gov.br/*",
-    "https://processodigital.praiagrande.sp.gov.br/*"
+    "https://processodigital.praiagrande.sp.gov.br/*",
+    "https://script.google.com/*"
   ],
 
   "background": {

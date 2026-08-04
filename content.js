@@ -51,6 +51,10 @@
         pointer-events: none !important;
     }
     `;
+
+    const GOOGLE_SHEETS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwvF2H3C6g443dVW5_Ktn-mxFjRBOC7aOLqEr9eEAhUM2xvq5U1xph-E2Q6Asus97Hc/exec";
+    const STATUS_ETAPAS_PROCESSO = ["Análise", "Formalizando", "Assinador", "Convocação", "Publicação", "Juntada"];
+
     document.head.appendChild(estiloPopover);
 
 
@@ -541,25 +545,37 @@ function selecionarDocumento(linha, indice, onCompleteCallback) {
         return match ? match[1] : null;
     }
 
-    function getProcessIdFromListElement(processoEl) {
-        if (!processoEl) return null;
+function getProcessIdFromListElement(processoEl) {
+    if (!processoEl) return null;
 
-        const idEl = processoEl.querySelector('.pd-inbox-item-id');
-        if (idEl) {
-            let id = idEl.getAttribute('data-processo');
-            if (id) return id;
-
-            const textContent = idEl.textContent.trim();
-            const match = textContent.match(/\d+$/);
-            if (match) return match[0];
-        }
-
-        if (processoEl.getAttribute('data-processo')) {
-            return processoEl.getAttribute('data-processo');
-        }
-
-        return null;
+    // 1. Tenta buscar no próprio elemento ou no link <a> principal
+    let id = processoEl.getAttribute('data-processo');
+    if (!id) {
+        const parentLink = processoEl.closest('a[data-processo]');
+        if (parentLink) id = parentLink.getAttribute('data-processo');
     }
+    if (id) return String(id).trim();
+
+    // 2. Busca na div de classe .pd-inbox-item-id
+    const idEl = processoEl.querySelector('.pd-inbox-item-id');
+    if (idEl) {
+        id = idEl.getAttribute('data-processo');
+        if (id) return String(id).trim();
+
+        const textContent = idEl.textContent.trim();
+        const match = textContent.match(/\d+$/);
+        if (match) return match[0];
+    }
+
+    // 3. Fallback pela URL contida no atributo href (ex: /processo/188894)
+    const href = processoEl.getAttribute('href') || (processoEl.querySelector('a') ? processoEl.querySelector('a').getAttribute('href') : '');
+    if (href) {
+        const matchHref = href.match(/\/processo\/(\d+)/i);
+        if (matchHref) return matchHref[1];
+    }
+
+    return null;
+}
 
     // Função para extrair e converter a data do texto do processo
     function parseDate(text) {
@@ -823,40 +839,54 @@ function selecionarDocumento(linha, indice, onCompleteCallback) {
     }
 
 
-    function removeAllTags(idProcesso, processTags) {
-
+   function removeAllTags(idProcesso, processTags) {
     // 🔒 Clona para evitar efeitos colaterais
-        const updatedTags = { ...processTags };
-        const keysToRemove = [];
+    const updatedTags = { ...processTags };
+    const keysToRemove = [];
 
-    // 1️⃣ Remove TODAS as tags do processo
-        Object.keys(updatedTags).forEach(tagInstanceId => {
-            if (
-                tagInstanceId.startsWith(idProcesso + '-') ||
-                tagInstanceId.startsWith(idProcesso + '_')
-                ) {
-                keysToRemove.push(tagInstanceId);
+    // 1️⃣ Remove TODAS as tags locais do processo no storage
+    Object.keys(updatedTags).forEach(tagInstanceId => {
+        if (
+            tagInstanceId.startsWith(idProcesso + '-') ||
+            tagInstanceId.startsWith(idProcesso + '_')
+        ) {
+            keysToRemove.push(tagInstanceId);
             delete updatedTags[tagInstanceId];
         }
     });
 
-        if (keysToRemove.length === 0) return;
-
-    // 2️⃣ Remove também os dados do card (prazo, descrição, board, histórico)
-        chrome.storage.local.get(['processData'], (result) => {
-            const processData = result.processData || {};
-
-            if (processData[idProcesso]) {
-                delete processData[idProcesso];
+    // 2️⃣ Dispara a remoção do Status no Google Sheets em segundo plano
+    if (typeof removerStatusEtapaProcesso === 'function') {
+        removerStatusEtapaProcesso(idProcesso);
+    } else {
+        chrome.runtime.sendMessage(
+            { action: "removerStatusSheets", id: idProcesso },
+            (response) => {
+                if (response && response.success) {
+                    sessionStorage.removeItem('sheets_status_cache');
+                    console.log(`🗑️ Status do processo ${idProcesso} removido da planilha Google Sheets.`);
+                }
             }
-
-        // 3️⃣ Salva tudo limpo
-            chrome.storage.local.set({
-                processTags: updatedTags,
-                processData
-            });
-        });
+        );
     }
+
+    if (keysToRemove.length === 0) return;
+
+    // 3️⃣ Remove também os dados estendidos do card (prazo, descrição, board, histórico)
+    chrome.storage.local.get(['processData'], (result) => {
+        const processData = result.processData || {};
+
+        if (processData[idProcesso]) {
+            delete processData[idProcesso];
+        }
+
+        // 4️⃣ Salva tudo limpo
+        chrome.storage.local.set({
+            processTags: updatedTags,
+            processData
+        });
+    });
+}
 
 
 
@@ -1280,35 +1310,36 @@ function selecionarDocumento(linha, indice, onCompleteCallback) {
 
 
     function esperarMenuEAdicionarKanban() {
-    // >> OTIMIZAÇÃO: Tenta encontrar o menu IMEDIATAMENTE <<
-        const menuSuperior = document.querySelector("#_pg-icon-menu");
-        const menuLateral = document.querySelector("#_pg-icon-navmenu");
+    const menuSuperior = document.querySelector("#_pg-icon-menu");
+    const menuLateral = document.querySelector("#_pg-icon-navmenu");
 
-        if (menuSuperior || menuLateral) {
-        // ✅ SUCESSO! O menu já estava pronto, adicionamos e SAÍMOS.
+    // CAPTURA A ID AQUI PARA PASSAR ADIANTE
+    const idProcessoMenu = getProcessIdFromDetailUrl(); 
+
+    if (menuSuperior || menuLateral) {
+        adicionarBotaoKanban();
+        if (idProcessoMenu) adicionarSelectStatusNoMenuSuperior(idProcessoMenu); // Passando a ID!
+        adicionarBotaoAssinador();
+        return;
+    }
+
+    const observer = new MutationObserver((mutationsList, obs) => {
+        const mSuperior = document.querySelector("#_pg-icon-menu");
+        const mLateral = document.querySelector("#_pg-icon-navmenu");
+
+        if (mSuperior || mLateral) {
             adicionarBotaoKanban();
+            if (idProcessoMenu) adicionarSelectStatusNoMenuSuperior(idProcessoMenu); // Passando a ID!
             adicionarBotaoAssinador();
-            return;
-        }
-
-    // ⬇️ FALLBACK: Se não encontrou de imediato, configura o observador
-        const observer = new MutationObserver((mutationsList, obs) => {
-        // O MutationObserver precisa buscar novamente a cada mudança
-            const mSuperior = document.querySelector("#_pg-icon-menu");
-            const mLateral = document.querySelector("#_pg-icon-navmenu");
-
-            if (mSuperior || mLateral) {
-                adicionarBotaoKanban();
-                adicionarBotaoAssinador();
-            obs.disconnect(); // Usa o 'obs' passado no callback
+            obs.disconnect(); 
         }
     });
 
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-    }
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+}
 
 
 
@@ -1511,6 +1542,7 @@ function selecionarDocumento(linha, indice, onCompleteCallback) {
 
             isApplyingTags = false;
         });
+        aplicarTagsStatusNasListas();
     }
 
     async function reestruturarLayoutProcesso(item) {
@@ -3765,15 +3797,181 @@ function limparAlertaDaPasta(pastaId) {
 }
 
 
+async function obterStatusTodosProcessosSheets() {
+    const cachedData = sessionStorage.getItem('sheets_status_cache');
+    const cachedTime = sessionStorage.getItem('sheets_status_cache_time');
+    
+    // Cache rápido de 60 segundos
+    if (cachedData && cachedTime && (Date.now() - Number(cachedTime) < 60000)) {
+        try {
+            return JSON.parse(cachedData);
+        } catch (e) {
+            sessionStorage.removeItem('sheets_status_cache');
+        }
+    }
+
+    return new Promise((resolve) => {
+        chrome.runtime.sendMessage({ action: "obterStatusSheets" }, (response) => {
+            // Verifica de forma segura se 'response' existe e possui 'success'
+            if (chrome.runtime.lastError) {
+                console.warn("⚠️ Erro de comunicação interna no Chrome:", chrome.runtime.lastError.message);
+                resolve({});
+                return;
+            }
+
+            if (response && response.success && response.data) {
+                const data = response.data;
+                sessionStorage.setItem('sheets_status_cache', JSON.stringify(data));
+                sessionStorage.setItem('sheets_status_cache_time', Date.now().toString());
+                resolve(data);
+            } else {
+                const msgErro = (response && response.error) ? response.error : "Resposta nula ou inválida do background";
+                console.warn("⚠️ Não foi possível obter o status da planilha:", msgErro);
+                resolve({});
+            }
+        });
+    });
+}
 
 
+function adicionarSelectStatusNoMenuSuperior(idProcesso) {
+    if (!isProcessoDetailUrl() || !idProcesso) return;
+    if (document.getElementById('container-status-etapa-custom')) return;
+
+    const btnRecibo = document.querySelector('a[data-target="#modal-recibo"]');
+    if (!btnRecibo) {
+        setTimeout(() => adicionarSelectStatusNoMenuSuperior(idProcesso), 200);
+        return;
+    }
+
+    // 1. INJEÇÃO INSTANTÂNEA NA TELA (Sem await/espera)
+    const wrapper = document.createElement('div');
+    wrapper.id = 'container-status-etapa-custom';
+    wrapper.className = 'btn btn-default';
+    wrapper.style.cssText = 'display: inline-block; margin-left: 5px; position: relative; vertical-align: middle;';
+
+    const etapasDisponiveis = (typeof STATUS_ETAPAS_PROCESSO !== 'undefined') 
+        ? STATUS_ETAPAS_PROCESSO 
+        : ["Análise", "Formalizando", "Assinador", "Convocação", "Publicação", "Juntada"];
+
+    let optionsHtml = `<option value="">-- Etapa --</option>`;
+    etapasDisponiveis.forEach(etapa => {
+        optionsHtml += `<option value="${etapa}">${etapa}</option>`;
+    });
+
+    wrapper.innerHTML = `
+        <i class="fa fa-flag text-muted" aria-hidden="true"></i>
+        <span id="lblEtapaCustom">Etapa: Carregando...</span>
+    `;
+
+    const select = document.createElement('select');
+    select.id = 'selectStatusEtapaCustom';
+    select.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;';
+    select.innerHTML = optionsHtml;
+
+    wrapper.appendChild(select);
+    btnRecibo.insertAdjacentElement('afterend', wrapper);
+
+    const lblEtapa = wrapper.querySelector('#lblEtapaCustom');
+    const idFormatado = String(idProcesso).trim();
+
+    // 2. CONSULTA EM BACKGROUND (Não trava a renderização)
+    obterStatusTodosProcessosSheets().then(mapaStatus => {
+        const statusAtual = mapaStatus[idFormatado] || mapaStatus[String(Number(idFormatado))] || "";
+        select.value = statusAtual;
+        lblEtapa.textContent = `Etapa: ${statusAtual || 'Nenhuma'}`;
+    });
+
+    // 3. EVENTO DE MUDANÇA RÁPIDO
+    select.addEventListener('change', async (e) => {
+        const novoStatus = e.target.value;
+        
+        // Atualização visual INSTANTÂNEA na UI para o usuário não esperar a rede
+        lblEtapa.textContent = `Etapa: ${novoStatus || 'Nenhuma'}`;
+        
+        if (typeof showToast === 'function') showToast('info', 'Salvando etapa...', 1000);
+
+        chrome.runtime.sendMessage(
+            { action: "salvarStatusSheets", id: idProcesso, status: novoStatus },
+            (response) => {
+                if (response && response.success) {
+                    sessionStorage.removeItem('sheets_status_cache');
+                    sessionStorage.removeItem('sheets_status_cache_time');
+                    if (typeof showToast === 'function') showToast('success', 'Etapa salva!');
+                } else {
+                    if (typeof showToast === 'function') showToast('error', 'Erro ao salvar.');
+                }
+            }
+        );
+    });
+}
+
+async function aplicarTagsStatusNasListas() {
+    const processosElements = document.querySelectorAll('.pd-inbox-item');
+    if (processosElements.length === 0) return;
+
+    const mapaStatus = await obterStatusTodosProcessosSheets();
+
+    processosElements.forEach(item => {
+        const idProcesso = getProcessIdFromListElement(item);
+        if (!idProcesso || !mapaStatus[idProcesso]) return;
+
+        const statusDoProcesso = mapaStatus[idProcesso];
+
+        let areaSituacao = item.querySelector('div[name="areasituacao"]');
+        if (!areaSituacao) return;
+
+        let tagContainer = areaSituacao.querySelector('.tag-container');
+        if (!tagContainer) {
+            tagContainer = document.createElement('div');
+            tagContainer.className = 'tag-container';
+            tagContainer.style.display = 'inline-flex';
+            tagContainer.style.gap = '4px';
+            tagContainer.style.marginLeft = '5px';
+            areaSituacao.appendChild(tagContainer);
+        }
+
+        // Se a tag de status ainda não existir na tela para este processo, insere
+        if (!tagContainer.querySelector('.tag-status-sheets')) {
+            const tagStatus = document.createElement('div');
+            tagStatus.className = 'tag tag-status-sheets';
+            tagStatus.style.cssText = `
+                background-color: rgb(112, 167, 255); color: rgb(59, 59, 59); border-radius: 4px; padding: 2px 8px; margin-left: 5px; margin-top: 2px; margin-bottom: 2px; font-size: 11px;
+            `;
+            tagStatus.innerHTML = `<span class="tags">${escapeHtml(statusDoProcesso)}</span>`;
+           //console.log(escapeHtml(statusDoProcesso));
+            
+            
+            // Injeta SEMPRE no início (antes das tags normais)
+            tagContainer.prepend(tagStatus);
+            console.log(statusDoProcesso);
+        }
 
 
+    });
+}
 
 
+function removerStatusEtapaProcesso(idProcesso) {
+    if (typeof showToast === 'function') showToast('info', 'Removendo etapa...', 1000);
 
+    chrome.runtime.sendMessage(
+        { action: "removerStatusSheets", id: idProcesso },
+        (response) => {
+            if (response && response.success) {
+                sessionStorage.removeItem('sheets_status_cache');
+                
+                // Atualiza visual na tela
+                const lblEtapa = document.getElementById('lblEtapaCustom');
+                const select = document.getElementById('selectStatusEtapaCustom');
+                if (lblEtapa) lblEtapa.textContent = 'Etapa: Nenhuma';
+                if (select) select.value = '';
 
-
+                if (typeof showToast === 'function') showToast('success', 'Etapa removida!');
+            }
+        }
+    );
+}
 
 
 
@@ -4001,11 +4199,14 @@ setTimeout(async () => {
             if (idProcesso) console.log("Processo em trâmite:", idProcesso);
         }
 
-        if (isPastaUrl2() || isPastaUrl()) {
-
-
+            if (isPastaUrl2() || isPastaUrl()) {
             await carregarEAgruparTodasAsPaginas();
             initializeFeatures();
+            
+            // 🟢 FORÇA A CARGA DAS TAGS DE STATUS DO GOOGLE SHEETS NAS PASTAS:
+            if (typeof aplicarTagsStatusNasListas === 'function') {
+                aplicarTagsStatusNasListas();
+            }
         }
 
 
@@ -4033,14 +4234,18 @@ setTimeout(async () => {
         atualizarBadgesPastas();
 
 
-
-        
-        if (isProcessoDetailUrl()) {
+      if (isProcessoDetailUrl()) {
             initializeProcessoDetailTags();
             checkAndPromptTagRemovalOnDetail();
             addSearchProcess();
             //adicionarBotaoPastaMenu();
             adicionarSelectPastaMenu();
+            
+            // <<< ADICIONE A CHAMADA AQUI >>>
+          const idProcDetail = getProcessIdFromDetailUrl();
+            if (idProcDetail) {
+                adicionarSelectStatusNoMenuSuperior(idProcDetail);
+            }
         }
     });
 }, 150);
