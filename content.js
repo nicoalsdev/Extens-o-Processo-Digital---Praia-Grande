@@ -3978,10 +3978,6 @@ function removerStatusEtapaProcesso(idProcesso) {
 
 
 
-
-
-
-
 //FIM DAS FUNÇÕES
 
 
@@ -4142,12 +4138,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         }
     });
 
-    // 1. Carrega as configurações no início, o que chama initializeFeatures
   // 1. Carrega as configurações no início
 loadSettings(true);
 
+const script = document.createElement('script');
+script.src = chrome.runtime.getURL('tooltip.js');
+(document.head || document.documentElement).appendChild(script);
+script.remove();
 
-    // CHAMADA DE INICIALIZAÇÃO COM SEGURANÇA E ASYNC
+
+
    // CHAMADA DE INICIALIZAÇÃO NO FINAL DO CONTENT.JS
 setTimeout(async () => {
     chrome.storage.local.get(['settings'], async (result) => {

@@ -308,10 +308,28 @@ div.form-upload, form.form-upload {
 }
 
 
-        /* ===============================
-   SWEETALERT THEME
+  /* ===============================
+   SWEETALERT THEME (FORÇADO NA HEADER)
 =============================== */
 
+/* 1. Garante que todos os ícones dentro da header fiquem ocados por padrão */
+.swal2-popup .swal2-header .swal2-icon,
+.swal2-popup .swal2-icon {
+    display: none !important;
+}
+
+/* 2. Força a exibição APENAS do ícone ativo (com classe swal2-icon-show ou visível) */
+.swal2-popup .swal2-header .swal2-icon.swal2-icon-show,
+.swal2-popup .swal2-icon.swal2-icon-show {
+    display: flex !important;
+}
+
+/* 3. Evita que regras globais alterem elementos internos do ícone */
+.swal2-header .swal2-icon * {
+    box-sizing: content-box;
+}
+
+/* Fundo do Popup */
 .swal2-popup {
     background-color: ${isDark ? theme.card : '#ffffff'} !important;
     color: ${isDark ? theme.text : '#212529'} !important;
@@ -319,6 +337,23 @@ div.form-upload, form.form-upload {
     border-radius: 12px !important;
 }
 
+/* Estilização dos Ícones dentro da Header */
+.swal2-header .swal2-icon.swal2-success { border-color: #28a745 !important; color: #28a745 !important; }
+.swal2-header .swal2-icon.swal2-error   { border-color: #dc3545 !important; color: #dc3545 !important; }
+.swal2-header .swal2-icon.swal2-warning { border-color: #ffc107 !important; color: #ffc107 !important; }
+.swal2-header .swal2-icon.swal2-info    { border-color: #0dcaf0 !important; color: #0dcaf0 !important; }
+.swal2-header .swal2-icon.swal2-question{ border-color: #6f42c1 !important; color: #6f42c1 !important; }
+
+/* Linhas internas do ícone de sucesso */
+.swal2-header .swal2-icon.swal2-success [class^='swal2-success-line'] {
+    background-color: #28a745 !important;
+}
+
+/* Linhas do ícone de erro (X) */
+.swal2-header .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+    background-color: #dc3545 !important;
+}
+            
             .linha-documento-grupo>.nome{
             width: 60%;
             }
@@ -894,6 +929,8 @@ footer.layout-principal-rodape.rodape.simples {
 .pg-panel {
     border: 0px solid #efefef;
 }
+
+
 
                 ` : ''}
             `;

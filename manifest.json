@@ -107,7 +107,8 @@
         "secretarias.js",
         "js/*",
         "css/*",
-        "imgs/*"
+        "imgs/*",
+        "tooltip.js"
       ],
       "matches": ["<all_urls>"]
     }
