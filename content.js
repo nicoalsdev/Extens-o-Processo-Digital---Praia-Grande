@@ -839,133 +839,133 @@ function getProcessIdFromListElement(processoEl) {
     }
 
 
-   function removeAllTags(idProcesso, processTags) {
-    // 🔒 Clona para evitar efeitos colaterais
-    const updatedTags = { ...processTags };
-    const keysToRemove = [];
+   // =========================================================================
+// REMOÇÃO ATÔMICA E SEGURA DE TAGS (CORRIGIDA PARA MÚLTIPLAS ABAS)
+// =========================================================================
+function removeAllTags(idProcesso, callback) {
+    const idStr = String(idProcesso);
 
-    // 1️⃣ Remove TODAS as tags locais do processo no storage
-    Object.keys(updatedTags).forEach(tagInstanceId => {
-        if (
-            tagInstanceId.startsWith(idProcesso + '-') ||
-            tagInstanceId.startsWith(idProcesso + '_')
-        ) {
-            keysToRemove.push(tagInstanceId);
-            delete updatedTags[tagInstanceId];
-        }
-    });
+    // 1️⃣ Busca o estado MAIS RECENTE do storage no momento exato da exclusão
+    chrome.storage.local.get(['processTags', 'processData'], (result) => {
+        const currentTags = result.processTags || {};
+        const currentData = result.processData || {};
 
-    // 2️⃣ Dispara a remoção do Status no Google Sheets em segundo plano
-    if (typeof removerStatusEtapaProcesso === 'function') {
-        removerStatusEtapaProcesso(idProcesso);
-    } else {
-        chrome.runtime.sendMessage(
-            { action: "removerStatusSheets", id: idProcesso },
-            (response) => {
-                if (response && response.success) {
-                    sessionStorage.removeItem('sheets_status_cache');
-                    console.log(`🗑️ Status do processo ${idProcesso} removido da planilha Google Sheets.`);
-                }
+        let tagsRemovedCount = 0;
+
+        // Limpa apenas as chaves do processo alvo
+        Object.keys(currentTags).forEach(tagInstanceId => {
+            if (
+                tagInstanceId.startsWith(idStr + '-') ||
+                tagInstanceId.startsWith(idStr + '_')
+            ) {
+                delete currentTags[tagInstanceId];
+                tagsRemovedCount++;
             }
-        );
-    }
+        });
 
-    if (keysToRemove.length === 0) return;
-
-    // 3️⃣ Remove também os dados estendidos do card (prazo, descrição, board, histórico)
-    chrome.storage.local.get(['processData'], (result) => {
-        const processData = result.processData || {};
-
-        if (processData[idProcesso]) {
-            delete processData[idProcesso];
+        // Limpa metadados estendidos do Kanban/Data se existirem
+        if (currentData[idStr]) {
+            delete currentData[idStr];
         }
 
-        // 4️⃣ Salva tudo limpo
+        // Se nada foi removido, interrompe sem regravar desnecessariamente
+        if (tagsRemovedCount === 0 && !currentData[idStr]) {
+            if (callback) callback(false);
+            return;
+        }
+
+        // 2️⃣ Grava a alteração atômica
         chrome.storage.local.set({
-            processTags: updatedTags,
-            processData
+            processTags: currentTags,
+            processData: currentData
+        }, () => {
+            console.log(`[Tags] ${tagsRemovedCount} tag(s) do processo ${idStr} foram removidas com sucesso.`);
+
+            // 3️⃣ Dispara a remoção no Google Sheets em background
+            if (typeof removerStatusEtapaProcesso === 'function') {
+                removerStatusEtapaProcesso(idStr);
+            } else {
+                chrome.runtime.sendMessage(
+                    { action: "removerStatusSheets", id: idStr },
+                    (response) => {
+                        if (response && response.success) {
+                            sessionStorage.removeItem('sheets_status_cache');
+                        }
+                    }
+                );
+            }
+
+            if (callback) callback(true);
         });
     });
 }
 
 
 
-    // =========================================================================
-    // LÓGICA DE REMOÇÃO DE TAGS NA PÁGINA DE DETALHES (COM CONDIÇÃO DE DESTINO)
-    // =========================================================================
-
-    /**
-     * Verifica o destino atual na página de detalhes e, se não for o destino excluído,
-     * dispara o alerta para remoção de tags do processo.
-     */
     function checkAndPromptTagRemovalOnDetail() {
-    // 1. Verifica se estamos na URL correta (Página de Detalhes do Processo).
-        const idProcesso = getProcessIdFromTramiteNovoUrl() || getProcessIdFromDetailUrl(); 
-        if (!idProcesso) {
-            return;
-        }
+    // 1. Identifica o processo atual na URL
+    const idProcesso = getProcessIdFromTramiteNovoUrl() || getProcessIdFromDetailUrl(); 
+    if (!idProcesso) return;
 
-    // 2. OBTÉM O DESTINO/UNIDADE ATUAL exibido na tela.
-        const seEncontraEmSpan = Array.from(document.querySelectorAll('span.text-primary'))
+    // 2. Obtém o destino exibido na tela
+    const seEncontraEmSpan = Array.from(document.querySelectorAll('span.text-primary'))
         .find(span => span.textContent.trim() === 'Se encontra em:');
 
-        let destinoAtual = 'Destino Desconhecido';
+    let destinoAtual = 'Destino Desconhecido';
+    if (seEncontraEmSpan) {
+        const destinoSpan = seEncontraEmSpan.nextElementSibling;
+        if (destinoSpan && destinoSpan.tagName === 'SPAN') {
+            destinoAtual = destinoSpan.textContent.trim();
+        }
+    }
 
-        if (seEncontraEmSpan) {
-            const destinoSpan = seEncontraEmSpan.nextElementSibling;
-            if (destinoSpan && destinoSpan.tagName === 'SPAN') {
-                destinoAtual = destinoSpan.textContent.trim();
+    // 3. Lê o Storage no momento de abrir a página
+    chrome.storage.local.get(['dadosPessoais', 'processTags'], (resultado) => {
+        // Valida se o destino atual é igual ao do usuário (se for, ignora)
+        if (resultado.dadosPessoais && resultado.dadosPessoais.destino) {
+            const destinoCapturado = resultado.dadosPessoais.destino.trim();
+            if (destinoCapturado && destinoAtual === destinoCapturado) {
+                console.log(`[Tags] Destino atual é ${destinoCapturado}. Remoção ignorada.`);
+                return;
             }
         }
 
-    // Buscamos ambos os dados no storage ao mesmo tempo para evitar múltiplos aninhamentos
-        chrome.storage.local.get(['dadosPessoais', 'processTags'], (resultado) => {
-
-        // 3. CONDIÇÃO DE EXCLUSÃO: Verifica se o destino bate
-            if (resultado.dadosPessoais) {
-                const destinoCapturado = resultado.dadosPessoais.destino;
-                if (destinoCapturado && destinoAtual === destinoCapturado.trim()) {
-                    console.log(`[Tags] Destino atual é ${destinoCapturado}. A remoção de tags é ignorada.`);
-                return; // Agora este return funciona logicamente porque impede a execução do código abaixo
-            }
-        }
-
-        // 4. Se o destino NÃO bateu, verifica se há tags e exibe o alerta.
         const allTags = resultado.processTags || {};
+        const idStr = String(idProcesso);
 
-        // Verifica se existe pelo menos uma tag associada a este processo.
+        // Verifica se existem tags associadas a ESTE processo
         const hasTags = Object.keys(allTags).some(tagInstanceId =>
-            tagInstanceId.startsWith(idProcesso + '-')
-            );
+            tagInstanceId.startsWith(idStr + '-') || tagInstanceId.startsWith(idStr + '_')
+        );
 
-        if (!hasTags) {
-            return;
-        }
+        if (!hasTags) return;
+
+        // Encontra um número legível do processo para a mensagem (se houver)
+        const sampleKey = Object.keys(allTags).find(k => k.startsWith(idStr + '-'));
+        const processNumber = allTags[sampleKey]?.processNumber || idStr;
 
         const confirmationTitle = 'Tags Customizadas Detectadas';
-        const confirmationText = `O processo ${idProcesso} possui tags customizadas. O destino atual é: ${destinoAtual}. \n\nDeseja remover TODAS as tags associadas a ele?`;
-        const confirmationButtonText = 'Sim, Remover Tags';
+        const confirmationText = `O processo ${processNumber} possui tags customizadas e está no destino: ${destinoAtual}.\n\nDeseja remover TODAS as tags associadas a ele?`;
 
         showConfirmation(
             confirmationTitle,
             confirmationText,
-            confirmationButtonText,
+            'Sim, Remover Tags',
             'warning'
-            ).then(confirmed => {
-                if (confirmed) {
-                // Remove as tags do storage e da visualização
-                    removeAllTags(idProcesso, allTags);
-
-                // Notificação de sucesso após a remoção
-                    const numero = allTags[Object.keys(allTags).find(k => k.startsWith(idProcesso + '-'))]?.processNumber || idProcesso;
-                    showToast('success', `Todas as tags do processo ${numero} foram removidas.`);
-                } else {
-                // Notifica que as tags foram mantidas.
-                    showToast('info', `As tags do processo ${idProcesso} foram mantidas.`);
-                }
-            });
+        ).then(confirmed => {
+            if (confirmed) {
+                // Chama a remoção com buscando o estado atômico mais recente
+                removeAllTags(idProcesso, (sucesso) => {
+                    if (sucesso) {
+                        showToast('success', `Todas as tags do processo ${processNumber} foram removidas.`);
+                    }
+                });
+            } else {
+                showToast('info', `As tags do processo ${processNumber} foram mantidas.`);
+            }
         });
-    }
+    });
+}
 
 
     /**
