@@ -24,7 +24,7 @@
 
     card.innerHTML = `
         <div class="card-body d-flex flex-column">
-        
+
             <h6 class="fw-bold text-primary">
                 ${grupo[0].empresa || "EMPRESA DESCONHECIDA"}<br>
                 Processo: ${processo}
@@ -78,11 +78,13 @@ async function renderAll() {
     if (documents.length === 0) {
         emptyMessage.style.display = 'block';
         document.getElementById('clear-all-btn').style.display = 'none';
+                        document.getElementById('enviar-todos-btn').style.display = 'none';
         return;
     }
 
     emptyMessage.style.display = 'none';
     document.getElementById('clear-all-btn').style.display = 'inline-block';
+    document.getElementById('enviar-todos-btn').style.display = 'inline-block';
 
     // 🔵 Agora renderizamos por processo (e não mais item por item)
     Object.keys(documentosAgrupados).forEach(processo => {
@@ -268,7 +270,7 @@ function renderDocumentItem(doc) {
             </div>
 
             <div class="d-flex justify-content-between">
-     
+
 
                 <button 
                     class="btn btn-sm btn-danger delete-btn"
@@ -285,6 +287,7 @@ function renderDocumentItem(doc) {
                     data-empresa="${doc.empresa}"
                     data-processo="${doc.processo}"
                     data-link="${doc.link}"
+                    data-tipo="${doc.tipo}"
                 >
                     Enviar
                 </button>
@@ -319,7 +322,7 @@ document.addEventListener("click", function (e) {
 
     // BOTÃO ENVIAR
     if (btn.classList.contains("enviar-btn")) {
-        
+
         // --------------------------------------------------------
         // CORREÇÃO AQUI: BUSCA GLOBAL PARA OS SETORES
         // --------------------------------------------------------
@@ -350,8 +353,14 @@ document.addEventListener("click", function (e) {
         const processo = btn.dataset.processo || '';
         const link = btn.dataset.link || '';
         const titulo = `${empresa} - ${processo}`;
-        const categoriaVal = document.getElementById('categoria').value; // Pega a categoria do select
+        const tipoSalvo = btn.dataset.tipo || '';
+        let categoriaVal = "";
 
+        if (tipoSalvo && tipoSalvo.toLowerCase() !== "não definido" && tipoSalvo.toLowerCase() !== "não identificada") {
+            categoriaVal = tipoSalvo;
+        } else {
+            categoriaVal = document.getElementById('categoria').value;
+        }
         let dataFormatada = "";
         const dataVal = document.getElementById('data').value;
         if (dataVal) {
@@ -531,6 +540,7 @@ async function loadDocuments() {
             console.error("API de chrome.storage não disponível.");
             emptyMessage.style.display = 'block';
             document.getElementById('clear-all-btn').style.display = 'none';
+            document.getElementById('enviar-todos-btn').style.display = 'none';
             return;
         }
         
@@ -543,9 +553,11 @@ async function loadDocuments() {
         if (documents.length === 0) {
             emptyMessage.style.display = 'block';
             document.getElementById('clear-all-btn').style.display = 'none';
+            document.getElementById('enviar-todos-btn').style.display = 'none';
         } else {
             emptyMessage.style.display = 'none';
             document.getElementById('clear-all-btn').style.display = 'inline-block';
+            document.getElementById('enviar-todos-btn').style.display = 'inline-block';
             
                     // Renderiza os documentos
             documents.forEach(renderDocumentItem);
@@ -557,6 +569,145 @@ async function loadDocuments() {
         showToast('Erro ao carregar a lista de documentos.', 'error');
     }
 }
+
+
+
+// ==========================================================
+// FUNÇÃO AUXILIAR: ENVIA UM ÚNICO DOCUMENTO E RETORNA UMA PROMISE
+// ==========================================================
+function enviarDocumentoIndividual(btn) {
+    return new Promise((resolve) => {
+        const setoresContainer = document.querySelector(".setores-container");
+        let setoresMarcados = [];
+
+        if (setoresContainer) {
+            setoresMarcados = [...setoresContainer.querySelectorAll("input:checked")].map(i => i.value);
+        }
+
+        const hoje = new Date();
+        const dataPrazo = new Date(hoje);
+        dataPrazo.setDate(hoje.getDate() + 7);
+        const prazoFormatado = dataPrazo.toLocaleDateString('pt-BR');
+
+        const empresa = btn.dataset.empresa || '';
+        const processo = btn.dataset.processo || '';
+        const link = btn.dataset.link || '';
+        const titulo = `${empresa} - ${processo}`;
+        const tipoSalvo = btn.dataset.tipo || '';
+        let categoriaVal = "";
+
+        if (tipoSalvo && tipoSalvo.toLowerCase() !== "não definido" && tipoSalvo.toLowerCase() !== "não identificada") {
+    // Normaliza valores antigos salvos no storage
+            if (/prorroga[çc][ãa]o/i.test(tipoSalvo)) {
+                categoriaVal = "Prorrogação";
+            } else if (/rescis[ãa]o/i.test(tipoSalvo)) {
+                categoriaVal = "Encerramento";
+            } else {
+                categoriaVal = tipoSalvo;
+            }
+        } else {
+            categoriaVal = document.getElementById('categoria').value;
+        }
+
+        let dataFormatada = "";
+        const dataVal = document.getElementById('data').value;
+        if (dataVal) {
+            const partes = dataVal.split('-');
+            dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
+
+        const urlSharepoint = "https://www.intra.pg/SEAD/Lists/AssDigital/Item/newifs.aspx?List=da67fc64-1b63-4608-b859-8de4bc9b1fd8&Source=http%3A%2F%2Fwww.intra.pg%2FSEAD%2FSitePages%2Fassd2.aspx&RootFolder=&Web=8e1dc9f9-9ceb-4c32-9146-0572f2adb824";
+
+        chrome.tabs.create({ url: urlSharepoint }, function (tab) {
+            if (!tab || !tab.id) {
+                console.error("Falha ao criar aba.");
+                return resolve(false);
+            }
+
+            const tabId = tab.id;
+
+            const onUpdated = function (updatedTabId, changeInfo) {
+                if (updatedTabId !== tabId) return;
+
+                if (changeInfo.status === 'complete') {
+                    chrome.tabs.sendMessage(tabId, {
+                        action: "preencher_sead",
+                        titulo,
+                        link,
+                        prazo: prazoFormatado,
+                        setores: setoresMarcados,
+                        categoria: categoriaVal, // Categoria definida com base na regra
+                        data: dataFormatada
+                    }, (response) => {
+                        chrome.tabs.onUpdated.removeListener(onUpdated);
+                        setTimeout(() => resolve(true), 1500);
+                    });
+                }
+            };
+
+            chrome.tabs.onUpdated.addListener(onUpdated);
+
+            // Timeout de segurança
+            setTimeout(() => {
+                chrome.tabs.onUpdated.removeListener(onUpdated);
+                resolve(true);
+            }, 8000);
+        });
+    });
+}
+
+// ==========================================================
+// LOOP COMPLETO: ENVIAR TODOS OS DOCUMENTOS SEQUENCIALMENTE
+// ==========================================================
+async function enviarTodosOsDocumentos() {
+    const botoesEnviar = Array.from(document.querySelectorAll('.enviar-btn'));
+
+    if (botoesEnviar.length === 0) {
+        showToast("Nenhum documento disponível para envio.", "warning");
+        return;
+    }
+
+    const confirmacao = await Swal.fire({
+        title: 'Enviar todos os documentos?',
+        text: `Você irá abrir e preencher ${botoesEnviar.length} item(ns) sequencialmente.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, enviar todos!',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (!confirmacao.isConfirmed) return;
+
+    const btnEnviarTodos = document.getElementById('enviar-todos-btn');
+    if (btnEnviarTodos) btnEnviarTodos.disabled = true;
+
+    showToast(`Iniciando envio em lote de ${botoesEnviar.length} documentos...`, 'info');
+
+    for (let i = 0; i < botoesEnviar.length; i++) {
+        const btn = botoesEnviar[i];
+        
+        // Destaque visual temporário no card sendo processado
+        const cardWrapper = btn.closest('.card');
+        if (cardWrapper) cardWrapper.classList.add('border-primary', 'shadow-lg');
+
+        showToast(`Enviando ${i + 1} de ${botoesEnviar.length}...`, 'info');
+
+        await enviarDocumentoIndividual(btn);
+
+        if (cardWrapper) cardWrapper.classList.remove('border-primary', 'shadow-lg');
+    }
+
+    if (btnEnviarTodos) btnEnviarTodos.disabled = false;
+    Swal.fire('Concluído!', 'Todos os documentos do lote foram processados com sucesso.', 'success');
+}
+
+// Event Listener do Botão "Enviar Todos"
+document.addEventListener("click", function(e) {
+    if (e.target && e.target.id === "enviar-todos-btn") {
+        enviarTodosOsDocumentos();
+    }
+});
+
 
         /**
          * Confirma a exclusão de um único documento usando SweetAlert2.
@@ -607,6 +758,7 @@ window.confirmDelete = function(docId, docProcesso) {
                     if (documents.length === 0) {
                         emptyMessage.style.display = 'block';
                         document.getElementById('clear-all-btn').style.display = 'none';
+                        document.getElementById('enviar-todos-btn').style.display = 'none';
                     }
                 } else {
                     showToast('Erro: Documento não encontrado.', 'error');
@@ -648,6 +800,7 @@ window.confirmDelete = function(docId, docProcesso) {
                 documentsList.innerHTML = '';
                 emptyMessage.style.display = 'block';
                 document.getElementById('clear-all-btn').style.display = 'none';
+                        document.getElementById('enviar-todos-btn').style.display = 'none';
                 
                 showToast('Todos os documentos foram removidos da lista.', 'success');
 

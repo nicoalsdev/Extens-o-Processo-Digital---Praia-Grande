@@ -77,12 +77,13 @@ function extrairDados(texto){
         if (matchPregao && pregaoNumero === "DESCONHECIDO") {
             pregaoNumero = matchPregao[1].padStart(5,"0")
         }
-        const matchForn = linha.match(/FORNECEDOR\s*:\s*(\d+\s+[A-Z0-9 .&\-\/]+)/i)
+        const matchForn = linha.match(/FORNECEDOR\s*:\s*(\d+\s+[A-Z0-9 .&\-\/]+)/i);
 
-        if(matchForn){
-            fornecedorAtual = matchForn[1]
-            return
-        }
+if (matchForn) {
+    // Remove os números do início do nome da empresa e remove espaços extras
+    fornecedorAtual = matchForn[1].replace(/^\d+\s+/, "").trim();
+    return;
+}
 
         const partes = linha.trim().split(/\s+/)
 
@@ -191,122 +192,149 @@ function mostrarTabela(){
 
 document.getElementById("exportar").onclick = async () => {
 
-    const selecionados = fornecedoresSelecionados();
-
-    const fornecedoresFiltrados =
-    dadosExtraidos.filter(d =>
-        selecionados.includes(d.fornecedor)
-        );
-
-    const agrupar = document.getElementById("agrupar").checked;
-
+    // Captura e ordena os fornecedores selecionados em ordem alfabética (localeCompare resolve acentos e numerações corretamente)
+    const selecionados = fornecedoresSelecionados().sort((a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' }));
 
     if(selecionados.length === 0){
         alert("Selecione pelo menos um fornecedor");
         return;
     }
 
-    const zip = new JSZip()
+    const agrupar = document.getElementById("agrupar").checked;
+    const arquivoUnico = document.getElementById("arquivoUnico").checked;
+    const sufixo = agrupar ? "agrupado" : "detalhado";
 
-    let arquivosGerados = 0
+    // -------------------------------------------------------------
+    // MODO 1: EXPORTAR TUDO EM UM ÚNICO ARQUIVO EXCEL
+    // -------------------------------------------------------------
+    if (arquivoUnico) {
+        const wb = XLSX.utils.book_new();
+        const linhasMatriz = [];
 
-    for(const fornecedor of selecionados){
+        selecionados.forEach(fornecedor => {
+            let itens = dadosExtraidos.filter(d => d.fornecedor === fornecedor);
+            let resultado;
 
-        let itens = dadosExtraidos.filter(d => d.fornecedor === fornecedor)
+            if (agrupar) {
+                const mapa = {};
+                itens.forEach(item => {
+                    const chave = `${item.codigo}|${item.descricao}|${item.unidade}|${item.valor}`;
+                    if (!mapa[chave]) {
+                        mapa[chave] = { ...item };
+                    } else {
+                        mapa[chave].quantidade = numeroBR(mapa[chave].quantidade) + numeroBR(item.quantidade);
+                        mapa[chave].item = Math.min(Number(mapa[chave].item), Number(item.item));
+                    }
+                });
+                resultado = Object.values(mapa);
+            } else {
+                resultado = itens;
+            }
 
-        let resultado
+            // Título/Cabeçalho do Fornecedor
+            linhasMatriz.push([`FORNECEDOR: ${fornecedor}`]);
 
-        if(agrupar){
+            // Cabeçalho das Colunas
+            linhasMatriz.push(["Item", "Especificação", "Unidade", "Quantidade", "Valor Unitário"]);
 
-            const mapa = {}
+            // Linhas de dados
+            resultado.forEach(item => {
+                linhasMatriz.push([
+                    Number(item.item),
+                    item.descricao,
+                    item.unidade,
+                    numeroBR(item.quantidade),
+                    numeroBR(item.valor)
+                ]);
+            });
 
-            itens.forEach(item=>{
+            // Linhas em branco de espaçamento entre tabelas
+            linhasMatriz.push([]);
+            linhasMatriz.push([]);
+        });
 
-                const chave = `${item.codigo}|${item.descricao}|${item.unidade}|${item.valor}`
+        // Converte a matriz de arrays para a planilha Sheet
+        const ws = XLSX.utils.aoa_to_sheet(linhasMatriz);
+        XLSX.utils.book_append_sheet(wb, ws, "Quadro Resumo");
 
-                if(!mapa[chave]){
-                    mapa[chave] = {...item}
-                }else{
-                    mapa[chave].quantidade =
-                    numeroBR(mapa[chave].quantidade) +
-                    numeroBR(item.quantidade)
+        const nomeArquivo = `Quadro Resumo Geral_${sufixo}.xlsx`;
+        XLSX.writeFile(wb, nomeArquivo);
+        return;
+    }
 
-    // mantém o menor número de item
-                    mapa[chave].item = Math.min(
-                        Number(mapa[chave].item),
-                        Number(item.item)
-                        )
+    // -------------------------------------------------------------
+    // MODO 2: EXPORTAR EM VÁRIOS ARQUIVOS OU ZIP
+    // -------------------------------------------------------------
+    const zip = new JSZip();
+    let arquivosGerados = 0;
+
+    for (const fornecedor of selecionados) {
+        let itens = dadosExtraidos.filter(d => d.fornecedor === fornecedor);
+        let resultado;
+
+        if (agrupar) {
+            const mapa = {};
+            itens.forEach(item => {
+                const chave = `${item.codigo}|${item.descricao}|${item.unidade}|${item.valor}`;
+                if (!mapa[chave]) {
+                    mapa[chave] = { ...item };
+                } else {
+                    mapa[chave].quantidade = numeroBR(mapa[chave].quantidade) + numeroBR(item.quantidade);
+                    mapa[chave].item = Math.min(Number(mapa[chave].item), Number(item.item));
                 }
-
-            })
-
-            resultado = Object.values(mapa)
-
-        }else{
-            resultado = itens
+            });
+            resultado = Object.values(mapa);
+        } else {
+            resultado = itens;
         }
 
-        const tabelaFinal = resultado.map((item,i)=>({
-
-            Item: Number(item.item), // usa o número original
+        const tabelaFinal = resultado.map(item => ({
+            Item: Number(item.item),
             Especificação: item.descricao,
             Unidade: item.unidade,
             Quantidade: numeroBR(item.quantidade),
             "Valor Unitário": numeroBR(item.valor)
+        }));
 
-        }))
+        const ws = XLSX.utils.json_to_sheet(tabelaFinal);
+        const wb = XLSX.utils.book_new();
 
-        const ws = XLSX.utils.json_to_sheet(tabelaFinal)
-        const wb = XLSX.utils.book_new()
+        XLSX.utils.book_append_sheet(wb, ws, "Itens");
 
-        XLSX.utils.book_append_sheet(wb,ws,"Itens")
+        const nomeLimpo = fornecedor.replace(/[\\/*?:"<>|]/g, "");
+        const nomeArquivo = `Quadro Resumo ${nomeLimpo}_${sufixo}.xlsx`;
 
-        const nomeLimpo = fornecedor.replace(/[\\/*?:"<>|]/g,"")
+        const excelBuffer = XLSX.write(wb, {
+            bookType: "xlsx",
+            type: "array"
+        });
 
-        const sufixo = agrupar ? "agrupado" : "detalhado"
+        zip.file(nomeArquivo, excelBuffer);
+        arquivosGerados++;
+    }
 
-        const nomeArquivo =
-    `Quadro Resumo ${pregaoNumero} - ${nomeLimpo}_${sufixo}.xlsx`
+    if (arquivosGerados === 1) {
+        const zipContent = await zip.generateAsync({ type: "blob" });
+        const file = Object.keys(zip.files)[0];
 
-    const excelBuffer = XLSX.write(wb,{
-        bookType:"xlsx",
-        type:"array"
-    })
+        const blob = zip.files[file].async("blob");
 
-    zip.file(nomeArquivo, excelBuffer)
+        blob.then(b => {
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(b);
+            link.download = file;
+            link.click();
+        });
 
-    arquivosGerados++
-}
+        return;
+    }
 
-    // se apenas 1 arquivo → baixar direto
-if(arquivosGerados === 1){
-
-    const zipContent = await zip.generateAsync({type:"blob"})
-    const file = Object.keys(zip.files)[0]
-
-    const blob = zip.files[file].async("blob")
-
-    blob.then(b=>{
-        const link = document.createElement("a")
-        link.href = URL.createObjectURL(b)
-        link.download = file
-        link.click()
-    })
-
-    return
-}
-
-    // se mais de 1 → gerar ZIP
-const conteudo = await zip.generateAsync({type:"blob"})
-
-const link = document.createElement("a")
-link.href = URL.createObjectURL(conteudo)
-
-link.download = `Quadros_Resumo_${pregaoNumero}.zip`
-
-link.click()
-
-}
+    const conteudo = await zip.generateAsync({ type: "blob" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(conteudo);
+    link.download = `Quadros_Resumo_${pregaoNumero}.zip`;
+    link.click();
+};
 
 function numeroBR(valor){
 

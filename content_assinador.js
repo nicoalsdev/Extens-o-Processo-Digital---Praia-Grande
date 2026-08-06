@@ -140,62 +140,86 @@
     // ==========================================================
     // 3) PARSE DE DESCRIÇÃO
     // ==========================================================
-    function parseDescricaoArquivo(texto) {
-        const original = texto.trim();
+   function parseDescricaoArquivo(texto) {
+    let resto = texto.trim();
+    let eTCN = false;
 
-        const tiposDocumento = [
-            "termo de ata",
-            "termo de prorrogação",
-            "termo de ajuste",
-            "termo de rescisão",
-            "contrato",
-            "aditivo",
-            "apostilamento"
-        ];
+    // 1. Mapeamento dos termos encontrados para os nomes exatos das Categorias
+    const mapaCategorias = {
+        "termo de ata": "Termo de Ata",
+        "termo de prorrogação": "Prorrogação",
+        "prorrogação": "Prorrogação",
+        "termo de ajuste": "Ajuste",
+        "termo de rescisão": "Encerramento",
+        "encerramento": "Encerramento",
+        "contrato": "Contrato",
+        "aditivo": "Aditivo",
+        "apostilamento": "Apostilamento",
+        "retificação": "Retificação",
+        "termo de retificação": "Retificação"
+    };
 
-        let tipoDocumento = null;
-        let resto = original;
+    // 2. Identifica TCN
+    if (/\bTCN\b/i.test(resto) || /termo de ci[eê]ncia e notifica[çc][ãa]o/i.test(resto)) {
+        eTCN = true;
+        resto = resto.replace(/\bTCN\b/gi, "")
+                     .replace(/termo de ci[eê]ncia e notifica[çc][ãa]o/gi, "")
+                     .trim();
+    }
 
-        for (const tipo of tiposDocumento) {
-            const re = new RegExp("^" + tipo.replace(/ /g, "\\s+"), "i");
+    let tipoDocumento = eTCN ? "Termo de ciência e notificação" : null;
+
+    // 3. Se não for TCN, busca pelos outros tipos mapeados
+    if (!tipoDocumento) {
+        for (const chave in mapaCategorias) {
+            const re = new RegExp("^(" + chave.replace(/ /g, "\\s+") + ")(\\s+\\d+)?", "i");
             const found = resto.match(re);
             if (found) {
-                tipoDocumento = found[0];
+                // Converte o termo capturado para a categoria padronizada
+                tipoDocumento = mapaCategorias[chave]; 
                 resto = resto.replace(re, "").trim();
                 break;
             }
         }
+    }
 
-        const regexProcesso = /\b(\d{3,6}-\d{2}|\d{4}\/\d{2}|\d{2}\.\d{3}\/\d{4})\b/;
+    // Limpa traços e espaços no início do resto do texto
+    resto = resto.replace(/^[\s-]+/, "").trim();
 
-        const matchProc = resto.match(regexProcesso);
-        if (!matchProc) {
-            return {
-                tipoDocumento,
-                empresa: null,
-                processo: null,
-                objeto: resto
-            };
-        }
+    // 4. Procura o número do Processo
+    const regexProcesso = /\b(\d{3,6}-\d{2}|\d{4}\/\d{2}|\d{2}\.\d{3}\/\d{4})\b/;
+    const matchProc = resto.match(regexProcesso);
 
-        const processo = matchProc[0];
-        const [antesProcesso, depoisProcesso] = resto.split(processo);
-
-        let empresa = antesProcesso.trim();
-        if (empresa.includes("-")) {
-            const partes = empresa.split("-");
-            empresa = partes[partes.length - 1].trim();
-        }
-
-        const objeto = (depoisProcesso || "").trim();
-
+    if (!matchProc) {
         return {
-            tipoDocumento: tipoDocumento || null,
-            empresa: empresa || null,
-            processo: processo || null,
-            objeto: objeto || null
+            tipoDocumento: tipoDocumento || "Não Definido",
+            empresa: resto.replace(/^[\s-]+|[\s-]+$/g, "") || null,
+            processo: null,
+            objeto: resto || texto.trim()
         };
     }
+
+    const processo = matchProc[0];
+    const [antesProcesso, depoisProcesso] = resto.split(processo);
+
+    // 5. Extrai Empresa
+    let empresa = antesProcesso.trim();
+    if (empresa.includes("-")) {
+        const partes = empresa.split("-");
+        empresa = partes[partes.length - 1].trim();
+    }
+    empresa = empresa.replace(/^[\s-]+|[\s-]+$/g, "");
+
+    // 6. Extrai Objeto
+    const objeto = (depoisProcesso || "").trim().replace(/^[\s-]+/, "");
+
+    return {
+        tipoDocumento: tipoDocumento || "Não Definido",
+        empresa: empresa || null,
+        processo: processo || null,
+        objeto: objeto || texto.trim()
+    };
+}
 
     // ==========================================================
     // 4) EXTRATOR PRINCIPAL

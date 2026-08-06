@@ -49,18 +49,26 @@ background:#eef5ff;
 
 <div class="row mb-3">
 
-<div class="col-md-6">
+<div class="col-md-8">
 
-<div class="form-check form-switch">
-<input class="form-check-input" type="checkbox" id="agrupar" >
+<div class="form-check form-switch d-inline-block me-3">
+<input class="form-check-input" type="checkbox" id="agrupar">
 <label class="form-check-label">
 Agrupar quantidades de itens repetidos
 </label>
 </div>
 
+<!-- NOVO CHECKBOX ADICIONADO AQUI -->
+<div class="form-check form-switch d-inline-block">
+<input class="form-check-input" type="checkbox" id="arquivoUnico">
+<label class="form-check-label">
+Exportar tudo em um único arquivo Excel
+</label>
 </div>
 
-<div class="col-md-6 text-end">
+</div>
+
+<div class="col-md-4 text-end">
 
 <button id="exportar" class="btn btn-success">
 Exportar Excel
