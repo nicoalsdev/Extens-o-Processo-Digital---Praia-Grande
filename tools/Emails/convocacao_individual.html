@@ -153,6 +153,27 @@
         #selecionar_email:active {
             background-color: #004080;
         }
+
+        .checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.checkbox-container input[type="checkbox"] {
+    width: auto; /* Impede que o checkbox ocupe 100% da largura */
+    margin: 0 8px 0 0;
+    cursor: pointer;
+}
+
+.label-inline {
+    display: inline;
+    margin-bottom: 0;
+    cursor: pointer;
+    font-weight: bold;
+    color: #555;
+}
     </style>
 </head>
 <body>
@@ -169,7 +190,10 @@
                 <option value=" ">Vazio</option>
         </select>
         <input class='input70' type="text" id="objeto_termo_1" name="objeto_termo_1" required value='DE REGISTRO DE PREÇOS PARA AQUISIÇÃO ...'>
-
+        <div class="checkbox-container">
+    <input type="checkbox" id="incluir_tcn" name="TCN" checked>
+    <label for="incluir_tcn" class="label-inline">Incluir Termo de Ciência e Notificação</label>
+</div>
         <label for="modalidade_licitacao_1">Modalidade da licita&ccedil;&atilde;o. EX.: Preg&atilde;o Eletr&ocirc;nico n&ordm;. 060/2024:</label>
         <select class='input30' id="modalidade_licitacao_1" name="modalidade_licitacao_1" required>  
                 <option value="Pregão Eletrônico nº ">Pregão Eletônico nº</option>
@@ -180,13 +204,16 @@
         <input class='input70'  type="text" id="modalidade_licitacao_2" name="modalidade_licitacao_2" required value='' placeholder="014/2025">
 
 
-        <label for="numero_processo_1">N&uacute;mero do processo:</label>
+        <label for="numero_processo_1">Número do processo:</label>
         <input class='input30' type="text" id="numero_processo_1" name="numero_processo_1" placeholder="14800/2021 A.1 D" required>
 
-        <label for="nome_representante">Nome do Representante da Empresa e Link:</label>
-        <input class='input30' type="text" id="nome_representante" name="nome_representante" required>
+        <label for="nome_representante">Nome dos Representantes da Empresa e Link:</label>
+                <input class='input50' type="text" id="nome_representante1" name="nome_representante1" placeholder="Representante 1" required>
+                <input class='input50' type="text" id="nome_representante2" name="nome_representante2" placeholder="Representante 2">
 
-        <input class='input70' type="text" id="link_assinatura" name="link_assinatura" placeholder="Link para Assinatura Digital" required>
+        <label for="link_assinatura">Nome dos Representantes da Empresa e Link:</label>
+        <input class='input50' type="text" id="link_assinatura1" name="link_assinatura1" placeholder="Link para o Termo" required>
+        <input class='input50' type="text" id="link_assinatura2" name="link_assinatura2" placeholder="Link para o Anexo de Ciência." required>
 
         <label for="data_inicio_1">Data de In&iacute;cio:</label>
         <input type="date" id="data_inicio_1" name="data_inicio_1" readonly class='input30'>

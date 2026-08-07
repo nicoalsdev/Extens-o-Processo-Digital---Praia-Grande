@@ -95,12 +95,15 @@ function executarCalculoDataPadrao(inputInicio, inputFim) {
             const modalidade_licitacaomod = document.getElementById('modalidade_licitacao_1').value;
             const modalidade_licitacaonum = document.getElementById('modalidade_licitacao_2').value;
             const numero_processo = document.getElementById('numero_processo_1').value;
-            const nome_representante = document.getElementById('nome_representante').value;
-            const link_assinatura = document.getElementById('link_assinatura').value;
+            const nome_representante1 = document.getElementById('nome_representante1').value;
+            const nome_representante2 = document.getElementById('nome_representante2').value;
+            const link_assinatura1 = document.getElementById('link_assinatura1').value;
+            const link_assinatura2 = document.getElementById('link_assinatura2').value;
             const data_inicio_input = document.getElementById('data_inicio_1').value;
             const data_fim_automatica_input = document.getElementById('data_fim_automatica').value;
             const data_fim_manual_check = document.getElementById('data_fim_manual_check').checked;
             const data_fim_manual_input = document.getElementById('data_fim_manual').value;
+            const incluirTCN = document.getElementById('incluir_tcn').checked;
 
             let data_fim = data_fim_automatica_input; // Valor padrão
             let numeroDiasUteis = 5; // Valor padrão para 5 dias úteis
@@ -123,7 +126,7 @@ function executarCalculoDataPadrao(inputInicio, inputFim) {
             numeroDiasUteis = calcularDiasUteis(inicio, fim);
 
 
-            if (!objeto_termo || !modalidade_licitacaonum || !numero_processo || !data_inicio_input || !data_fim || !nome_representante || !link_assinatura) {
+            if (!objeto_termo || !modalidade_licitacaonum || !numero_processo || !data_inicio_input || !data_fim || !nome_representante1 || !link_assinatura1) {
                 alert("Os Campos Estão Vazios!!!");
             }
 
@@ -138,21 +141,59 @@ function executarCalculoDataPadrao(inputInicio, inputFim) {
             }
             
             const sufixoDias = numeroDiasUteis === 1 ? "dia útil" : "dias úteis";
-            let emailTexto = `<p style='margin: 0 0 8pt 0; font-size: 11pt; font-family: Arial, sans-serif;'>${saudacao}</p>
-<p style='margin: 0 0 8pt 0; font-size: 11pt;'><span style='font-size: 13px;'>Rogo assinatura digital do(a) senhor(a) <strong>${nome_representante}</strong>, no <strong> ${tipo_termo} ${objeto_termo}</strong>, decorrente de procedimento licitatório, na modalidade ${modalidade_licitacaomod} <strong>${modalidade_licitacaonum}</strong>, Processo Administrativo n&ordm;. <strong>${numero_processo}</strong>, por meio do link:</span></p>
-<p style='margin: 0 0 8pt 0; font-size: 11pt;'><a href="${link_assinatura}">${link_assinatura}</a></p>
-<p style='margin: 0 0 8pt 0; font-size: 11pt;'><span style='font-size: 13px;'>PRAZO PARA RESTITUI&Ccedil;&Atilde;O: <span style="color:red;">${data_fim_formatada} (${converterNumeroParaTexto(numeroDiasUteis)} ${sufixoDias})</span>.</span></p>
+            let emailTexto = `
+            <div style='font-family: "Century Gothic", sans-serif; font-size: 13px; color: black; line-height: 1.25;'>
+  <style>
+    /* Zera as margens padrão do Word/E-mail e define um recuo bem curto */
+    p, ul, ol { margin-top: 0; margin-bottom: 6px; }
+    li { margin-bottom: 3px; }
+  </style>
 
-
-
-
-<p style='margin-right:0cm;margin-left:0cm;font-size:16px;font-family:"Calibri",sans-serif;margin-top:0cm;margin-bottom:10.0pt;font-size:11.0pt;'><strong><span style='font-size:12px;font-family:"Arial",sans-serif;color:red;'>ATEN&Ccedil;&Atilde;O:</span></strong><span style='font-size:12px;font-family:"Arial",sans-serif;color:red;'>&nbsp;Solicito que seja encaminhada uma c&oacute;pia simples dos seguintes documentos:</span></p><p style='margin-right:0cm;margin-left:0cm;font-size:16px;font-family:"Calibri",sans-serif;margin-top:0cm;margin-bottom:8.0pt;font-size:11.0pt;'><strong><span style='font-size:12px;font-family:"Arial",sans-serif;color:red;'>- Procura&ccedil;&atilde;o</span></strong><span style='font-size:12px;font-family:"Arial",sans-serif;color:red;'>&nbsp;(se necess&aacute;rio); e</span></p><p style='margin-right:0cm;margin-left:0cm;font-size:16px;font-family:"Calibri",sans-serif;margin-top:0cm;margin-bottom:10.0pt;font-size:11.0pt;'><strong><span style='font-size:12px;font-family:"Arial",sans-serif;color:red;'>- <u>R.G.</u> ou <u>C.N.H.</u></span></strong></p>
-
-
-<p style='margin:0cm;margin-bottom:.0001pt;font-size:15px;font-family:"Calibri",sans-serif;'><u><span style='font-size:13px;font-family:"Century Gothic",sans-serif;'>Caso n&atilde;o seja poss&iacute;vel realizar a assinatura diretamente pelo link, acesse o mesmo endere&ccedil;o e utilize a op&ccedil;&atilde;o &lsquo;<strong>VERS&Atilde;O DE IMPRESS&Atilde;O&rsquo;.&nbsp;</strong>Fa&ccedil;a o download do arquivo em PDF, assine as folhas <strong>XXX</strong> e <strong>XXX</strong> utilizando o GOV.BR ou Certificado Digital E-CPF, e nos encaminhe o documento assinado em resposta a este e-mail.</span></u></p>
-<p style='margin:0cm;margin-bottom:.0001pt;font-size:15px;font-family:"Calibri",sans-serif;'><span style='font-size:13px;font-family:"Century Gothic",sans-serif;'>&nbsp;</span></p>
-<p style='margin:0cm;margin-bottom:.0001pt;font-size:15px;font-family:"Calibri",sans-serif;'><span style='font-size:13px;font-family:"Century Gothic",sans-serif;'>Coloco-me &agrave; disposi&ccedil;&atilde;o para mais esclarecimentos.</span></p>
-`;
+  <p>${saudacao}</p>
+  
+ <p>
+  Rogo assinatura digital do(a) senhor(a) <strong>${nome_representante1}</strong>${nome_representante2 ? ` e do(a) senhor(a) <strong>${nome_representante2}</strong>` : ''}, no <strong>${tipo_termo} ${objeto_termo}</strong>${incluirTCN ? ` e no <strong><span style="color: black;">ANEXO LC-01 - TERMO DE CIÊNCIA E DE NOTIFICAÇÃO</span></strong>` : ''}, decorrente de procedimento licitatório, na modalidade ${modalidade_licitacaomod} <strong>${modalidade_licitacaonum}</strong>, Processo Administrativo nº. <strong>${numero_processo}</strong>, por meio dos links:
+</p>
+  
+  <p style="margin-bottom: 2px;"><a href="${link_assinatura1}">${link_assinatura1}</a></p>
+  ${incluirTCN && link_assinatura2 ? `<p style="margin-bottom: 8px;"><a href="${link_assinatura2}">${link_assinatura2}</a></p>` : ''}
+  
+  <ul style="margin-left: 18px; padding-left: 0;">
+    <li>
+      Clique nos <em>links</em> acima para acessar o Assinador Digital e escolha uma das opções abaixo:
+      <ol type="a" style="margin-left: 18px; padding-left: 0; margin-top: 4px;">
+        <li>
+          Para enviar via <a href="https://www.gov.br/governodigital/pt-br/identidade/assinatura-eletronica" style="font-family: Arial, sans-serif;">GOV.BR</a>, basta clicar em <strong style="color: #0070C0;">VERSÃO DE IMPRESSÃO</strong>, fazer o <em>download</em> dos arquivos, realizar a assinatura digital de cada um utilizando o portal GOV.BR e nos encaminhar os documentos assinados em resposta a este <em>e-mail</em>.
+        </li>
+        <li>
+          Para controlar com e-CPF, clique em <strong style="color: #2A8232;">ACRESCENTAR ASSINATURA</strong> e siga as instruções na tela.
+        </li>
+      </ol>
+    </li>
+  </ul>
+  
+  <p style="margin-top: 10px;">
+    PRAZO PARA RESTITUIÇÃO: <span style="color: red;">${data_fim_formatada} (${converterNumeroParaTexto(numeroDiasUteis)} ${sufixoDias})</span>.
+  </p>
+  
+  <p style="color: red; margin-bottom: 2px;"><strong>ATENÇÃO:</strong></p>
+  
+  <ul style="color: red; margin-left: 18px; padding-left: 0;">
+    <li>
+      Em razão do cumprimento das diretrizes da LGPD, os ajustes agora são fracionados <strong style="color: #002060; font-size: 15px;">em dois documentos</strong>: um com o ajuste, outro com o termo de ciência e notificação, exigência do Tribunal de Contas do Estado de São Paulo.
+    </li>
+    <li>
+      Solicite que seja encaminhada uma cópia simples dos seguintes documentos:
+      <ul style="margin-left: 18px; padding-left: 0; margin-top: 3px;">
+        <li><strong>Procuração</strong> (se necessário).</li>
+        <li><strong>Documentos de Identidade</strong> (RG, CNH, etc...)</li>
+      </ul>
+    </li>
+  </ul>
+  
+  <p style="margin-top: 10px;">Coloco-me à disposição para mais esclarecimentos.</p>
+</div>
+        `;
             const outputDiv = document.getElementById('output_email');
             const emailGeradoDiv = document.getElementById('email_gerado');
             const tituloEmail = document.getElementById('titulo_email');
