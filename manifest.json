@@ -49,8 +49,8 @@
       "css": ["css/sweetalert2.min.css","css/all.min.css"],
       "run_at": "document_end",
       "all_frames": false
-    },
-    {
+    }
+,    {
       "matches": ["https://processodigital.praiagrande.sp.gov.br/*"],
       "js": ["js/sweetalert2.min.js", "content.js","content_auth.js"],
       "css": ["css/sweetalert2.min.css","css/all.min.css"],
@@ -62,6 +62,12 @@
       "js": ["theme.js"],
       "run_at": "document_start",
       "all_frames": false
+    },
+    {
+      "matches": ["https://processodigital.praiagrande.sp.gov.br/*"],
+      "js": ["js/navegacao-pdf-adicionar-documentos.js"],
+      "run_at": "document_idle",
+    "all_frames": false
     },
     {
       "matches": ["https://www.intra.pg/SEAD/Lists/AssDigital/Item/newifs.aspx*"],
