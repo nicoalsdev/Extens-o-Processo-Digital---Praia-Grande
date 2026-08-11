@@ -1214,9 +1214,11 @@ async function renderTasks(tasks, processData) {
      const modal = new bootstrap.Modal(document.getElementById("taskModal"));
      modal.show();
 
-     // 🔹 Exibir as tags no modal
-     renderTagsInsideModal(task.processId,task.processNumber,task.type);
+    // 🔹 Reseta o histórico para oculto toda vez que o modal abre
+     resetHistoryToggle();
 
+     // 🔹 Exibir as tags no modal
+     renderTagsInsideModal(task.processId, task.processNumber, task.type);
      renderHistory(task.processId);
      renderBoardTime(task.processId);
 
@@ -1487,6 +1489,28 @@ function updateTaskElement(processId, dataPrazo, description) {
 }
 
 
+document.getElementById("toggleHistoryBtn").addEventListener("click", () => {
+  const container = document.getElementById("historyContainer");
+  const btn = document.getElementById("toggleHistoryBtn");
+
+  if (container.style.display === "none") {
+    container.style.display = "block";
+    btn.innerHTML = '<i class="fa-solid fa-chevron-up"></i> Ocultar';
+  } else {
+    container.style.display = "none";
+    btn.innerHTML = '<i class="fa-solid fa-chevron-down"></i> Mostrar';
+  }
+});
+
+// Opcional: Garantir que o histórico sempre inicie fechado ao abrir o modal
+function resetHistoryToggle() {
+  const container = document.getElementById("historyContainer");
+  const btn = document.getElementById("toggleHistoryBtn");
+  if (container && btn) {
+    container.style.display = "none";
+    btn.innerHTML = '<i class="fa-solid fa-chevron-down"></i> Mostrar';
+  }
+}
 
 
 async function init() {
@@ -1507,6 +1531,7 @@ async function init() {
         data.processTags[key] = tag;
     }
 }
+
 
 // Salva correção
 await setStorageData({ processTags: data.processTags });
