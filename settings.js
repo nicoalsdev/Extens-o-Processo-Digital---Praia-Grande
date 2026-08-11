@@ -594,6 +594,91 @@ function importTags(file) {
     reader.readAsText(file);
 }
 
+
+
+
+
+// Compara se a versão remota é maior que a local (ex: "1.2" > "1.0")
+function isNewerVersion(local, remote) {
+    const pLocal = local.split('.').map(Number);
+    const pRemote = remote.split('.').map(Number);
+    for (let i = 0; i < Math.max(pLocal.length, pRemote.length); i++) {
+        const l = pLocal[i] || 0;
+        const r = pRemote[i] || 0;
+        if (r > l) return true;
+        if (r < l) return false;
+    }
+    return false;
+}
+
+// Verifica o manifest.json do repositório uma vez por dia
+function verificarAtualizacaoDiaria(localVersion, infoEl) {
+    const repo = "nicoalsdev/Extens-o-Processo-Digital---Praia-Grande";
+    const hoje = new Date().toDateString(); 
+    
+    // Texto padrão que aparece primeiro
+    infoEl.textContent = `Versão ${localVersion} • ©Gerenciador Processo Digital`;
+
+    chrome.storage.local.get(['lastUpdateCheckDate', 'latestGithubVersion'], async (data) => {
+        let latestVersion = data.latestGithubVersion;
+
+        // Faz a requisição apenas se a data de hoje for diferente da última verificação
+        if (data.lastUpdateCheckDate !== hoje) {
+            try {
+                // Acessa o arquivo manifest.json direto da branch padrão
+                const response = await fetch(`https://api.github.com/repos/${repo}/contents/manifest.json`);
+                if (response.ok) {
+                    const json = await response.json();
+                    
+                    // A API do GitHub devolve o conteúdo em Base64, precisamos decodificar
+                    const manifestString = decodeURIComponent(escape(atob(json.content)));
+                    const manifestRemoto = JSON.parse(manifestString);
+                    latestVersion = manifestRemoto.version;
+
+                    // Salva a versão encontrada e a data de hoje para não consultar mais
+                    chrome.storage.local.set({
+                        lastUpdateCheckDate: hoje,
+                        latestGithubVersion: latestVersion
+                    });
+                }
+            } catch (e) {
+                console.error("Erro ao checar atualização silenciosa:", e);
+            }
+        }
+
+        // Se houver uma versão no GitHub e ela for maior que a local, substitui o texto pelo botão
+        if (latestVersion && isNewerVersion(localVersion, latestVersion)) {
+            // Como uma extensão não pode substituir seus próprios arquivos de sistema por segurança,
+            // o botão redireciona para o repositório para que você possa dar o pull.
+            infoEl.innerHTML = `Versão ${localVersion} • 
+                <a href="https://github.com/${repo}" target="_blank" class="btn btn-sm btn-success text-white px-2 py-0 ms-1" style="font-size: 0.85rem; text-decoration: none;">
+                    <i class="fa fa-download"></i> Atualizar para v${latestVersion}
+                </a>`;
+        }
+    });
+}
+
+
+
+// Registra o evento do botão de busca (Deve ficar dentro do seu DOMContentLoaded atual)
+document.addEventListener('DOMContentLoaded', () => {
+    // ... seus outros listeners ...
+    const btnFetch = document.getElementById('btnFetchCommits');
+    if (btnFetch) {
+        btnFetch.addEventListener('click', fetchGitHubCommits);
+    }
+
+    // Carrega o repo salvo, se existir
+    chrome.storage.local.get('userSettings', (data) => {
+        if (data.userSettings && data.userSettings.githubRepo) {
+            const input = document.getElementById('githubRepo');
+            if (input) input.value = data.userSettings.githubRepo;
+        }
+    });
+});
+
+
+
 const manifest = chrome.runtime.getManifest();
 
 // Exibe nome e versão no console (opcional)
@@ -606,11 +691,10 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSettings();
     loadPredefinedTags();
 
-    const infoEl = document.getElementById("extInfo");
+  const infoEl = document.getElementById("extInfo");
     if (infoEl) {
-        infoEl.textContent = `${manifest.name} © v${manifest.version}`;
+        verificarAtualizacaoDiaria(manifest.version, infoEl);
     }
-
 
     // Listener para o tipo de menu
     const menuTypeSelect = document.getElementById('menuType');
