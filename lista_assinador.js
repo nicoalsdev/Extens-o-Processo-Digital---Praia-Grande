@@ -501,7 +501,8 @@ async function startRealSignaturesUpdateTabela(lista) {
 // =======================================================================
 // 🔥 GARANTIDO: Aplica badge Amarelo/Warning para itens não mapeados
 // =======================================================================
-function generateAssinaturaTooltipContent(status_assinaturas, agrupadas = {}) {
+
+function generateAssinaturaTooltipContent(status_assinaturas, agrupadas = {}, ultimaAssinaturaStr = "") {
 
     let tooltipHtml = `<span class='d-block text-center mb-1'>SECRETARIAS</span>`;
     
@@ -537,48 +538,78 @@ function generateAssinaturaTooltipContent(status_assinaturas, agrupadas = {}) {
         return `<span class='badge text-bg-${type} d-inline-block me-1 mb-1'>${label}</span>`;
     }).join("");
 
-    // 🔥 AGORA SIM junta tudo
     tooltipHtml += badgesHtml;
 
-    // 🔥 E RETORNA
+    // 🔥 Adiciona a última assinatura na base do Tooltip usando apenas classes do Bootstrap
+    if (ultimaAssinaturaStr) {
+        tooltipHtml += `<hr class='m-1 border-secondary'>`;
+        tooltipHtml += `<span class='d-block text-center mt-1 small'>Ultima Assinatura: ${ultimaAssinaturaStr}</span>`;
+    }
+
     return tooltipHtml;
 }
-
-
 async function buscarAssinaturasTabela(id, elementoDestino, doc) {
     if (!id || !elementoDestino) return;
     const listatotal = doc.Locais.results;
     const assinaturas = await buscarAssinaturas(id);
 
+    // 🚨 DEBUG: Pressione F12 no navegador e olhe o Console para ver os campos exatos que a API retorna
+    console.log(`🔍 Assinaturas retornadas para o doc ${id}:`, assinaturas);
+
     const agrupadas = agruparAssinaturas(assinaturas);
-
-// Conta apenas únicos
     const concluidos = Object.keys(agrupadas).length;
-
     const total = Number(doc.Contagem) || 0;
 
-    // 1. Obtém o status de assinatura para todas as secretarias necessárias
-    const status_assinaturas = verificarAssinaturasPendentes(
-        listatotal,
-        assinaturas,
-        secretarias
-        );
+    const status_assinaturas = verificarAssinaturasPendentes(listatotal, assinaturas, secretarias);
+
+    // 🔥 NOVA LÓGICA: Busca inteligente de data
+    let ultimaAssinaturaStr = "";
+    if (assinaturas && assinaturas.length > 0) {
+        let datasEncontradas = [];
+
+        assinaturas.forEach(a => {
+            // Tenta os nomes de campos de data mais comuns
+            const dataDireta = a.dataHora || a.data || a.created || a.dataAssinatura || a.Data || a.signedAt;
+            if (dataDireta) {
+                datasEncontradas.push(new Date(dataDireta));
+            }
+
+            // Fallback: Varre os valores do objeto procurando strings no formato de data (ex: 2023-10-25...)
+            Object.values(a).forEach(valor => {
+                if (typeof valor === 'string' && valor.match(/^\d{4}-\d{2}-\d{2}/)) {
+                    const d = new Date(valor);
+                    if (!isNaN(d.getTime())) datasEncontradas.push(d);
+                }
+            });
+        });
+
+        // Filtra datas inválidas
+        const datasValidas = datasEncontradas.filter(d => !isNaN(d.getTime()) && d.getTime() > 0);
+
+        if (datasValidas.length > 0) {
+            // Pega a maior data (mais recente)
+            const dataMaisRecente = new Date(Math.max(...datasValidas));
+            
+            const dia = String(dataMaisRecente.getDate()).padStart(2, '0');
+            const mes = String(dataMaisRecente.getMonth() + 1).padStart(2, '0');
+            const ano = dataMaisRecente.getFullYear();
+            
+            // Extrai a hora e os minutos garantindo os 2 dígitos
+            const horas = String(dataMaisRecente.getHours()).padStart(2, '0');
+            const minutos = String(dataMaisRecente.getMinutes()).padStart(2, '0');
+            
+            // Monta a string final com a hora
+            ultimaAssinaturaStr = `${dia}/${mes}/${ano} ${horas}:${minutos}`;
+        }
+    }
 
     const required_statuses = status_assinaturas.filter(status => {
-        // Exclui a entrada de fallback "Não mapeado" (se implementada)
         return !(status.abreviacao === status.secretaria && status.responsavel === 'Não mapeado (Pendente)');
     });
 
-    // Conta os concluídos (badges 'success')
-    const display_concluidos = required_statuses.filter(s => s.assinado).length;
+    // Passa a string da data para o tooltip
+    const tooltipContent = generateAssinaturaTooltipContent(status_assinaturas, agrupadas, ultimaAssinaturaStr);
 
-    // Conta o total de secretarias mapeadas/requeridas
-    const display_total = required_statuses.length;
-    // 2. Gera o HTML do conteúdo do Tooltip (lista de badges)
-    const tooltipContent = generateAssinaturaTooltipContent(status_assinaturas, agrupadas);
-
-    // 4. Monta o HTML final para a célula da tabela
-    // Substitui aspas duplas internas por &quot; para evitar quebras no atributo data-bs-title.
     const escapedTooltipContent = tooltipContent.replace(/"/g, '&quot;');
     var colortextspan = "dark";
     if(concluidos > total){
@@ -586,6 +617,7 @@ async function buscarAssinaturasTabela(id, elementoDestino, doc) {
     }else if(concluidos == total){
         colortextspan = "primary";
     }
+    
     const finalHtml = `
         <span
             class="fw-bold text-${colortextspan} "
@@ -598,10 +630,8 @@ async function buscarAssinaturasTabela(id, elementoDestino, doc) {
         </span>
     `;
 
-    // 5. Atualiza o conteúdo da célula com o novo SPAN
     elementoDestino.innerHTML = finalHtml;
 
-    // remove botão enviar se já houver assinaturas
     if (concluidos > 0) {
         const botao = elementoDestino.closest("tr").querySelector(".btn-enviar");
         if (botao) botao.remove();
