@@ -647,12 +647,13 @@ function verificarAtualizacaoDiaria(localVersion, infoEl) {
         }
 
         // Se houver uma versão no GitHub e ela for maior que a local, substitui o texto pelo botão
-        if (latestVersion && isNewerVersion(localVersion, latestVersion)) {
-            // Como uma extensão não pode substituir seus próprios arquivos de sistema por segurança,
-            // o botão redireciona para o repositório para que você possa dar o pull.
+       if (latestVersion && isNewerVersion(localVersion, latestVersion)) {
+            // Rota direta para baixar o ZIP da branch principal (main ou master)
+            const zipDownloadUrl = `https://github.com/${repo}/archive/refs/heads/main.zip`;
+
             infoEl.innerHTML = `Versão ${localVersion} • 
-                <a href="https://github.com/${repo}" target="_blank" class="btn btn-sm btn-success text-white px-2 py-0 ms-1" style="font-size: 0.85rem; text-decoration: none;">
-                    <i class="fa fa-download"></i> Atualizar para v${latestVersion}
+                <a href="${zipDownloadUrl}" class="btn btn-sm btn-success text-white px-2 py-0 ms-1" style="font-size: 0.85rem; text-decoration: none;">
+                    <i class="fa fa-file-zipper"></i> Baixar Atualização v${latestVersion}
                 </a>`;
         }
     });
