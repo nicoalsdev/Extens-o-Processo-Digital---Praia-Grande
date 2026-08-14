@@ -1513,6 +1513,114 @@ function resetHistoryToggle() {
 }
 
 
+
+// =========================================================================
+// FUNÇÃO DE VERIFICAÇÃO DE TRAMITAÇÃO EM SEGUNDO PLANO (ATUALIZADA)
+// =========================================================================
+
+async function verificarTramitesProcessos() {
+    // Obtém o local atual do localStorage (dadosPessoais -> destino) ou assume "SEAD-5111"
+    let meuLocal = "SEAD-5111";
+    try {
+        const dadosPessoaisStr = localStorage.getItem("dadosPessoais");
+        if (dadosPessoaisStr) {
+            const dadosPessoais = JSON.parse(dadosPessoaisStr);
+            if (dadosPessoais && dadosPessoais.destino) {
+                meuLocal = dadosPessoais.destino;
+            }
+        }
+    } catch (e) {
+        console.warn("Não foi possível ler dadosPessoais do localStorage, usando padrão:", meuLocal);
+    }
+
+    // Seleciona todas as tasks renderizadas no Kanban
+    const taskElements = document.querySelectorAll(".task");
+
+    taskElements.forEach(async (taskEl) => {
+        const processId = taskEl.dataset.processId;
+        if (!processId || processId.startsWith("manual-")) return;
+
+        try {
+            const response = await fetch(`https://processodigital.praiagrande.sp.gov.br/Tramite/Historico/${processId}`);
+            if (!response.ok) return;
+
+            const historicoJson = await response.json();
+            
+            // Valida se o retorno é um array válido e possui elementos
+            if (Array.isArray(historicoJson) && historicoJson.length > 0) {
+                
+                // O primeiro item [0] é o trâmite mais recente (onde o processo está agora)
+                const ultimoTramite = historicoJson[0];
+                const nomeLocalAtual = ultimoTramite.nomeLocalAtual;
+
+                // Remove aviso anterior se existir para atualizar limpo
+                const avisoExistente = taskEl.querySelector(".aviso-finalizado");
+                if (avisoExistente) avisoExistente.remove();
+
+                // Se o local atual do processo for diferente do seu local, exibe o aviso
+                if (nomeLocalAtual && nomeLocalAtual !== meuLocal) {
+                    const aviso = document.createElement("div");
+                    aviso.className = "aviso-finalizado";
+                    aviso.title = `Processo já tramitado/encaminhado para: ${nomeLocalAtual}`;
+                    
+                    // Estilização do círculo amarelo com exclamação no lado direito
+                    aviso.style.cssText = `
+                        position: absolute;
+                        right: 8px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        width: 20px;
+                        height: 20px;
+                        background-color: #ffc107;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #000;
+                        font-weight: bold;
+                        font-size: 12px;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+                        z-index: 5;
+                        cursor: help;
+                    `;
+                    aviso.textContent = "!";
+
+                    // Garante posicionamento relativo no card
+                    if (window.getComputedStyle(taskEl).position === "static") {
+                        taskEl.style.position = "relative";
+                    }
+                    
+                    // Adiciona padding à direita no conteúdo interno para não sobrepor o texto
+                    const contentEl = taskEl.querySelector(".task-content");
+                    if (contentEl) {
+                        contentEl.style.paddingRight = "24px";
+                    }
+
+                    taskEl.appendChild(aviso);
+                }
+            }
+        } catch (error) {
+            console.error(`Erro ao consultar histórico do processo ${processId}:`, error);
+        }
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 async function init() {
   const data = await getStorageData();
 
@@ -1531,6 +1639,8 @@ async function init() {
         data.processTags[key] = tag;
     }
 }
+
+
 
 
 // Salva correção
@@ -1597,6 +1707,9 @@ renderBoards(predefined);
 
 await renderTasks(tasks, processData);
 computeLoadForecast();
+
+
+verificarTramitesProcessos();
      // 🚀 SOLUÇÃO: Ativa o listener de refresh automático
 enableAutoRefresh();
 }

@@ -429,152 +429,104 @@ function toggleCollapsible(headerId, contentId) {
  * Exporta as tags pré-definidas E as tags de processos para um arquivo JSON.
  */
 function exportTags() {
-    // Busca AMBOS os objetos do storage
-    chrome.storage.local.get([PREDEFINED_TAGS_KEY, PROCESS_TAGS_KEY, PROCESS_DATA], (data) => {
+    // Lista completa de chaves utilizadas na extensão
+    const chavesParaExportar = [
+        'predefinedTags',
+        'processTags',
+        'processData',
+        'userSettings',
+        'mapeamentoPastasProcessos',
+        'pastasMonitoradas',
+        'dadosPessoais',
+        'assinador_preferencia',
+        'configBadgesPastas'
+    ];
 
-        const tagsToExport = {
-            predefinedTags: data[PREDEFINED_TAGS_KEY] || [], // Array
-            processTags: data[PROCESS_TAGS_KEY] || {}, // Objeto (ID-Timestamp: Tag)
-            processData: data[PROCESS_DATA] || {}
+    chrome.storage.local.get(chavesParaExportar, (data) => {
+        const dadosCompletosBackup = {
+            versaoBackup: "2.0",
+            dataExportacao: new Date().toISOString(),
+            ...data
         };
 
-        // Formata o JSON com indentação para ser legível
-        const jsonContent = JSON.stringify(tagsToExport, null, 2);
-
-        const blob = new Blob([jsonContent], {
-            type: 'application/json'
-        });
+        const jsonContent = JSON.stringify(dadosCompletosBackup, null, 2);
+        const blob = new Blob([jsonContent], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
 
-        // Cria e clica em um link para iniciar o download
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'backup_tags_extensao.json';
+        a.download = `backup_gerenciador_processo_digital_${new Date().toISOString().slice(0,10)}.json`;
         document.body.appendChild(a);
         a.click();
 
-        // Limpeza
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        //alert('Backup das Tags Rápidas e Tags de Processos concluído com sucesso!');
-        //
-        showToast('success', 'Backup das Tags Rápidas e Tags de Processos concluído com sucesso!');
+        showToast('success', 'Backup completo de todos os dados e configurações realizado com sucesso!');
     });
 }
-
 /**
  * Importa tags a partir de um arquivo JSON.
  * @param {File} file - O arquivo JSON a ser lido.
  */
+// =========================================================================
+// IMPORTAÇÃO COMPLETA DE DADOS
+// =========================================================================
 function importTags(file) {
     const reader = new FileReader();
     const importMessage = document.getElementById('importMessage');
 
-    // Reseta a mensagem
     importMessage.style.display = 'none';
 
     reader.onload = (e) => {
         try {
             const importedData = JSON.parse(e.target.result);
 
-            const predefinedTags = importedData.predefinedTags;
-            const processTags = importedData.processTags;
-            const processData = importedData.processData;
-
-            // --- VALIDAÇÃO ---
-
-            if (!predefinedTags || !Array.isArray(predefinedTags)) {
-                importMessage.textContent = 'Erro: O arquivo não contém o array "predefinedTags" válido.';
-                importMessage.style.display = 'block';
-                importMessage.style.color = '#dc3545'; // Vermelho
-                return;
+            if (!importedData || typeof importedData !== 'object') {
+                throw new Error("Formato de JSON inválido.");
             }
 
-            // processTags deve ser um objeto, mas não um array
-            if (!processTags || typeof processTags !== 'object' || Array.isArray(processTags)) {
-                importMessage.textContent = 'Erro: O arquivo não contém o objeto "processTags" válido.';
-                importMessage.style.display = 'block';
-                importMessage.style.color = '#dc3545'; // Vermelho
-                return;
-            }
+            const predefinedTags = importedData.predefinedTags || [];
+            const processTags = importedData.processTags || {};
+            const processData = importedData.processData || {};
 
-            if (!processData || typeof processData !== 'object' || Array.isArray(processData)) {
-                importMessage.textContent = 'Erro: O arquivo não contém o objeto "processData" válido.';
-                importMessage.style.display = 'block';
-                importMessage.style.color = '#dc3545'; // Vermelho
-                return;
-            }
-
-            // Validação simples de estrutura das Tags Rápidas
-            const tagsRapidasValidas = predefinedTags.every(tag =>
-                tag.name && typeof tag.name === 'string' &&
-                tag.color && typeof tag.color === 'string' &&
-                tag.color.startsWith('#')
-                );
-            if (!tagsRapidasValidas) {
-                importMessage.textContent = 'Erro: Tags Rápidas inválidas encontradas.';
-                importMessage.style.display = 'block';
-                importMessage.style.color = '#dc3545';
-                return;
-            }
-
-            // Validação simples de estrutura das Tags de Processos
-            const tagsProcessoValidas = Object.values(processTags).every(tag =>
-                tag.name && typeof tag.name === 'string' &&
-                tag.color && typeof tag.color === 'string' &&
-                tag.color.startsWith('#')
-                );
-            if (!tagsProcessoValidas) {
-                importMessage.textContent = 'Erro: Tags de Processo inválidas encontradas.';
-                importMessage.style.display = 'block';
-                importMessage.style.color = '#dc3545';
-                return;
-            }
-
-            // --- SALVAMENTO ---
-
-            // Cria o objeto para salvar AMBOS no storage
+            // Salva diretamente os blocos encontrados no storage local
             const dataToSave = {
-                [PREDEFINED_TAGS_KEY]: predefinedTags,
-                [PROCESS_TAGS_KEY]: processTags,
-                [PROCESS_DATA]: processData
+                predefinedTags: predefinedTags,
+                processTags: processTags,
+                processData: processData
             };
 
-            // Salva TODAS as tags no storage
+            // Se o backup contiver chaves completas extras da extensão, inclui também
+            if (importedData.userSettings) dataToSave.userSettings = importedData.userSettings;
+            if (importedData.mapeamentoPastasProcessos) dataToSave.mapeamentoPastasProcessos = importedData.mapeamentoPastasProcessos;
+            if (importedData.pastasMonitoradas) dataToSave.pastasMonitoradas = importedData.pastasMonitoradas;
+
             chrome.storage.local.set(dataToSave, () => {
+                if (typeof loadPredefinedTags === 'function') loadPredefinedTags();
+                if (typeof loadSettings === 'function') loadSettings();
 
-                // Recarrega a lista na página (Tags Rápidas)
-                loadPredefinedTags();
-
-                // Notifica o popup/content script para atualizar as listas
-                chrome.runtime.sendMessage({
-                    action: 'predefinedTagsUpdated'
-                }).catch(e => console.log('Erro ao notificar update:', e));
+                chrome.runtime.sendMessage({ action: 'predefinedTagsUpdated' }).catch(() => {});
                 chrome.tabs.query({}, (tabs) => {
                     tabs.forEach(tab => {
                         if (tab.id) {
-                            // Manda mensagem para o content.js
-                            chrome.tabs.sendMessage(tab.id, {
-                                action: 'settingsUpdated'
-                            }).catch(() => {
-                            /* Ignora erro se content.js não estiver na aba */ });
-                            }
-                        });
+                            chrome.tabs.sendMessage(tab.id, { action: 'settingsUpdated' }).catch(() => {});
+                        }
+                    });
                 });
 
                 const processCount = Object.keys(processTags).length;
                 const predefinedCount = predefinedTags.length;
 
-                importMessage.innerHTML = `Sucesso! <br>Tags Rápidas: ${predefinedCount} importadas. <br>Tags de Processos: ${processCount} importadas/atualizadas.`;
+                importMessage.innerHTML = `Sucesso! <br>Tags Rápidas: ${predefinedCount}. <br>Tags de Processos: ${processCount} importadas.`;
                 importMessage.style.display = 'block';
-                importMessage.style.color = '#198754'; // Verde
+                importMessage.style.color = '#198754';
 
-                showToast('success', `Importação concluída. ${newTagsCount} novas tags e ${updatedTagsCount} tags atualizadas.`);
+                showToast('success', `Importação concluída com sucesso!`);
             });
 
         } catch (error) {
-            importMessage.textContent = 'Erro ao processar o arquivo: JSON malformado ou estrutura incorreta.';
+            importMessage.textContent = 'Erro ao processar o arquivo: JSON malformado.';
             importMessage.style.display = 'block';
             importMessage.style.color = '#dc3545';
             console.error('Erro de importação:', error);
@@ -582,13 +534,11 @@ function importTags(file) {
         }
     };
 
-    reader.onerror = (error) => {
+    reader.onerror = () => {
         importMessage.textContent = 'Erro ao ler o arquivo.';
         importMessage.style.display = 'block';
         importMessage.style.color = '#dc3545';
-        console.error('Erro de leitura:', error);
-        showToast('error', 'Erro: O arquivo não é um JSON de tags válido.');
-
+        showToast('error', 'Erro na leitura do arquivo.');
     };
 
     reader.readAsText(file);
