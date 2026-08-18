@@ -3944,7 +3944,7 @@ async function aplicarTagsStatusNasListas() {
             
             // Injeta SEMPRE no início (antes das tags normais)
             tagContainer.prepend(tagStatus);
-            console.log(statusDoProcesso);
+            //console.log(statusDoProcesso);
         }
 
 
