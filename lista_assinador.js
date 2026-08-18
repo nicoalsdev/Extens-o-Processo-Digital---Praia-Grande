@@ -153,7 +153,7 @@ const API_URL =
 "&$expand=ContentType,Author,Editor" +
 "&$top=30000";
 
-console.log(API_URL);
+//console.log(API_URL);
 // Endpoint para busca completa (10k)
 const SEARCH_ENDPOINT =
 "https://www.intra.pg/SEAD/_api/web/lists/getbyID('da67fc64-1b63-4608-b859-8de4bc9b1fd8')/items" +
@@ -184,7 +184,7 @@ const SEARCH_ENDPOINT =
 "&$orderby=Modified desc" +   // 🔥 opcional (melhor UX)
 "&$top=30000";
 
-console.log(SEARCH_ENDPOINT);
+//console.log(SEARCH_ENDPOINT);
 // Contêiner onde será exibida a lista (cards)
 
 
@@ -573,7 +573,7 @@ async function buscarAssinaturasTabela(id, elementoDestino, doc) {
     const assinaturas = await buscarAssinaturas(id);
 
     // 🚨 DEBUG: Pressione F12 no navegador e olhe o Console para ver os campos exatos que a API retorna
-    console.log(`🔍 Assinaturas retornadas para o doc ${id}:`, assinaturas);
+    //console.log(`🔍 Assinaturas retornadas para o doc ${id}:`, assinaturas);
 
     const agrupadas = agruparAssinaturas(assinaturas);
     const concluidos = Object.keys(agrupadas).length;
@@ -780,7 +780,7 @@ async function buscarListaCompleta() {
     const cache = await lerListaCache();
 
     if (cache.length > 0) {
-        console.log(`⚡ Cache local carregado: ${cache.length} registros`);
+       // console.log(`⚡ Cache local carregado: ${cache.length} registros`);
         listaBusca = cache;
 
         // Atualiza em background (sem travar)
@@ -790,7 +790,7 @@ async function buscarListaCompleta() {
     }
 
     // 3️⃣ Não tem cache → busca tudo
-    console.log("🌐 Cache vazio, buscando lista completa...");
+    //console.log("🌐 Cache vazio, buscando lista completa...");
     const lista = await buscarListaCompletaDoServidor();
 
     if (lista.length > 0) {
@@ -824,7 +824,7 @@ async function buscarListaCompletaDoServidor() {
 
 async function atualizarCacheEmBackground(cacheAtual) {
     setTimeout(async () => {
-        console.log("🔄 Atualizando cache em background...");
+        //console.log("🔄 Atualizando cache em background...");
 
         const listaNova = await buscarListaCompletaDoServidor();
 
@@ -840,7 +840,7 @@ async function atualizarCacheEmBackground(cacheAtual) {
         listaBusca = listaMesclada;
         await salvarListaCache(listaMesclada);
 
-        console.log(`✅ Cache atualizado: ${listaMesclada.length} registros`);
+       // console.log(`✅ Cache atualizado: ${listaMesclada.length} registros`);
     }, 200);
 }
 
