@@ -316,7 +316,7 @@ const dataFormatada = `Aos ${diaExtenso} de ${mes} de ${anoExtenso}`;
                 }
 
 
-                quartotexto += ` Divisão de Expediente Administrativo, da Secretaria de Administração, da <strong style='text-transform: uppercase;'>PREFEITURA DA ESTÂNCIA BALNEÁRIA DE PRAIA GRANDE</strong>, Pessoa Jurídica de Direito Público Interno, inscrita no CNPJ/MF sob nº. 46.177.531/0001-55, localizada à Avenida Presidente Kennedy, nº. 9.000 - Vila Mirim, Praia Grande/SP,`;
+                quartotexto += ` Pelo presente <strong>Termo de Ata</strong>, com força de instrumento público, de um lado, <strong style='text-transform: uppercase;'>PREFEITURA DA ESTÂNCIA BALNEÁRIA DE PRAIA GRANDE</strong>, Pessoa Jurídica de Direito Público Interno, inscrita no CNPJ/MF sob nº. 46.177.531/0001-55, localizada à Avenida Presidente Kennedy, nº. 9.000 - Vila Mirim, Praia Grande/SP,`;
 
 
 

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Gerenciador Processo Digital",
-  "version": "2.6.3",
+  "version": "2.6.4",
   "description": "Adicionar/Remover tags coloridas em processos e gerenciar via Kanban.",
   "omnibox": { "keyword": "assinador" },
   "permissions": [

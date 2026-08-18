@@ -376,15 +376,19 @@ function verificarAssinaturasPendentes(locais_necessarios, assinaturas_feitas, s
 
     // 1. Set de todos os nomes que REALMENTE ASSINARAM (para busca rápida)
     const responsaveis_que_assinaram = new Set(
-        assinaturas_feitas.map(a => normalize(a.responsavel))
-        );
-
-    // 2. Mapa de Lookups (Local da API -> Dados da Secretaria)
+        assinaturas_feitas.map(a => normalize(corrigirNomeAssinante(a.responsavel)))
+    );
+    
+    // 2. Mapa de Lookups (Local da API -> Dados da Secretaria e Nome -> Dados da Secretaria)
     const localParaSecretariaMap = new Map();
+    const nomeParaSecretariaMap = new Map(); // 🚨 NOVO: Mapa para identificar de onde é um signatário extra
+
     secretarias_map.forEach(sec => {
         localParaSecretariaMap.set(normalize(sec.abreviacao), sec);
         localParaSecretariaMap.set(normalize(sec.secretaria), sec);
-        // Mapeamentos manuais... (inclua todos os seus mapeamentos aqui)
+        nomeParaSecretariaMap.set(normalize(sec.nome), sec); // Associa o nome à respectiva secretaria
+
+        // Mapeamentos manuais...
         if (sec.abreviacao === "GP") { localParaSecretariaMap.set(normalize("GERAL DO GABINETE"), sec); }
         if (sec.abreviacao === "Ações da Cidadania") { localParaSecretariaMap.set(normalize("SUBS. DE AÇÕES DE CIDADANIA"), sec); }
         if (sec.abreviacao === "Assuntos da Juventude") { localParaSecretariaMap.set(normalize("SUBS. DE ASSUNTOS DA JUVENTUDE"), sec); }
@@ -395,9 +399,7 @@ function verificarAssinaturasPendentes(locais_necessarios, assinaturas_feitas, s
     const resultado = [];
     
     // 3. Rastreamento:
-    // a) Chaves de Secretarias Oficiais/Locais (para evitar duplicatas requeridas)
     const chavesRequeridasProcessadas = new Set(); 
-    // b) Nomes dos signatários que cobriram uma assinatura REQUERIDA (para subtrair da lista de Extras)
     const responsaveis_accounted_for = new Set(); 
 
     // 4. Lógica de ITENS REQUERIDOS (Mapeados ou Não)
@@ -406,7 +408,6 @@ function verificarAssinaturasPendentes(locais_necessarios, assinaturas_feitas, s
         const sec = localParaSecretariaMap.get(localNorm);
 
         if (sec) {
-            // ITEM REQUERIDO MAPEADO
             const chave = sec.abreviacao;
             if (chavesRequeridasProcessadas.has(chave)) continue;
             chavesRequeridasProcessadas.add(chave);
@@ -415,7 +416,6 @@ function verificarAssinaturasPendentes(locais_necessarios, assinaturas_feitas, s
             const assinado = responsaveis_que_assinaram.has(nomeResponsavelNorm);
             
             if (assinado) {
-                // Se o signatário oficial necessário assinou, ele está ACCOUNTED FOR.
                 responsaveis_accounted_for.add(nomeResponsavelNorm); 
             }
             
@@ -427,9 +427,7 @@ function verificarAssinaturasPendentes(locais_necessarios, assinaturas_feitas, s
             });
             
         } else {
-            // ITEM REQUERIDO NÃO MAPEADO (Vai aparecer como warning: Pendente/Desconhecido)
             const chave = localNorm; 
-            // Evita duplicatas de nomes não mapeados que apareceram várias vezes no input
             if (chavesRequeridasProcessadas.has(chave)) continue;
             chavesRequeridasProcessadas.add(chave); 
 
@@ -437,37 +435,58 @@ function verificarAssinaturasPendentes(locais_necessarios, assinaturas_feitas, s
                 abreviacao: local, 
                 secretaria: local, 
                 assinado: false,
-                responsavel: "Não mapeado (Pendente)" // Flag para Yellow badge
+                responsavel: "Não mapeado (Pendente)"
             });
         }
     }
     
-    // 5. Lógica de ITENS EXTRAS (Signatários que ASSINARAM, mas não são responsáveis REQUERIDOS)
+    // 5. Lógica de ITENS EXTRAS
     const extraSignersAdded = new Set(); 
 
     for (const assinatura of assinaturas_feitas) {
-        const signatarioNome = assinatura.responsavel;
+        const signatarioNomeOriginal = assinatura.responsavel;
+        const signatarioNome = corrigirNomeAssinante(signatarioNomeOriginal);
         const signatarioNorm = normalize(signatarioNome);
 
-        // Se o nome do signatário já cobriu um requisito, ignore.
         if (responsaveis_accounted_for.has(signatarioNorm)) {
             continue; 
         }
 
-        // Evita duplicatas na lista de signatários extra
+        if (signatarioNome === "SORAIA M. MILAN") {
+            resultado.push({
+                abreviacao: "SORAIA M. MILAN",
+                secretaria: "Assinatura Aprovada",
+                assinado: true, 
+                responsavel: "SORAIA M. MILAN"
+            });
+            continue; 
+        }
+
         if (extraSignersAdded.has(signatarioNorm)) {
             continue; 
         }
         extraSignersAdded.add(signatarioNorm);
 
-        // É um signatário extra
-        resultado.push({
-            // Usamos o nome do signatário como a 'abreviação' para o badge
-            abreviacao: signatarioNome, 
-            secretaria: "Assinatura Especial",
-            assinado: true, 
-            responsavel: "Signatário Extra" // Flag para Yellow badge
-        });
+        // 🚨 NOVO: Checa se este "Signatário Extra" pertence a alguma secretaria conhecida
+        const secExtra = nomeParaSecretariaMap.get(signatarioNorm);
+
+        if (secExtra) {
+            // É um signatário extra que pertence a uma secretaria/sub
+            resultado.push({
+                abreviacao: secExtra.abreviacao, // Exibe o nome da Secretaria no badge
+                secretaria: secExtra.secretaria,
+                assinado: true, 
+                responsavel: "Signatário Extra" // Mantém essa string para disparar o badge amarelo
+            });
+        } else {
+            // Signatário não mapeado em nenhuma secretaria, mostra o nome original
+            resultado.push({
+                abreviacao: signatarioNomeOriginal, 
+                secretaria: "Assinatura Especial",
+                assinado: true, 
+                responsavel: "Signatário Extra" 
+            });
+        }
     }
 
     return resultado;
@@ -638,22 +657,41 @@ async function buscarAssinaturasTabela(id, elementoDestino, doc) {
     }
 }
 
+function corrigirNomeAssinante(nome) {
+    if (!nome) return "";
+    
+    // Padroniza a verificação removendo espaços extras
+    const nomeTrim = nome.trim();
+    
+    if (nomeTrim === "SORAIA MOURAO MILAN") {
+        return "SORAIA M. MILAN";
+    }
+    
+    // Você pode adicionar outros mapeamentos aqui se precisar no futuro:
+    // if (nomeTrim === "OUTRO NOME COMPLETO") { return "OUTRO N. ABREVIADO"; }
+
+    return nomeTrim;
+}
+
+
 function agruparAssinaturas(assinaturas) {
     const normalize = str =>
-    (str || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toUpperCase()
-    .trim();
+        (str || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toUpperCase()
+        .trim();
 
     const contagem = {};
 
     assinaturas.forEach(a => {
-        const nome = normalize(a.responsavel);
+        // 🔽 Aplica a correção do nome antes de normalizar
+        let nomeTratado = corrigirNomeAssinante(a.responsavel);
+        const nome = normalize(nomeTratado);
 
         if (!contagem[nome]) {
             contagem[nome] = {
-                nomeOriginal: a.responsavel,
+                nomeOriginal: nomeTratado, // Mantém o nome corrigido/original
                 count: 0
             };
         }
@@ -849,11 +887,11 @@ function mapearAssinaturasPorSecretaria(assinaturas, secretarias, locaisProcesso
         const localNorm = normalize(local);
 
         // Verifica se o local existe na lista de secretarias oficiais
+
         const sec = secretarias.find(s => normalize(s.abreviacao) === localNorm);
 
         if (sec) {
             const assinou = nomesAssinantes.includes(normalize(sec.nome));
-
             secretariasProcesso.push({
                 abreviacao: sec.abreviacao,
                 nome: sec.nome,
