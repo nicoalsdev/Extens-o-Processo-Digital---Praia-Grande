@@ -930,14 +930,18 @@ function mapearAssinaturasPorSecretaria(assinaturas, secretarias, locaisProcesso
 
 
 //FILTROS MISTOS
+
 function renderizarOpcoesMistas() {
-    const select = document.getElementById("selectGrupo"); // Usando o select que você já tem
+    const select = document.getElementById("selectGrupo"); 
     if (!select) return;
 
     const listaGrupos = obterGrupos();
     const criadores = [...new Set(todosDocumentos.map(doc => doc.Author?.Title?.split(/ - | RF/i)[0].trim()).filter(Boolean))].sort();
 
     let html = '<option value="todos">📁 Todos os Documentos</option>';
+    
+    // 🔥 NOVA OPÇÃO: Processos Monitorados
+    html += '<option value="monitorados" style="color: #ff9800; font-weight: bold;">🔔 Processos Monitorados</option>';
 
     // Seção de Grupos
     html += '<optgroup label="Seus Grupos">';
@@ -969,7 +973,38 @@ async function filtrarMisto() {
     showLoading();
     let filtrados = [];
 
-    if (valorSelecionado.startsWith("grupo:")) {
+    // 🔥 NOVA LÓGICA: Filtrar pelos processos com sininho ativo
+    if (valorSelecionado === "monitorados") {
+        
+        // Pega a lista da memória através de uma Promise
+        const monitorados = await new Promise((resolve) => {
+            chrome.storage.local.get(['processosMonitorados'], (result) => {
+                resolve(result.processosMonitorados || []);
+            });
+        });
+
+        // Extrai apenas os IDs de assinatura
+        const idsMonitorados = monitorados.map(m => String(m.idAssinador));
+
+        // Filtra a lista atual
+        filtrados = todosDocumentos.filter(doc => {
+            const link = sanitizeLinkField(doc.Link_x0020_Documento);
+            const idDoc = extrairIdAssinador(link);
+            return idsMonitorados.includes(String(idDoc));
+        });
+        
+        // Se a quantidade na tela for menor que a quantidade monitorada, busca na lista completa (Cache 10k)
+        if (filtrados.length < idsMonitorados.length) {
+            const listaCache = await buscarListaCompleta();
+            filtrados = listaCache.filter(doc => {
+                const link = sanitizeLinkField(doc.Link_x0020_Documento);
+                const idDoc = extrairIdAssinador(link);
+                return idsMonitorados.includes(String(idDoc));
+            });
+        }
+    } 
+    // Lógica antiga de Grupos
+    else if (valorSelecionado.startsWith("grupo:")) {
         const nomeGrupo = valorSelecionado.replace("grupo:", "");
         const listaGrupos = obterGrupos();
         const idsNoGrupo = (listaGrupos[nomeGrupo] || []).map(id => String(id));
@@ -980,17 +1015,16 @@ async function filtrarMisto() {
             const listaCache = await buscarListaCompleta();
             filtrados = listaCache.filter(doc => idsNoGrupo.includes(String(doc.ID)));
         }
-    } else if (valorSelecionado.startsWith("criador:")) {
+    } 
+    // Lógica antiga de Criadores
+    else if (valorSelecionado.startsWith("criador:")) {
         const nomeCriador = valorSelecionado.replace("criador:", "");
-        // Filtra os documentos originais pelo nome do autor
         filtrados = todosDocumentos.filter(doc => {
             const nomeBruto = doc.Author?.Title || "";
             return nomeBruto.includes(nomeCriador);
         });
     }
 
-    // A função aplicarModoVisualizacao chamará renderTabela/renderLista 
-    // que agora já possuem a lógica correta para checar o prefixo "grupo:"
     aplicarModoVisualizacao(filtrados, false);
     hideLoading();
 }
@@ -1361,6 +1395,17 @@ function renderTabela(lista) {
             title="${modoLixeira ? 'Remover do grupo' : 'Adicionar ao grupo'}">
         <i class="fa ${iconeAcao}"></i>
     </button>
+<div class="vr bg-dark"></div>
+            <!-- NOVO BOTÃO DE MONITORAMENTO -->
+<button class="btn btn-sm btn-outline-warning btn-monitorar border-0 bg-transparent" 
+        data-idassinador="${idAssinador}" 
+        data-titulo="${doc.Title}" 
+        data-contagem="${doc.Contagem}"
+        title="Monitorar Processo">
+    <i class="fa-regular fa-bell text-warning"></i>
+</button>
+
+
                 </div>
 
 
@@ -1373,6 +1418,9 @@ function renderTabela(lista) {
     html += "</tbody></table>";
 
     documentsList.innerHTML = html;
+
+    // 🔥 NOVO: Atualiza o status visual dos sininhos
+    atualizarSinosMonitoramento();
 
     // 🔥 Atualiza assinaturas REAL-TIME
     startRealSignaturesUpdateTabela(lista);
@@ -1439,6 +1487,50 @@ document.addEventListener('click', function (e) {
             }
         });
     }
+
+const btnMonitorar = e.target.closest(".btn-monitorar");
+
+if (btnMonitorar) {
+    e.preventDefault();
+    const idAssinador = btnMonitorar.getAttribute("data-idassinador");
+    const titulo = btnMonitorar.getAttribute("data-titulo");
+    const contagem = parseInt(btnMonitorar.getAttribute("data-contagem")) || 0;
+    const iconeSino = btnMonitorar.querySelector('i');
+    
+    // Troca o ícone para visual de carregamento rápido
+    iconeSino.classList.replace("fa-bell", "fa-spinner");
+    iconeSino.classList.add("fa-spin");
+
+    // Buscamos quem JÁ ASSINOU no momento do clique, para o background não notificar 
+    // assinaturas do passado, apenas as novas a partir de agora.
+    buscarAssinaturas(idAssinador).then(assinaturas => {
+        const assinantesIniciais = assinaturas.map(a => a.responsavel.trim().toUpperCase());
+        
+        chrome.runtime.sendMessage({
+            action: "trackProcess",
+            doc: { idAssinador, titulo, contagemTotal: contagem, assinantesIniciais }
+        }, (res) => {
+            
+            iconeSino.classList.remove("fa-spin"); // Para de rodar
+
+            if (res.success) {
+                if (res.status === "adicionado") {
+                    showToast("success", "Monitoramento Ativado!");
+                    iconeSino.classList.replace("fa-spinner", "fa-bell");
+                    iconeSino.classList.replace("fa-regular", "fa-solid"); // Sino preenchido
+                } else {
+                    showToast("info", "Monitoramento Desativado.");
+                    iconeSino.classList.replace("fa-spinner", "fa-bell");
+                    iconeSino.classList.replace("fa-solid", "fa-regular"); // Sino vazio
+                }
+            } else {
+                iconeSino.classList.replace("fa-spinner", "fa-bell");
+                Swal.fire("Limite Atingido", res.error, "warning");
+            }
+        });
+    });
+}
+
 });
 
 
@@ -1739,6 +1831,45 @@ async function verificarParametrosURL() {
         }, 500);
     }
 }
+
+
+
+
+
+// ===================================================
+// ATUALIZAÇÃO VISUAL DOS SININHOS DE MONITORAMENTO
+// ===================================================
+function atualizarSinosMonitoramento() {
+    // Busca na memória do Chrome a lista de processos monitorados
+    chrome.storage.local.get(['processosMonitorados'], (result) => {
+        const monitorados = result.processosMonitorados || [];
+        // Pega apenas os IDs para facilitar a busca
+        const idsMonitorados = monitorados.map(p => String(p.idAssinador));
+
+        // Pega todos os botões de sino que estão na tela
+        const botoesSino = document.querySelectorAll('.btn-monitorar');
+
+        botoesSino.forEach(btn => {
+            const id = String(btn.getAttribute('data-idassinador'));
+            const icone = btn.querySelector('i');
+            
+            // Se o ID deste botão estiver na lista de monitorados, pinta o sino
+            if (idsMonitorados.includes(id)) {
+                icone.classList.replace('fa-regular', 'fa-solid');
+            } else {
+                icone.classList.replace('fa-solid', 'fa-regular');
+            }
+        });
+    });
+}
+
+
+
+
+
+
+
+
 
 // 3. ATIVAÇÃO COMPLETA NO FLUXO CORRETO DE CARREGAMENTO
 // Removemos a chamada duplicada do fim do arquivo para centralizar tudo aqui

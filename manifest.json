@@ -10,7 +10,8 @@
     "scripting",
     "tabs",
     "alarms",
-    "clipboardWrite"
+    "clipboardWrite",
+    "notifications"
   ],
   
   "host_permissions": [

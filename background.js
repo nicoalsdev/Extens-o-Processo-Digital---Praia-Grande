@@ -20,6 +20,11 @@ const popupTracker = {};
 const logss = false;
 console.log("🔧 background.js iniciado.");
 
+//Tracker
+const ALARM_MONITOR_NAME = "monitorAssinaturas";
+const MAX_MONITORAMENTO = 10;
+
+
 
 // ========================================================================
 //  UTIL: Log formatado
@@ -91,8 +96,11 @@ chrome.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === CLEANUP_ALARM_NAME) {
         cleanupOldTags();
     }
+    // NOVO: Dispara a verificação das assinaturas
+    if (alarm.name === ALARM_MONITOR_NAME) {
+        verificarProcessosMonitorados();
+    }
 });
-
 
 // ========================================================================
 //  FUNÇÃO: Criar Popup para Tags / Processos
@@ -265,9 +273,9 @@ case "removerStatusSheets":
 
     return true; // Mantémanal aberto para a resposta assíncrona
 
-break;
- 
- 
+    break;
+
+
 case "salvarStatusSheets":
     chrome.storage.local.get(['dadosPessoais'], (result) => {
         const dadosPessoais = result.dadosPessoais || {};
@@ -346,30 +354,30 @@ case "capturarDadosCompletos": {
         } else {
             // Caso contrário, busca na página de perfil (em background)
             fetch("https://loginunicointerno.praiagrande.sp.gov.br/DadosPessoais/EditarDados")
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
                     // Busca os valores nos IDs específicos que você forneceu
-                    const nomeExtraido = doc.querySelector('#Nome')?.value || "Não encontrado";
-                    const cpfExtraido = doc.querySelector('#cpf')?.value || "Não encontrado";
+                const nomeExtraido = doc.querySelector('#Nome')?.value || "Não encontrado";
+                const cpfExtraido = doc.querySelector('#cpf')?.value || "Não encontrado";
 
-                    const novosDados = {
-                        destino: destinoRaw,
-                        nome: nomeExtraido,
-                        cpf: cpfExtraido
-                    };
+                const novosDados = {
+                    destino: destinoRaw,
+                    nome: nomeExtraido,
+                    cpf: cpfExtraido
+                };
 
-                    chrome.storage.local.set({ 'dadosPessoais': novosDados }, () => {
-                        console.log("Dados buscados remotamente e salvos!");
-                        sendResponse(novosDados);
-                    });
-                })
-                .catch(err => {
-                    console.error("Erro ao buscar dados de perfil:", err);
-                    sendResponse({ ...dadosExistentes, destino: destinoRaw, erro: "Falha na busca remota" });
+                chrome.storage.local.set({ 'dadosPessoais': novosDados }, () => {
+                    console.log("Dados buscados remotamente e salvos!");
+                    sendResponse(novosDados);
                 });
+            })
+            .catch(err => {
+                console.error("Erro ao buscar dados de perfil:", err);
+                sendResponse({ ...dadosExistentes, destino: destinoRaw, erro: "Falha na busca remota" });
+            });
         }
     });
     return true; 
@@ -414,6 +422,52 @@ case "getNextBatch":
     }
     break;
 
+
+case "mostrar_notificacao":
+    // Chama a função passando os parâmetros recebidos da mensagem
+    criarNotificacao(msg.titulo, msg.texto, msg.link);
+    sendResponse({ status: "Notificação disparada com link!" });
+    break;
+
+
+case "trackProcess":
+    chrome.storage.local.get(['processosMonitorados'], (result) => {
+        let monitorados = result.processosMonitorados || [];
+        
+        // Verifica se o processo já está na lista
+        const existeIndex = monitorados.findIndex(p => p.idAssinador === msg.doc.idAssinador);
+        
+        if (existeIndex > -1) {
+            // Se já existe, removemos (efeito de Ligar/Desligar)
+            monitorados.splice(existeIndex, 1);
+            chrome.storage.local.set({ processosMonitorados: monitorados });
+            sendResponse({ success: true, status: "removido" });
+        } else {
+            // Se não existe, verifica o limite de 6
+            if (monitorados.length >= MAX_MONITORAMENTO) {
+                sendResponse({ success: false, error: "Você já está monitorando "+MAX_MONITORAMENTO+" processos. Remova algum para adicionar outro." });
+                return;
+            }
+
+            // Adiciona o novo processo
+            monitorados.push({
+                idAssinador: msg.doc.idAssinador,
+                titulo: msg.doc.titulo,
+                contagemTotal: msg.doc.contagemTotal,
+                assinantesJaRegistrados: msg.doc.assinantesIniciais || [],
+                todosAssinaram: false
+            });
+            
+            chrome.storage.local.set({ processosMonitorados: monitorados });
+            
+            // Garante que o alarme de checagem a cada 3 minutos está rodando
+            chrome.alarms.create(ALARM_MONITOR_NAME, { periodInMinutes: 3 }); 
+            sendResponse({ success: true, status: "adicionado" });
+        }
+    });
+    return true; // Mantém porta aberta para resposta assíncrona
+
+
 default:
             //log("Mensagem ignorada:", msg);
 }
@@ -450,3 +504,121 @@ chrome.commands?.onCommand.addListener((command) => {
         });
     }
 });
+
+
+// ========================================================================
+//  SISTEMA DE NOTIFICAÇÕES COM LINK
+// ========================================================================
+
+// Objeto para guardar os links associados ao ID de cada notificação
+const notificationLinks = {};
+
+/**
+ * Função global para disparar notificações
+ * @param {string} titulo - Título da notificação
+ * @param {string} texto - Mensagem da notificação
+ * @param {string} link - URL para abrir ao clicar (opcional)
+ */
+function criarNotificacao(titulo, texto, link, idParaPararMonitoramento) {
+    const notifId = `notificacao_${Date.now()}`;
+
+    // Agora guardamos o link e o ID do processo que deve ser interrompido
+    notificationData[notifId] = { 
+        link: link, 
+        idAssinador: idParaPararMonitoramento 
+    };
+
+    chrome.notifications.create(notifId, {
+        type: 'basic',
+        iconUrl: 'icon.png',
+        title: titulo || 'Aviso',
+        message: texto || '',
+        priority: 2,
+        requireInteraction: true // 🔥 Faz a notificação ficar na tela até você clicar ou fechar!
+    });
+}
+
+// Quando o usuário CLICA na notificação
+chrome.notifications.onClicked.addListener((notifId) => {
+    const data = notificationData[notifId];
+    if (data) {
+        // 1. Abre a aba com o processo
+        if (data.link) {
+            chrome.tabs.create({ url: data.link });
+        }
+        
+        // 2. 🔥 PARA DE MONITORAR AUTOMATICAMENTE
+        if (data.idAssinador) {
+            chrome.storage.local.get(['processosMonitorados'], (result) => {
+                let monitorados = result.processosMonitorados || [];
+                // Filtra a lista removendo o processo clicado
+                monitorados = monitorados.filter(p => p.idAssinador !== data.idAssinador);
+                chrome.storage.local.set({ processosMonitorados: monitorados });
+            });
+        }
+        
+        chrome.notifications.clear(notifId);
+        delete notificationData[notifId];
+    }
+});
+
+// Limpeza de memória caso o usuário FECHE a notificação sem clicar (no "X")
+chrome.notifications.onClosed.addListener((notifId) => {
+    if (notificationData[notifId]) {
+        delete notificationData[notifId];
+    }
+});
+
+
+// FUNÇÃO QUE RODA NO FUNDO VERIFICANDO ASSINATURAS
+async function verificarProcessosMonitorados() {
+    const result = await chrome.storage.local.get(['processosMonitorados']);
+    let monitorados = result.processosMonitorados || [];
+    
+    if (monitorados.length === 0) return;
+
+    for (let processo of monitorados) {
+        try {
+            const url = `https://assinadordigitalexterno.praiagrande.sp.gov.br/sign/pades/signers/${processo.idAssinador}`;
+            const res = await fetch(url);
+            
+            if (!res.ok) continue;
+            
+            const assinaturas = await res.json();
+            if (!Array.isArray(assinaturas)) continue;
+
+            const nomesAtuais = assinaturas.map(a => a.responsavel.trim().toUpperCase());
+            const termoBusca = processo.titulo;
+            const linkAcesso = chrome.runtime.getURL("lista_assinador.html") + "?busca=" + encodeURIComponent(termoBusca);
+
+            // 1. Compara quem assinou agora com a nossa foto inicial
+            const novosAssinantes = nomesAtuais.filter(nome => !processo.assinantesJaRegistrados.includes(nome));
+            
+            for (let novoNome of novosAssinantes) {
+                criarNotificacao(
+                    "Nova Assinatura no Processo!",
+                    `📝 ${novoNome} acabou de assinar o processo: ${processo.titulo}`,
+                    linkAcesso,
+                    processo.idAssinador // 🔥 Passa o ID para que o clique mate o monitoramento
+                );
+                
+                // 💡 PULO DO GATO: Nós NÃO atualizamos o "processo.assinantesJaRegistrados" aqui.
+                // Se você não clicar na notificação, na próxima rodada de 3 minutos,
+                // ele vai encontrar a assinatura de novo e te avisar novamente!
+            }
+
+            // 2. Verifica Conclusão
+            if (!processo.todosAssinaram && nomesAtuais.length >= processo.contagemTotal) {
+                criarNotificacao(
+                    "Processo Concluído! ✅",
+                    `Todas as ${processo.contagemTotal} assinaturas foram realizadas em: ${processo.titulo}`,
+                    linkAcesso,
+                    processo.idAssinador // 🔥 Passa o ID para parar
+                );
+            }
+
+        } catch (e) {
+            console.error("Erro ao verificar monitoramento:", e);
+        }
+    }
+}
