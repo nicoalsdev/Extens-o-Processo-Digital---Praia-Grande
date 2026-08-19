@@ -1272,58 +1272,86 @@ function formatarData(dataISO) {
 
 
 // ===================================================
-// RENDERIZAÇÃO EM TABELA (SEM CHECKBOX, CLIQUE NA LINHA)
+// RENDERIZAÇÃO EM TABELA (NOVO)
 // ===================================================
 function renderTabela(lista) {
     const container = document.getElementById("documents-list");
     if (!container) return;
     
     container.innerHTML = "";
-    
-    // Tabela limpa
     let html = `
-    <table id="documents-table" class="table table-bordered table-striped shadow-sm table-hover">
+    <table id="documents-table" class="table table-bordered table-striped shadow-sm">
+
         <thead class="table-dark">
             <tr>
                 <th class='d-none'>ID</th>
-                <th class='text-center'>Editar</th>
+
+                <th class='text-center' >Editar</th>
                 <th>Título</th>
                 <th class='text-center text-withe'>Categoria</th>
                 <th class='text-center'>Assinaturas</th>
-                <th class='text-center'>Ações</th>
+                <th class='text-center'> Ações </th>
             </tr>
         </thead>
         <tbody>
     `;
 
     for (const doc of lista) {
+
         const link = sanitizeLinkField(doc.Link_x0020_Documento);
         const idAssinador = extrairIdAssinador(link);
-        
+        const valorFiltroTabela = document.getElementById("selectGrupo")?.value || "todos";
+// Verifica se o filtro ativo é de fato um GRUPO
+        const modoLixeira = valorFiltroTabela.startsWith("grupo:");
+
+// Define ícone e cor
+        const iconeAcao = modoLixeira ? "fa-trash" : "fa-folder-plus";
+        const classeCor = modoLixeira ? "btn-outline-danger" : "";
+        const classeIdentificadora = modoLixeira ? "btn-remover-do-grupo" : "btn-adicionar-ao-grupo";
+
         const criadoPor = doc.Author?.Title || "-";
         const dataCriacao = doc.Created ? formatarData(doc.Created) : "-";
+
         const editadoPor = doc.Editor?.Title || "-";
         const dataEdicao = doc.Modified ? formatarData(doc.Modified) : "-";
-        
-        const escapedTitle = doc.Title ? doc.Title.replace(/"/g, '&quot;') : "";
 
-        // Removemos o checkbox e o cursor indica que a linha é clicável
+
         html += `
-            <tr data-id="${idAssinador || ''}" data-docid="${doc.ID}" data-titulo="${escapedTitle}" data-contagem="${doc.Contagem}" data-link="${link}" style="cursor: pointer; transition: background-color 0.2s;">
-                
+            <tr data-id="${idAssinador || ''}" >
                 <td class='d-none'>${doc.ID}</td>
-                
                 <td class='text-center'>
-                    <a target="_blank" href="http://www.intra.pg/SEAD/_layouts/15/listform.aspx?PageType=6&ListId=%7BDA67FC64%2D1B63%2D4608%2DB859%2D8DE4BC9B1FD8%7D&ID=${doc.ID}" class="btn btn-sm btn-secondary">
+                    <a target="_blank"
+                        href="http://www.intra.pg/SEAD/_layouts/15/listform.aspx?PageType=6&ListId=%7BDA67FC64%2D1B63%2D4608%2DB859%2D8DE4BC9B1FD8%7D&ID=${doc.ID}"
+                        class="btn btn-sm btn-secondary">
                        <i class="fa fa-cog" aria-hidden="true"></i>
+
                     </a>
+
+
+
                 </td>
 
                  <td class="td-titulo position-relative fw-bold">
+
                     <a class="text-dark" href="${link || '#'}" target="_blank">
                         ${doc.Title}
                     </a>
-                    <i class="fa-solid fa-circle-info info-icon text-muted ms-1" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-html="true" data-bs-title="<b>Criado:</b> ${criadoPor} - <b>Data:</b> ${dataCriacao}<br><hr class='m-1'><b>Editado:</b> ${editadoPor} - <b>Data:</b> ${dataEdicao}"></i>
+
+
+    <i class="fa-solid fa-circle-info info-icon"
+       data-bs-toggle="tooltip"
+       data-bs-placement="right"
+       data-bs-html="true"
+       data-bs-title="
+         <b>Criado:</b> ${criadoPor} -
+         <b>Data:</b> ${dataCriacao}<br>
+         <hr class='m-1'>
+         <b>Editado:</b> ${editadoPor} -
+         <b>Data:</b> ${dataEdicao}
+       ">
+    </i>
+
+
                 </td>
 
                 <td class='text-center text-dark'>${doc.Categoria || ""}</td>
@@ -1331,391 +1359,178 @@ function renderTabela(lista) {
                 <td class="td-assinaturas text-center">
                     Carregando...
                 </td>
-                
                 <td class='text-center'>
-                    <div class="d-flex justify-content-center align-items-center w-100 gap-3">
-                        <a target="_blank" class='app-icon link-offset-2 link-underline link-underline-opacity-0' href="https://assinadordigitalexterno.praiagrande.sp.gov.br/pdfjs-4.5/web/viewer.html?file=/impressao/${idAssinador}" title="Visualizar">
-                            <i class="fa fa-eye text-info-emphasis fa-lg" aria-hidden="true"></i>
-                        </a>
-                        <div class="vr bg-dark"></div>
-                        <button type="button" class="btn p-0 m-0 btn-copy-link app-icon border-0 bg-transparent text-info-emphasis" data-link="${link}" title="Copiar Link">
-                            <i class="fa-solid fa-link text-info-emphasis fa-lg"></i>
-                        </button>
-                    </div>
+
+               <div class=" d-flex justify-content-around align-items-center w-100 " role="group" aria-label="Basic example">
+              <a target="_blank" class='app-icon link-offset-2 link-underline link-underline-opacity-0'
+                        href="https://assinadordigitalexterno.praiagrande.sp.gov.br/pdfjs-4.5/web/viewer.html?file=/impressao/${idAssinador}"
+                        class="btn btn-sm ms-1">
+                       <i class="fa fa-eye text-info-emphasis" aria-hidden="true"></i>
+
+                    </a>
+<div class="vr bg-dark"></div>
+             <a target="_blank" class='app-icon link-offset-2 link-underline link-underline-opacity-0'
+                        href="https://assinadordigitalexterno.praiagrande.sp.gov.br/impressao/${idAssinador}"
+                        class="btn btn-sm text-primary-emphasis me-1">
+                       <i class="fa fa-download text-info-emphasis" aria-hidden="true"></i>
+
+                    </a>
+<div class="vr bg-dark"></div>
+                    <button type="button" 
+            class="btn btn-sm btn-copy-link app-icon link-offset-2 link-underline link-underline-opacity-0 border-0 bg-transparent text-info-emphasis"
+            data-link="${link}"
+            title="Copiar Link">
+        <i class="fa-solid fa-link text-info-emphasis"></i>
+    </button>
+            <div class="vr bg-dark d-none"></div>
+              <button type="button" 
+            class="btn btn-sm btn-print app-icon link-offset-2 link-underline link-underline-opacity-0 border-0 bg-transparent text-info-emphasis d-none"
+            data-link="https://assinadordigitalexterno.praiagrande.sp.gov.br/pdfjs-4.5/web/viewer.html?file=/impressao/${idAssinador}"
+            title="Imprimir">
+        <i class="fa-solid fa-print text-info-emphasis"></i>
+    </button>
+ <div class="vr bg-dark"></div>
+        <button class="btn btn-sm ${classeCor} ${classeIdentificadora} float-end" 
+            data-id="${doc.ID}" 
+            title="${modoLixeira ? 'Remover do grupo' : 'Adicionar ao grupo'}">
+        <i class="fa ${iconeAcao}"></i>
+    </button>
+<div class="vr bg-dark"></div>
+            <!-- NOVO BOTÃO DE MONITORAMENTO -->
+<button class="btn btn-sm btn-outline-warning btn-monitorar border-0 bg-transparent" 
+        data-idassinador="${idAssinador}" 
+        data-titulo="${doc.Title}" 
+        data-contagem="${doc.Contagem}"
+        title="Monitorar Processo">
+    <i class="fa-regular fa-bell text-warning"></i>
+</button>
+
+
+                </div>
+
+
                 </td>
+
             </tr>
         `;
     }
 
     html += "</tbody></table>";
+
     documentsList.innerHTML = html;
 
+    // 🔥 NOVO: Atualiza o status visual dos sininhos
     atualizarSinosMonitoramento();
+
+    // 🔥 Atualiza assinaturas REAL-TIME
     startRealSignaturesUpdateTabela(lista);
 }
-// ===================================================
-// LÓGICA DE INJEÇÃO (MENU DIREITO + BARRA FLUTUANTE)
-// ===================================================
-function injetarElementosDeInterface() {
-    if (document.getElementById('customContextMenu')) return;
-
-    const uiHtml = `
-    <style>
-        /* Destaque visual da linha inteira para o tema escuro */
-        tr.tr-selecionada > td {
-            background-color: #2c3e50 !important; /* Azul petróleo sóbrio */
-            border-color: #34495e !important;
-        }
-        
-        .floating-selection-bar {
-            display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 1060; align-items: center; gap: 15px;
-        }
-        
-        /* 🎨 FORÇANDO TEMA ESCURO DO SEU SISTEMA NO MENU FLUTUANTE */
-        #customContextMenu {
-            background-color: #1e1e1e !important; 
-            border: 1px solid #444 !important;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.6) !important;
-        }
-        #customContextMenu .dropdown-item {
-            color: #bbbbbb !important;
-            transition: background 0.2s;
-        }
-        #customContextMenu .dropdown-item:hover {
-            background-color: #2a2a2a !important; 
-            color: #ffffff !important;
-        }
-        #customContextMenu .dropdown-divider {
-            border-top: 1px solid #444 !important;
-        }
-    </style>
-
-    <!-- O Menu Flutuante (Adaptado 100% ao Tema Escuro) -->
-    <ul id="customContextMenu" class="dropdown-menu" style="display:none; position:absolute; z-index:1060; min-width: 230px;">
-        <li><a class="dropdown-item" href="#" id="ctx-baixar"><i class="fa fa-download text-primary me-2" style="width:20px; text-align:center;"></i> Baixar Documento</a></li>
-        <li><a class="dropdown-item" href="#" id="ctx-monitorar">
-            <i class="fa-regular fa-bell text-warning me-2" id="ctx-monitor-icon" style="width:20px; text-align:center;"></i> 
-            <span id="ctx-monitor-text">Ativar Monitoramento</span>
-        </a></li>
-        
-        <li><hr class="dropdown-divider"></li>
-        
-        <li><a class="dropdown-item" href="#" id="ctx-add-grupo"><i class="fa fa-folder-plus text-success me-2" style="width:20px; text-align:center;"></i> Adicionar ao Grupo</a></li>
-        
-        <!-- Este item só aparece se o usuário estiver na visualização de algum grupo -->
-        <li id="ctx-rem-grupo-container" style="display: none;">
-            <a class="dropdown-item" href="#" id="ctx-rem-grupo"><i class="fa fa-trash text-danger me-2" style="width:20px; text-align:center;"></i> Remover do Grupo</a>
-        </li>
-    </ul>
-
-    <!-- A Barra de Seleção em Massa -->
-    <div id="floatingSelectionBar" class="floating-selection-bar" style="background-color: #1e1e1e; border: 1px solid #444; padding: 12px 25px; border-radius: 50px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
-        <span id="selectionCount" class="fw-bold m-0 p-0 me-2 text-info">0 selecionados</span>
-        <div class="vr bg-light opacity-25 mx-2"></div>
-        <button id="btnBulkAddGroup" class="btn btn-success btn-sm rounded-pill"><i class="fa fa-folder-plus"></i> Adicionar ao Grupo</button>
-    </div>
-    `;
-    document.body.insertAdjacentHTML('beforeend', uiHtml);
-}
-
-// ===================================================
-// AÇÕES E EVENTOS (CLIQUE, BOTÃO DIREITO)
-// ===================================================
-
-function atualizarBarraFlutuante() {
-    const checkeds = document.querySelectorAll('.tr-selecionada');
-    const barra = document.getElementById('floatingSelectionBar');
-    if (checkeds.length > 0) {
-        barra.style.display = 'flex';
-        document.getElementById('selectionCount').innerText = `${checkeds.length} processo(s)`;
-    } else {
-        barra.style.display = 'none';
-    }
-}
-
-// Ação de Clique Esquerdo (Selecionar Linha)
-document.addEventListener('click', e => {
-    // 1. Lógica de seleção visual
-    const tr = e.target.closest('tr[data-id]');
-    
-    // Se clicou na linha e NÃO clicou em um link ou botão dentro dela
-    if (tr && tr.closest('#documents-table') && !e.target.closest('a') && !e.target.closest('button') && !e.target.closest('.info-icon')) {
-        tr.classList.toggle('tr-selecionada');
-        atualizarBarraFlutuante();
-    }
-
-    // 2. Esconder menu de botão direito se clicar fora
-    const menu = document.getElementById('customContextMenu');
-    if (menu && !e.target.closest('#customContextMenu')) {
-        menu.style.display = 'none';
-    }
-
-    // 3. Botão Copiar Link
+// Delegação de evento global
+document.addEventListener('click', function (e) {
     const btnCopy = e.target.closest('.btn-copy-link');
+    const btnPrint = e.target.closest('.btn-print');
+
+    // Lógica de Copiar (Mantida)
     if (btnCopy) {
-        e.preventDefault();
         const link = btnCopy.getAttribute('data-link');
-        if (link) navigator.clipboard.writeText(link).then(() => showToast("success", "Link copiado!"));
+        if (link) {
+            navigator.clipboard.writeText(link).then(() => {
+                if (typeof showToast === 'function') showToast("success", "Link copiado!");
+                else alert("Copiado!");
+            });
+        }
     }
 
-    // 4. Barra Flutuante (Adicionar em Lote)
-    if (e.target.closest('#btnBulkAddGroup')) {
-        const selectedRows = Array.from(document.querySelectorAll('.tr-selecionada'));
-        if (selectedRows.length === 0) return;
+    // Lógica de Imprimir (Nova Abordagem)
+    if (btnPrint) {
+        const linkPDF = btnPrint.getAttribute('data-link');
 
-        const checkedsDocIDs = selectedRows.map(row => row.getAttribute('data-docid'));
-
-        const listaGrupos = obterGrupos();
-        const nomes = Object.keys(listaGrupos);
-        
-        if (nomes.length === 0) {
-            Swal.fire('Nenhum grupo!', 'Crie um grupo primeiro no menu superior.', 'info');
-            return;
-        }
-
+        // 1. Confirmação antes de qualquer ação
         Swal.fire({
-            title: `Adicionar ${checkedsDocIDs.length} processo(s)`,
-            input: 'select',
-            inputOptions: nomes.reduce((acc, curr) => ({...acc, [curr]: curr}), {}),
+            title: 'Deseja imprimir?',
+            text: "O documento será aberto para impressão (2 vias).",
+            icon: 'question',
             showCancelButton: true,
-            confirmButtonText: 'Adicionar Todos'
-        }).then(({ value: grupoAlvo }) => {
-            if (grupoAlvo) {
-                if (!listaGrupos[grupoAlvo]) listaGrupos[grupoAlvo] = [];
-                let adicionados = 0;
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sim, imprimir!',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // 2. Abre a janela IMEDIATAMENTE após o clique no OK
+                // O navegador aceita melhor o comando de impressão se houver interação humana
+                const win = window.open(linkPDF, '_blank');
 
-                checkedsDocIDs.forEach(idStr => {
-                    if (!listaGrupos[grupoAlvo].includes(String(idStr))) {
-                        listaGrupos[grupoAlvo].push(String(idStr));
-                        adicionados++;
-                    }
-                });
+                if (win) {
+                    win.focus();
 
-                salvarGrupos(listaGrupos);
-                showToast("success", `${adicionados} processo(s) salvo(s) em ${grupoAlvo}`);
-                
-                // Limpa a seleção visual
-                document.querySelectorAll('.tr-selecionada').forEach(row => row.classList.remove('tr-selecionada'));
-                atualizarBarraFlutuante();
-                
-                if (document.getElementById("selectGrupo").value !== "todos") {
-                    filtrarMisto(); 
-                }
-            }
-        });
-    }
-
-    // 5. Cliques nas opções do Menu de Botão Direito
-    if (e.target.closest('#ctx-baixar')) {
-        e.preventDefault();
-        const idAssinador = menu.getAttribute('data-idassinador');
-        const linkPDF = `https://assinadordigitalexterno.praiagrande.sp.gov.br/pdfjs-4.5/web/viewer.html?file=/impressao/${idAssinador}`;
-        dispararBaixar(linkPDF);
-        menu.style.display = 'none';
-    }
-    else if (e.target.closest('#ctx-add-grupo')) {
-        e.preventDefault();
-        adicionarProcessoAoGrupo(menu.getAttribute('data-docid'));
-        menu.style.display = 'none';
-    }
-    else if (e.target.closest('#ctx-rem-grupo')) {
-        e.preventDefault();
-        removerProcessoDoGrupo(menu.getAttribute('data-docid'));
-        menu.style.display = 'none';
-    }
-    else if (e.target.closest('#ctx-monitorar')) {
-        e.preventDefault();
-        const idAssinador = menu.getAttribute("data-idassinador");
-        const titulo = menu.getAttribute("data-titulo");
-        const contagem = parseInt(menu.getAttribute("data-contagem")) || 0;
-        
-        buscarAssinaturas(idAssinador).then(assinaturas => {
-            const assinantesIniciais = assinaturas.map(a => a.responsavel.trim().toUpperCase());
-            chrome.runtime.sendMessage({
-                action: "trackProcess",
-                doc: { idAssinador, titulo, contagemTotal: contagem, assinantesIniciais }
-            }, (res) => {
-                if (res.success) {
-                    showToast("success", res.status === "adicionado" ? "Monitoramento Ativado!" : "Monitoramento Removido.");
-                    atualizarSinosMonitoramento(); 
+                    // 3. Aguarda o PDF.js carregar (4 segundos é o ideal para o portal da PG)
+                    setTimeout(() => {
+                        try {
+                            // Primeira via
+                            win.print();
+                            
+                            // Segunda via (dispara após a primeira ser fechada/confirmada)
+                            setTimeout(() => {
+                                win.print();
+                            }, 1500);
+                        } catch (err) {
+                            console.warn("Bloqueio de segurança: O site da prefeitura impediu o comando automático.");
+                            if (typeof showToast === 'function') {
+                                showToast("info", "Use o ícone de impressora da página que abriu.");
+                            }
+                        }
+                    }, 4000); 
                 } else {
-                    Swal.fire("Limite Atingido", res.error, "warning");
+                    Swal.fire('Erro', 'O bloqueador de pop-ups impediu a impressão.', 'error');
                 }
-            });
+            }
         });
-        menu.style.display = 'none';
     }
-});
 
+const btnMonitorar = e.target.closest(".btn-monitorar");
 
-// Ação de Clique Direito (Abrir Menu)
-document.addEventListener('contextmenu', e => {
-    const tr = e.target.closest('tr[data-id]');
-    if (tr && tr.closest('#documents-table')) {
-        e.preventDefault(); 
+if (btnMonitorar) {
+    e.preventDefault();
+    const idAssinador = btnMonitorar.getAttribute("data-idassinador");
+    const titulo = btnMonitorar.getAttribute("data-titulo");
+    const contagem = parseInt(btnMonitorar.getAttribute("data-contagem")) || 0;
+    const iconeSino = btnMonitorar.querySelector('i');
+    
+    // Troca o ícone para visual de carregamento rápido
+    iconeSino.classList.replace("fa-bell", "fa-spinner");
+    iconeSino.classList.add("fa-spin");
+
+    // Buscamos quem JÁ ASSINOU no momento do clique, para o background não notificar 
+    // assinaturas do passado, apenas as novas a partir de agora.
+    buscarAssinaturas(idAssinador).then(assinaturas => {
+        const assinantesIniciais = assinaturas.map(a => a.responsavel.trim().toUpperCase());
         
-        injetarElementosDeInterface(); 
-        const menu = document.getElementById('customContextMenu');
-        const idAssinador = tr.getAttribute('data-id');
-        
-        // Passa os dados para o menu HTML
-        menu.setAttribute('data-idassinador', idAssinador);
-        menu.setAttribute('data-docid', tr.getAttribute('data-docid'));
-        menu.setAttribute('data-titulo', tr.getAttribute('data-titulo'));
-        menu.setAttribute('data-contagem', tr.getAttribute('data-contagem'));
-
-        // 1. Mostrar "Remover do Grupo" apenas se estiver filtrando por grupo
-        const filtroAtivo = document.getElementById("selectGrupo")?.value || "todos";
-        document.getElementById('ctx-rem-grupo-container').style.display = filtroAtivo.startsWith("grupo:") ? 'block' : 'none';
-
-        // 2. Atualizar o visual do botão "Monitorar" lendo a memória instantaneamente
-        chrome.storage.local.get(['processosMonitorados'], (result) => {
-            const monitorados = result.processosMonitorados || [];
-            const sendoVigiado = monitorados.some(p => String(p.idAssinador) === String(idAssinador));
+        chrome.runtime.sendMessage({
+            action: "trackProcess",
+            doc: { idAssinador, titulo, contagemTotal: contagem, assinantesIniciais }
+        }, (res) => {
             
-            const txtSino = document.getElementById('ctx-monitor-text');
-            const iconSino = document.getElementById('ctx-monitor-icon');
+            iconeSino.classList.remove("fa-spin"); // Para de rodar
 
-            if (sendoVigiado) {
-                txtSino.innerText = "Parar de Acompanhar";
-                iconSino.className = "fa-solid fa-bell-slash text-secondary me-2"; // Ícone cortado e cinza
+            if (res.success) {
+                if (res.status === "adicionado") {
+                    showToast("success", "Monitoramento Ativado!");
+                    iconeSino.classList.replace("fa-spinner", "fa-bell");
+                    iconeSino.classList.replace("fa-regular", "fa-solid"); // Sino preenchido
+                } else {
+                    showToast("info", "Monitoramento Desativado.");
+                    iconeSino.classList.replace("fa-spinner", "fa-bell");
+                    iconeSino.classList.replace("fa-solid", "fa-regular"); // Sino vazio
+                }
             } else {
-                txtSino.innerText = "Ativar Monitoramento";
-                iconSino.className = "fa-regular fa-bell text-warning me-2"; // Sino amarelo padrão
-            }
-
-            // 3. Exibe e ajusta a posição (CORRIGIDO PARA SCROLL LONGO)
-            menu.style.display = 'block';
-            
-            let x = e.pageX;
-            let y = e.pageY;
-            
-            // Calcula o limite total somando a janela visível + o scroll atual
-            const limiteX = window.innerWidth + window.scrollX;
-            const limiteY = window.innerHeight + window.scrollY;
-            
-            // Se o menu for vazar para a direita ou para baixo, empurra ele de volta
-            if (x + 230 > limiteX) x = limiteX - 240; 
-            if (y + 160 > limiteY) y = limiteY - 170; 
-            
-            menu.style.left = x + 'px';
-            menu.style.top = y + 'px';
-        });
-    }
-});
-
-
-function dispararBaixar(linkPDF) {
-    Swal.fire({
-        title: 'Deseja baixar o documento?',
-        text: "O documento será aberto para download.",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sim, baixar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.open(linkPDF, '_blank');
-        }
-    });
-}
-
-// ===================================================
-// ATUALIZAÇÃO VISUAL DOS SININHOS DE MONITORAMENTO
-// ===================================================
-function atualizarSinosMonitoramento() {
-    chrome.storage.local.get(['processosMonitorados'], (result) => {
-        const monitorados = result.processosMonitorados || [];
-        // Converte tudo para string para garantir o match (100% seguro)
-        const idsMonitorados = monitorados.map(p => String(p.idAssinador));
-
-        // Limpa os ícones antigos se a tabela for re-renderizada
-        document.querySelectorAll('.badge-monitorado').forEach(el => el.remove());
-
-        // Percorre todas as linhas da tabela
-        document.querySelectorAll('#documents-table tbody tr').forEach(tr => {
-            const idAssinador = String(tr.getAttribute('data-id'));
-            
-            // Se este documento estiver sendo vigiado
-            if (idsMonitorados.includes(idAssinador)) {
-                // Pegamos o ícone de info específico desta linha
-                const iconeInfo = tr.querySelector('.info-icon');
-                if (iconeInfo) {
-                    // Coloca o sininho IMEDIATAMENTE ANTES do ícone de informação (beforebegin)
-                    iconeInfo.insertAdjacentHTML('beforebegin', '<i class="fa-solid fa-bell text-warning me-2 badge-monitorado" style="font-size: 0.9em; cursor: help;" title="Você está monitorando este processo"></i>');
-                }
+                iconeSino.classList.replace("fa-spinner", "fa-bell");
+                Swal.fire("Limite Atingido", res.error, "warning");
             }
         });
     });
 }
 
-// ===================================================
-// INICIALIZAÇÃO E BOOT
-// ===================================================
-document.addEventListener('DOMContentLoaded', () => {
-    injetarElementosDeInterface();
-    atualizarSelectGrupos();
-
-    loadAssinador().then(() => {
-        verificarParametrosURL();
-    });
-
-    const btnVoltar = document.getElementById('VoltaAssinador');
-    if (btnVoltar) {
-        btnVoltar.addEventListener("click", (event) => {
-            event.preventDefault();
-            chrome.storage.local.remove("assinador_preferencia", () => {
-                chrome.runtime.sendMessage({ action: "goToOriginalAssinador" });
-            });
-        });
-    }
-
-    document.getElementById('btnCriarGrupo')?.addEventListener('click', criarNovoGrupo);
-    document.getElementById('btnGerenciarGrupos')?.addEventListener('click', deletarGrupoAtual);
-    document.getElementById("selectGrupo")?.addEventListener("change", filtrarMisto);
-
-    document.getElementById("Busca")?.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            executarBusca();
-        }
-    });
-});
-
-// ===================================================
-// INICIALIZAÇÃO E BOOT
-// ===================================================
-document.addEventListener('DOMContentLoaded', () => {
-    injetarElementosDeInterface();
-    atualizarSelectGrupos();
-
-    loadAssinador().then(() => {
-        verificarParametrosURL();
-    });
-
-    const btnVoltar = document.getElementById('VoltaAssinador');
-    if (btnVoltar) {
-        btnVoltar.addEventListener("click", (event) => {
-            event.preventDefault();
-            chrome.storage.local.remove("assinador_preferencia", () => {
-                chrome.runtime.sendMessage({ action: "goToOriginalAssinador" });
-            });
-        });
-    }
-
-    document.getElementById('btnCriarGrupo')?.addEventListener('click', criarNovoGrupo);
-    document.getElementById('btnGerenciarGrupos')?.addEventListener('click', deletarGrupoAtual);
-    document.getElementById("selectGrupo")?.addEventListener("change", filtrarMisto);
-
-    document.getElementById("Busca")?.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            executarBusca();
-        }
-    });
 });
 
 
