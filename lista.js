@@ -78,7 +78,7 @@ async function renderAll() {
     if (documents.length === 0) {
         emptyMessage.style.display = 'block';
         document.getElementById('clear-all-btn').style.display = 'none';
-                        document.getElementById('enviar-todos-btn').style.display = 'none';
+        document.getElementById('enviar-todos-btn').style.display = 'none';
         return;
     }
 
@@ -578,6 +578,7 @@ async function loadDocuments() {
 function enviarDocumentoIndividual(btn) {
     return new Promise((resolve) => {
         const setoresContainer = document.querySelector(".setores-container");
+        const autoSaveVal = document.getElementById('auto-save') ? document.getElementById('auto-save').checked : false;
         let setoresMarcados = [];
 
         if (setoresContainer) {
@@ -630,29 +631,40 @@ function enviarDocumentoIndividual(btn) {
                 if (updatedTabId !== tabId) return;
 
                 if (changeInfo.status === 'complete') {
-                    chrome.tabs.sendMessage(tabId, {
-                        action: "preencher_sead",
-                        titulo,
-                        link,
-                        prazo: prazoFormatado,
-                        setores: setoresMarcados,
-                        categoria: categoriaVal, // Categoria definida com base na regra
-                        data: dataFormatada
-                    }, (response) => {
-                        chrome.tabs.onUpdated.removeListener(onUpdated);
-                        setTimeout(() => resolve(true), 1500);
-                    });
-                }
-            };
+                   chrome.tabs.sendMessage(tabId, {
+                    action: "preencher_sead",
+                    titulo,
+                    link,
+                    prazo: prazoFormatado,
+                    setores: setoresMarcados,
+                    categoria: categoriaVal,
+                    data: dataFormatada,
+                    autoSave: autoSaveVal 
+                }, (response) => {
+                    chrome.tabs.onUpdated.removeListener(onUpdated);
 
-            chrome.tabs.onUpdated.addListener(onUpdated);
+    // Se o autoSave estiver marcado, aguarda 3 segundos (para o SharePoint processar) e fecha a aba
+                    setTimeout(() => {
+                        chrome.tabs.onUpdated.removeListener(onUpdated);
+                        if (autoSaveVal) {
+                            chrome.tabs.remove(tabId, () => {
+                                if (chrome.runtime.lastError) console.log(chrome.runtime.lastError.message);
+                            });
+                        }
+                        resolve(true);
+                    }, 3000);
+                });
+               }
+           };
+
+           chrome.tabs.onUpdated.addListener(onUpdated);
 
             // Timeout de segurança
-            setTimeout(() => {
-                chrome.tabs.onUpdated.removeListener(onUpdated);
-                resolve(true);
-            }, 8000);
-        });
+           setTimeout(() => {
+            chrome.tabs.onUpdated.removeListener(onUpdated);
+            resolve(true);
+        }, 8000);
+       });
     });
 }
 
@@ -660,7 +672,7 @@ function enviarDocumentoIndividual(btn) {
 // LOOP COMPLETO: ENVIAR TODOS OS DOCUMENTOS SEQUENCIALMENTE
 // ==========================================================
 async function enviarTodosOsDocumentos() {
-    const botoesEnviar = Array.from(document.querySelectorAll('.enviar-btn'));
+    const botoesEnviar = Array.from(document.querySelectorAll('.enviar-btn')).reverse();
 
     if (botoesEnviar.length === 0) {
         showToast("Nenhum documento disponível para envio.", "warning");
@@ -800,7 +812,7 @@ window.confirmDelete = function(docId, docProcesso) {
                 documentsList.innerHTML = '';
                 emptyMessage.style.display = 'block';
                 document.getElementById('clear-all-btn').style.display = 'none';
-                        document.getElementById('enviar-todos-btn').style.display = 'none';
+                document.getElementById('enviar-todos-btn').style.display = 'none';
                 
                 showToast('Todos os documentos foram removidos da lista.', 'success');
 

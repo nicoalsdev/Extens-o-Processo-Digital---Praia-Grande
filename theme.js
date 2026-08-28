@@ -794,6 +794,8 @@ span:not([class*="tag"]):not([class*="tags"]):not([class*="badge"]) {
             ${isDark ? `
 
 
+                
+
     /* Tooltips (Dicas curtas) */
     .tooltip-inner {
         background-color: #444 !important;

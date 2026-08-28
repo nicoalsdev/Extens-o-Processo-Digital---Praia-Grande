@@ -24,6 +24,8 @@ console.log("🔧 background.js iniciado.");
 const ALARM_MONITOR_NAME = "monitorAssinaturas";
 const MAX_MONITORAMENTO = 10;
 
+const notificationData = {};
+
 
 
 // ========================================================================
@@ -80,11 +82,16 @@ function cleanupOldTags() {
 //  ALARME DIÁRIO PARA LIMPEZA AUTOMÁTICA
 // ========================================================================
 chrome.runtime.onInstalled.addListener(() => {
-    log("Extensão instalada. Agendando alarme de limpeza automática.");
+    log("Extensão instalada. Agendando alarmes.");
 
     chrome.alarms.create(CLEANUP_ALARM_NAME, {
         delayInMinutes: 1,
         periodInMinutes: 24 * 60
+    });
+
+    // Garante que o monitor de assinaturas continue ativo
+    chrome.alarms.create(ALARM_MONITOR_NAME, {
+        periodInMinutes: 3
     });
 
     chrome.tabs.create({
@@ -461,7 +468,7 @@ case "trackProcess":
             chrome.storage.local.set({ processosMonitorados: monitorados });
             
             // Garante que o alarme de checagem a cada 3 minutos está rodando
-            chrome.alarms.create(ALARM_MONITOR_NAME, { periodInMinutes: 3 }); 
+            chrome.alarms.create(ALARM_MONITOR_NAME, { periodInMinutes: 3 });
             sendResponse({ success: true, status: "adicionado" });
         }
     });
@@ -571,11 +578,14 @@ chrome.notifications.onClosed.addListener((notifId) => {
 
 
 // FUNÇÃO QUE RODA NO FUNDO VERIFICANDO ASSINATURAS
+// FUNÇÃO QUE RODA NO FUNDO VERIFICANDO ASSINATURAS
 async function verificarProcessosMonitorados() {
     const result = await chrome.storage.local.get(['processosMonitorados']);
     let monitorados = result.processosMonitorados || [];
     
     if (monitorados.length === 0) return;
+    
+    let houveAlteracao = false;
 
     for (let processo of monitorados) {
         try {
@@ -588,37 +598,48 @@ async function verificarProcessosMonitorados() {
             if (!Array.isArray(assinaturas)) continue;
 
             const nomesAtuais = assinaturas.map(a => a.responsavel.trim().toUpperCase());
-            const termoBusca = processo.titulo;
-            const linkAcesso = chrome.runtime.getURL("lista_assinador.html") + "?busca=" + encodeURIComponent(termoBusca);
+            
+            // 💡 MUDANÇA: Passa o ID Exato na busca para não ter erro de encontrar processos parecidos
+            const linkAcesso = chrome.runtime.getURL("lista_assinador.html") + "?busca=" + processo.idAssinador;
 
             // 1. Compara quem assinou agora com a nossa foto inicial
             const novosAssinantes = nomesAtuais.filter(nome => !processo.assinantesJaRegistrados.includes(nome));
             
-            for (let novoNome of novosAssinantes) {
-                criarNotificacao(
-                    "Nova Assinatura no Processo!",
-                    `📝 ${novoNome} acabou de assinar o processo: ${processo.titulo}`,
-                    linkAcesso,
-                    processo.idAssinador // 🔥 Passa o ID para que o clique mate o monitoramento
-                );
+            if (novosAssinantes.length > 0) {
+                for (let novoNome of novosAssinantes) {
+                    criarNotificacao(
+                        "Nova Assinatura no Processo!",
+                        `📝 ${novoNome} acabou de assinar: ${processo.titulo}`,
+                        linkAcesso,
+                        processo.idAssinador // Passa o ID para que o clique remova o monitoramento
+                    );
+                }
                 
-                // 💡 PULO DO GATO: Nós NÃO atualizamos o "processo.assinantesJaRegistrados" aqui.
-                // Se você não clicar na notificação, na próxima rodada de 3 minutos,
-                // ele vai encontrar a assinatura de novo e te avisar novamente!
+                // 💡 CORREÇÃO PRINCIPAL: Atualiza a lista de assinantes salvos no storage!
+                // Assim, ele NÃO enviará notificação repetida para o mesmo assinante no próximo ciclo.
+                processo.assinantesJaRegistrados = [...processo.assinantesJaRegistrados, ...novosAssinantes];
+                houveAlteracao = true;
             }
 
             // 2. Verifica Conclusão
             if (!processo.todosAssinaram && nomesAtuais.length >= processo.contagemTotal) {
                 criarNotificacao(
                     "Processo Concluído! ✅",
-                    `Todas as ${processo.contagemTotal} assinaturas foram realizadas em: ${processo.titulo}`,
+                    `Todas as ${processo.contagemTotal} assinaturas foram realizadas.`,
                     linkAcesso,
-                    processo.idAssinador // 🔥 Passa o ID para parar
+                    processo.idAssinador // Passa o ID para parar o monitoramento ao clicar
                 );
+                processo.todosAssinaram = true;
+                houveAlteracao = true;
             }
 
         } catch (e) {
             console.error("Erro ao verificar monitoramento:", e);
         }
+    }
+
+    // Se encontrou novos assinantes ou concluiu algum, salva no banco local
+    if (houveAlteracao) {
+        chrome.storage.local.set({ processosMonitorados: monitorados });
     }
 }

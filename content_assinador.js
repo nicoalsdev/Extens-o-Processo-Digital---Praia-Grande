@@ -342,7 +342,7 @@
 
             documents.push(documentData);
             documents.sort((a, b) => new Date(b.dataSalvo) - new Date(a.dataSalvo));
-            documents = documents.slice(0, 50);
+            //documents = documents.slice(0, 50);
 
             await chrome.storage.local.set({ [SIGNED_DOCUMENTS_KEY]: documents });
 

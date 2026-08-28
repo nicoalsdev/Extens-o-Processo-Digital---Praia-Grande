@@ -126,6 +126,21 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                 await marcarSetores(listaEl2, msg.setores); 
             }
 
+            if (msg.autoSave) {
+                console.log("⏳ Aguardando botão de salvar (auto-save ativado)...");
+                const idBotaoSalvar = "V1_I1_PB12"; 
+                const btnSalvar = await waitField(idBotaoSalvar);
+
+                if (btnSalvar) {
+        // Aguarda 1.5s para garantir que eventos de Dropdown/Blur do InfoPath foram concluídos
+                    await sleep(1500);
+                    btnSalvar.click();
+                    console.log("🟢 Botão de salvar clicado com sucesso!");
+                } else {
+                    console.warn("❌ Botão de salvar não encontrado.");
+                }
+            }
+            
             console.log("🟢 Preenchido com sucesso!");
             sendResponse({ status: "sucesso", titulo: msg.titulo });
 

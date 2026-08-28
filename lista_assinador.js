@@ -222,16 +222,17 @@ function hideLoading() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Inicia app principal
+    // 1. Inicializa os grupos e elementos visuais de interface
+    atualizarSelectGrupos();
+    injetarElementosDeInterface();
+    inicializarDelegacaoCliques();
+
+    // 2. Executa a carga principal dos documentos APENAS UMA VEZ
     loadAssinador().then(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const termoBusca = urlParams.get('busca');
-        if (termoBusca) {
-            setTimeout(() => executarBusca(termoBusca), 500);
-        }
+        verificarParametrosURL();
     });
 
-    // Configuração Botão Voltar (Extensão)
+    // 3. Configuração do Botão Voltar
     const btnVoltar = document.getElementById('VoltaAssinador');
     if (btnVoltar) {
         btnVoltar.addEventListener("click", (event) => {
@@ -242,15 +243,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Configuração Botões do Menu Superior de Grupos
+    // 4. Configurações de Eventos Globais
     document.getElementById('btnCriarGrupo')?.addEventListener('click', criarNovoGrupo);
     document.getElementById('btnGerenciarGrupos')?.addEventListener('click', deletarGrupoAtual);
-
-    // Listener do select de filtros
     document.getElementById("selectGrupo")?.addEventListener("change", filtrarMisto);
 
-
-    // Input de busca por Enter
     document.getElementById("Busca")?.addEventListener("keydown", function (e) {
         if (e.key === "Enter") {
             e.preventDefault();
@@ -1332,15 +1329,23 @@ function renderTabela(lista) {
                     Carregando...
                 </td>
                 
-                <td class='text-center'>
-                    <div class="d-flex justify-content-center align-items-center w-100 gap-3">
-                        <a target="_blank" class='app-icon link-offset-2 link-underline link-underline-opacity-0' href="https://assinadordigitalexterno.praiagrande.sp.gov.br/pdfjs-4.5/web/viewer.html?file=/impressao/${idAssinador}" title="Visualizar">
-                            <i class="fa fa-eye text-info-emphasis fa-lg" aria-hidden="true"></i>
+            <td class='align-middle' style="min-width: 120px;">
+                    <!-- w-100 faz usar toda a largura e justify-content-evenly divide o espaço igualmente -->
+                    <div class="d-flex justify-content-evenly align-items-center w-100">
+                        
+                        <!-- Botão de Visualizar -->
+                        <a target="_blank" class="d-flex align-items-center justify-content-center text-info-emphasis text-decoration-none p-0 m-0" style="width: 32px; height: 32px; line-height: 1;" href="https://assinadordigitalexterno.praiagrande.sp.gov.br/pdfjs-4.5/web/viewer.html?file=/impressao/${idAssinador}" title="Visualizar">
+                            <i class="fa fa-eye fa-lg m-0 p-0" aria-hidden="true"></i>
                         </a>
-                        <div class="vr bg-dark"></div>
-                        <button type="button" class="btn p-0 m-0 btn-copy-link app-icon border-0 bg-transparent text-info-emphasis" data-link="${link}" title="Copiar Link">
-                            <i class="fa-solid fa-link text-info-emphasis fa-lg"></i>
+                        
+                        <!-- Divisória Centralizada -->
+                        <div style="width: 1px; height: 20px; background-color: #6c757d; opacity: 0.5;"></div>
+                        
+                        <!-- Botão de Copiar Link -->
+                        <button type="button" class="btn-copy-link border-0 bg-transparent p-0 m-0 d-flex align-items-center justify-content-center text-info-emphasis" style="width: 32px; height: 32px; line-height: 1; cursor: pointer;" data-link="${link}" title="Copiar Link">
+                            <i class="fa-solid fa-link fa-lg m-0 p-0"></i>
                         </button>
+
                     </div>
                 </td>
             </tr>
@@ -1361,58 +1366,46 @@ function injetarElementosDeInterface() {
 
     const uiHtml = `
     <style>
-        /* Destaque visual da linha inteira para o tema escuro */
+        /* ==========================================
+           ESTILOS BASE (TEMA LIGHT - PADRÃO)
+           O arquivo theme.js cuidará do Dark Mode
+           ========================================== */
+           
+        /* Destaque visual da linha selecionada (Fundo levemente cinza) */
         tr.tr-selecionada > td {
-            background-color: #2c3e50 !important; /* Azul petróleo sóbrio */
-            border-color: #34495e !important;
+            background-color: #e9ecef !important; 
+            border-color: #dee2e6 !important;
         }
         
+        /* Layout estrutural da Barra Flutuante */
         .floating-selection-bar {
             display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
             z-index: 1060; align-items: center; gap: 15px;
-        }
-        
-        /* 🎨 FORÇANDO TEMA ESCURO DO SEU SISTEMA NO MENU FLUTUANTE */
-        #customContextMenu {
-            background-color: #1e1e1e !important; 
-            border: 1px solid #444 !important;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.6) !important;
-        }
-        #customContextMenu .dropdown-item {
-            color: #bbbbbb !important;
-            transition: background 0.2s;
-        }
-        #customContextMenu .dropdown-item:hover {
-            background-color: #2a2a2a !important; 
-            color: #ffffff !important;
-        }
-        #customContextMenu .dropdown-divider {
-            border-top: 1px solid #444 !important;
+            border-radius: 50px; 
+            padding: 12px 25px;
+            border: 1px solid #dee2e6;
         }
     </style>
 
-    <!-- O Menu Flutuante (Adaptado 100% ao Tema Escuro) -->
-    <ul id="customContextMenu" class="dropdown-menu" style="display:none; position:absolute; z-index:1060; min-width: 230px;">
+    <!-- O Menu Flutuante (Usa dropdown-menu padrão do Bootstrap para o theme.js assumir) -->
+    <ul id="customContextMenu" class="dropdown-menu shadow" style="display:none; position:absolute; z-index:1060; min-width: 230px;">
         <li><a class="dropdown-item" href="#" id="ctx-baixar"><i class="fa fa-download text-primary me-2" style="width:20px; text-align:center;"></i> Baixar Documento</a></li>
         <li><a class="dropdown-item" href="#" id="ctx-monitorar">
             <i class="fa-regular fa-bell text-warning me-2" id="ctx-monitor-icon" style="width:20px; text-align:center;"></i> 
             <span id="ctx-monitor-text">Ativar Monitoramento</span>
         </a></li>
-        
         <li><hr class="dropdown-divider"></li>
-        
         <li><a class="dropdown-item" href="#" id="ctx-add-grupo"><i class="fa fa-folder-plus text-success me-2" style="width:20px; text-align:center;"></i> Adicionar ao Grupo</a></li>
-        
-        <!-- Este item só aparece se o usuário estiver na visualização de algum grupo -->
         <li id="ctx-rem-grupo-container" style="display: none;">
             <a class="dropdown-item" href="#" id="ctx-rem-grupo"><i class="fa fa-trash text-danger me-2" style="width:20px; text-align:center;"></i> Remover do Grupo</a>
         </li>
     </ul>
 
-    <!-- A Barra de Seleção em Massa -->
-    <div id="floatingSelectionBar" class="floating-selection-bar" style="background-color: #1e1e1e; border: 1px solid #444; padding: 12px 25px; border-radius: 50px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+    <!-- A Barra de Seleção em Massa (Usa a classe .card para o theme.js trocar o fundo) -->
+    <div id="floatingSelectionBar" class="floating-selection-bar card shadow-lg">
         <span id="selectionCount" class="fw-bold m-0 p-0 me-2 text-info">0 selecionados</span>
-        <div class="vr bg-light opacity-25 mx-2"></div>
+        <div class="vr bg-secondary opacity-25 mx-2"></div>
+        <button id="btnBulkDownload" class="btn btn-primary btn-sm rounded-pill"><i class="fa fa-download"></i> Baixar Todos</button>
         <button id="btnBulkAddGroup" class="btn btn-success btn-sm rounded-pill"><i class="fa fa-folder-plus"></i> Adicionar ao Grupo</button>
     </div>
     `;
@@ -1506,12 +1499,57 @@ document.addEventListener('click', e => {
         });
     }
 
+    if (e.target.closest('#btnBulkDownload')) {
+        const selectedRows = Array.from(document.querySelectorAll('.tr-selecionada'));
+        if (selectedRows.length === 0) return;
+
+        // Extrai os IDs do Assinador das linhas selecionadas
+        const checkedsIDs = selectedRows.map(row => row.getAttribute('data-id')).filter(id => id);
+        
+        if (checkedsIDs.length === 0) return;
+
+        showToast("info", `Iniciando o download de ${checkedsIDs.length} arquivo(s)...`);
+
+        // Executa o download de cada um com um intervalo de 1 segundo (1000ms) entre eles
+        // para evitar que o Google Chrome bloqueie downloads simultâneos de spam.
+        checkedsIDs.forEach((idAssinador, index) => {
+            setTimeout(() => {
+                const linkPDF = `https://assinadordigitalexterno.praiagrande.sp.gov.br/impressao/${idAssinador}`;
+                
+                // Cria um iframe exclusivo para cada download e depois remove ele
+                let iframe = document.createElement("iframe");
+                iframe.style.display = "none";
+                iframe.src = linkPDF;
+                document.body.appendChild(iframe);
+                
+                // Limpa o iframe do código após 10 segundos para não pesar a memória
+                setTimeout(() => { iframe.remove(); }, 10000);
+                
+            }, index * 1000); // 0ms, 1000ms, 2000ms, 3000ms...
+        });
+
+        // Tira a seleção das linhas e esconde a barra
+        document.querySelectorAll('.tr-selecionada').forEach(row => row.classList.remove('tr-selecionada'));
+        atualizarBarraFlutuante();
+        return; // Impede que execute outras lógicas
+    }
+
     // 5. Cliques nas opções do Menu de Botão Direito
     if (e.target.closest('#ctx-baixar')) {
         e.preventDefault();
         const idAssinador = menu.getAttribute('data-idassinador');
-        const linkPDF = `https://assinadordigitalexterno.praiagrande.sp.gov.br/pdfjs-4.5/web/viewer.html?file=/impressao/${idAssinador}`;
-        dispararBaixar(linkPDF);
+        const linkPDF = `https://assinadordigitalexterno.praiagrande.sp.gov.br/impressao/${idAssinador}`;
+        
+        // Cria um iframe invisível para baixar sem abrir nova guia
+        let iframe = document.getElementById("hidden-downloader");
+        if (!iframe) {
+            iframe = document.createElement("iframe");
+            iframe.id = "hidden-downloader";
+            iframe.style.display = "none";
+            document.body.appendChild(iframe);
+        }
+        iframe.src = linkPDF;
+
         menu.style.display = 'none';
     }
     else if (e.target.closest('#ctx-add-grupo')) {
@@ -1745,24 +1783,31 @@ async function executarBusca(termoManual = null) {
 
     showLoading();
 
-    // Sincroniza o campo de busca visualmente se a busca veio por link
+    // Sincroniza o campo de busca visualmente se a busca veio por link (Notificação)
     if (termoManual && input) {
         input.value = termoManual;
     }
 
     const lista = await buscarListaCompleta();
 
-    const resultados = lista.filter(item => {
+    let resultados = lista.filter(item => {
         if (item.Categoria && String(item.Categoria).toLowerCase().trim() === "empenho") {
             return false;
         }
         
-        // Compara o termo limpo com o título e ID também limpos
+        // 1. Prepara a busca por título
         const tituloLimpo = normalizarParaBusca(item.Title);
-        //const idString = String(item.ID);
+        
+        // 2. Prepara a busca pelo ID Exato do Assinador
+        const link = sanitizeLinkField(item.Link_x0020_Documento);
+        const idAssinadorItem = extrairIdAssinador(link);
+        const idLimpo = normalizarParaBusca(idAssinadorItem);
 
-        return tituloLimpo.includes(valorLimpo) ;//|| idString.includes(valorLimpo);
+        // Retorna se o termo bate com o Título OU com o ID do documento
+        return tituloLimpo.includes(valorLimpo) || (idLimpo && idLimpo === valorLimpo);
     });
+    
+    // Aplica os filtros de grupo se existirem
     const filtroAtivo = document.getElementById("selectGrupo")?.value;
     if (filtroAtivo && filtroAtivo !== "todos") {
         if (filtroAtivo.startsWith("criador:")) {
@@ -1785,9 +1830,6 @@ function atualizarContagem(count) { // 🚨 NOVO: Função para atualizar o text
         countDocsElement.textContent = `${count} Documento${count !== 1 ? 's' : ''}`;
     }
 }
-// ------------------------------
-// Inicialização: carrega os itens do assinador e exibe cards
-// ------------------------------
 // ------------------------------
 // Inicialização: carrega os itens do assinador e exibe cards
 // ------------------------------
@@ -1930,11 +1972,6 @@ function garantirGrupo(boardName) {
 
 // Função para inicializar os componentes visuais de forma segura
 function inicializarInterfaceModoVisual() {
-    // 1. Liga o evento de clique no botão
-    ligarToggleButton();
-    
-    // 2. Aplica o modo inicial que estava salvo no localStorage
-    // Passa a lista atual se ela já existir, ou espera o carregamento do SharePoint
     const listaInicial = (typeof todosDocumentos !== 'undefined' && todosDocumentos) ? todosDocumentos : [];
     aplicarModoVisualizacao(listaInicial, true);
 }
@@ -2025,26 +2062,39 @@ async function verificarParametrosURL() {
 // ATUALIZAÇÃO VISUAL DOS SININHOS DE MONITORAMENTO
 // ===================================================
 function atualizarSinosMonitoramento() {
-    // Busca na memória do Chrome a lista de processos monitorados
     chrome.storage.local.get(['processosMonitorados'], (result) => {
         const monitorados = result.processosMonitorados || [];
-        // Pega apenas os IDs para facilitar a busca
         const idsMonitorados = monitorados.map(p => String(p.idAssinador));
 
-        // Pega todos os botões de sino que estão na tela
-        const botoesSino = document.querySelectorAll('.btn-monitorar');
+        // Limpa os ícones antigos se a tabela for re-renderizada
+        document.querySelectorAll('.badge-monitorado').forEach(el => el.remove());
 
-        botoesSino.forEach(btn => {
-            const id = String(btn.getAttribute('data-idassinador'));
-            const icone = btn.querySelector('i');
+        // Percorre todas as linhas da tabela
+        document.querySelectorAll('#documents-table tbody tr').forEach(tr => {
+            const idAssinador = String(tr.getAttribute('data-id'));
             
-            // Se o ID deste botão estiver na lista de monitorados, pinta o sino
-            if (idsMonitorados.includes(id)) {
-                icone.classList.replace('fa-regular', 'fa-solid');
-            } else {
-                icone.classList.replace('fa-solid', 'fa-regular');
+            // Se este documento estiver sendo vigiado
+            if (idsMonitorados.includes(idAssinador)) {
+                const iconeInfo = tr.querySelector('.info-icon');
+                if (iconeInfo) {
+                    // Injeta o sino com os MESMOS atributos do Bootstrap Tooltip usados no info-icon
+                    // A classe ms-1 cria o mesmo espaçamento padrão
+                    iconeInfo.insertAdjacentHTML('beforebegin', `
+                        <i class="fa-solid fa-bell text-warning ms-1 badge-monitorado" 
+                           data-bs-toggle="tooltip" 
+                           data-bs-placement="right" 
+                           data-bs-title="Processo sendo monitorado em tempo real">
+                        </i>
+                    `);
+                }
             }
         });
+
+        // 🔥 ESSENCIAL: Como acabamos de injetar novos elementos com tooltips no HTML,
+        // precisamos avisar o Bootstrap para "ligar" eles, usando a função que você já tem!
+        if (typeof initializeTooltips === 'function') {
+            initializeTooltips();
+        }
     });
 }
 
