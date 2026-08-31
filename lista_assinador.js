@@ -1718,17 +1718,29 @@ document.addEventListener('click', e => {
         removerProcessoDoGrupo(menu.getAttribute('data-docid'));
         menu.style.display = 'none';
     }
-    else if (e.target.closest('#ctx-monitorar')) {
+   else if (e.target.closest('#ctx-monitorar')) {
         e.preventDefault();
         const idAssinador = menu.getAttribute("data-idassinador");
         const titulo = menu.getAttribute("data-titulo");
         const contagem = parseInt(menu.getAttribute("data-contagem")) || 0;
         
+        // 🔽 NOVO: Pega a lista exata de locais exigidos
+        const docId = menu.getAttribute("data-docid");
+        const doc = todosDocumentos.find(d => String(d.ID) === String(docId));
+        const locaisRequeridos = doc && doc.Locais && doc.Locais.results ? doc.Locais.results : [];
+
         buscarAssinaturas(idAssinador).then(assinaturas => {
             const assinantesIniciais = assinaturas.map(a => a.responsavel.trim().toUpperCase());
             chrome.runtime.sendMessage({
                 action: "trackProcess",
-                doc: { idAssinador, titulo, contagemTotal: contagem, assinantesIniciais }
+                doc: { 
+                    idAssinador, 
+                    titulo, 
+                    contagemTotal: contagem, 
+                    locaisRequeridos: locaisRequeridos, // 🔽 Envia o array (Ex: ["SEASP", "SETRAN"])
+                    secretariasMap: typeof secretarias !== 'undefined' ? secretarias : [], // 🔽 Envia o mapa global
+                    assinantesIniciais 
+                }
             }, (res) => {
                 if (res.success) {
                     showToast("success", res.status === "adicionado" ? "Monitoramento Ativado!" : "Monitoramento Removido.");

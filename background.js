@@ -457,10 +457,12 @@ case "trackProcess":
             }
 
             // Adiciona o novo processo
-            monitorados.push({
+          monitorados.push({
                 idAssinador: msg.doc.idAssinador,
                 titulo: msg.doc.titulo,
                 contagemTotal: msg.doc.contagemTotal,
+                locaisRequeridos: msg.doc.locaisRequeridos || [], // 🔽 Salvo!
+                secretariasMap: msg.doc.secretariasMap || [],     // 🔽 Salvo!
                 assinantesJaRegistrados: msg.doc.assinantesIniciais || [],
                 todosAssinaram: false
             });
@@ -577,6 +579,49 @@ chrome.notifications.onClosed.addListener((notifId) => {
 });
 
 
+function corrigirNomeAssinanteBG(nome) {
+    if (!nome) return "";
+    const nomeTrim = nome.trim();
+    if (nomeTrim === "SORAIA MOURAO MILAN") return "SORAIA M. MILAN";
+    return nomeTrim;
+}
+
+function contarSecretariasRequeridas(nomesAssinaram, locaisRequeridos, secretariasMap) {
+    if (!locaisRequeridos || !locaisRequeridos.length || !secretariasMap || !secretariasMap.length) return 0;
+
+    const normalize = str => (str || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
+    const assinantesSet = new Set(nomesAssinaram.map(n => normalize(corrigirNomeAssinanteBG(n))));
+
+    const localParaNome = new Map();
+    secretariasMap.forEach(sec => {
+        localParaNome.set(normalize(sec.abreviacao), normalize(sec.nome));
+        localParaNome.set(normalize(sec.secretaria), normalize(sec.nome));
+        // Fallbacks de mapeamento
+        if (sec.abreviacao === "GP") localParaNome.set(normalize("GERAL DO GABINETE"), normalize(sec.nome));
+        if (sec.abreviacao === "Ações da Cidadania") localParaNome.set(normalize("SUBS. DE AÇÕES DE CIDADANIA"), normalize(sec.nome));
+        if (sec.abreviacao === "Assuntos da Juventude") localParaNome.set(normalize("SUBS. DE ASSUNTOS DA JUVENTUDE"), normalize(sec.nome));
+        if (sec.abreviacao === "Controle Interno") localParaNome.set(normalize("SUBS. DE CONTROLE INTERNO"), normalize(sec.nome));
+        if (sec.abreviacao === "Comunicação Social") localParaNome.set(normalize("SUBS. DE COMUNICACAO SOCIAL"), normalize(sec.nome));
+    });
+
+    let concluidos = 0;
+    const processados = new Set();
+
+    for (const local of locaisRequeridos) {
+        const localNorm = normalize(local);
+        if (processados.has(localNorm)) continue;
+        processados.add(localNorm);
+
+        const nomeResponsavel = localParaNome.get(localNorm);
+        // Só conta se o nome assinado bater com o nome esperado do local obrigatório
+        if (nomeResponsavel && assinantesSet.has(nomeResponsavel)) {
+            concluidos++;
+        }
+    }
+    return concluidos;
+}
+
+
 // FUNÇÃO QUE RODA NO FUNDO VERIFICANDO ASSINATURAS
 // FUNÇÃO QUE RODA NO FUNDO VERIFICANDO ASSINATURAS
 async function verificarProcessosMonitorados() {
@@ -606,17 +651,46 @@ async function verificarProcessosMonitorados() {
             const novosAssinantes = nomesAtuais.filter(nome => !processo.assinantesJaRegistrados.includes(nome));
             
             if (novosAssinantes.length > 0) {
-                for (let novoNome of novosAssinantes) {
-                    criarNotificacao(
-                        "Nova Assinatura no Processo!",
-                        `📝 ${novoNome} acabou de assinar: ${processo.titulo}`,
-                        linkAcesso,
-                        processo.idAssinador // Passa o ID para que o clique remova o monitoramento
-                    );
+                const qtdRequeridos = processo.locaisRequeridos ? processo.locaisRequeridos.length : 0;
+
+                // Conta APENAS os obrigatórios antes e depois da nova assinatura
+                const requeridosAntes = contarSecretariasRequeridas(processo.assinantesJaRegistrados, processo.locaisRequeridos, processo.secretariasMap);
+                const requeridosAgora = contarSecretariasRequeridas(nomesAtuais, processo.locaisRequeridos, processo.secretariasMap);
+
+                // FASE 2: Já tínhamos todos os obrigatórios, essa nova é da Empresa (ou curioso tardio)
+                if (requeridosAntes >= qtdRequeridos && qtdRequeridos > 0) {
+                    for (let novoNome of novosAssinantes) {
+                        criarNotificacao(
+                            "Assinatura da Empresa! 🏢",
+                            `📝 ${novoNome} acabou de assinar: ${processo.titulo}`,
+                            linkAcesso,
+                            processo.idAssinador
+                        );
+                    }
+                } 
+                // FASE 1: Estávamos aguardando os obrigatórios
+                else {
+                    // Essa nova assinatura finalmente completou a cota obrigatória?
+                    if (requeridosAgora >= qtdRequeridos && qtdRequeridos > 0) {
+                        criarNotificacao(
+                            "Secretários Assinaram! ✅",
+                            `Assinaturas internas completas. Aguardando Empresa!\nProcesso: ${processo.titulo}`,
+                            linkAcesso,
+                            processo.idAssinador
+                        );
+                    } else {
+                        // Assinou alguém, mas ainda faltam obrigatórios (pode ser um obrigatório ou o curioso)
+                        for (let novoNome of novosAssinantes) {
+                            criarNotificacao(
+                                "Nova Assinatura 🏛️",
+                                `📝 ${novoNome} assinou.\nProcesso: ${processo.titulo}`,
+                                linkAcesso,
+                                processo.idAssinador
+                            );
+                        }
+                    }
                 }
                 
-                // 💡 CORREÇÃO PRINCIPAL: Atualiza a lista de assinantes salvos no storage!
-                // Assim, ele NÃO enviará notificação repetida para o mesmo assinante no próximo ciclo.
                 processo.assinantesJaRegistrados = [...processo.assinantesJaRegistrados, ...novosAssinantes];
                 houveAlteracao = true;
             }
