@@ -1237,6 +1237,17 @@ document.addEventListener('click', function(e) {
         const idDoc = btnAdd.getAttribute('data-id');
         adicionarProcessoAoGrupo(idDoc);
     }
+
+    if (e.target.closest('#btnClearSelection')) {
+
+    document
+        .querySelectorAll('.tr-selecionada')
+        .forEach(row => row.classList.remove('tr-selecionada'));
+
+    atualizarBarraFlutuante();
+
+    return;
+}
 });
 
 
@@ -1372,19 +1383,90 @@ function injetarElementosDeInterface() {
            ========================================== */
            
         /* Destaque visual da linha selecionada (Fundo levemente cinza) */
-        tr.tr-selecionada > td {
-            background-color: #e9ecef !important; 
-            border-color: #dee2e6 !important;
-        }
-        
-        /* Layout estrutural da Barra Flutuante */
-        .floating-selection-bar {
-            display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 1060; align-items: center; gap: 15px;
-            border-radius: 50px; 
-            padding: 12px 25px;
-            border: 1px solid #dee2e6;
-        }
+      tr.tr-selecionada > td {
+    background-color: #cfe2ff !important;
+    border-color: #9ec5fe !important;
+}
+
+tr.tr-selecionada > td:first-child {
+    box-shadow: inset 4px 0 0 #0d6efd !important;
+}
+.floating-selection-count {
+    color: #0d2c5e !important;
+}
+
+/* Barra flutuante em formato de pílula horizontal */
+.floating-selection-bar {
+    display: none;
+    flex-direction: row !important; /* Força ficar horizontal */
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1060;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 24px;
+    border-radius: 50px; /* Deixa os cantos bem arredondados */
+    border: 2px solid #0d6efd; /* Borda azul reforça a visibilidade no fundo branco */
+    background: #ffffff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Botão limpar */
+
+#btnClearSelection {
+    width: 34px;
+    height: 34px;
+
+    padding: 0;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+
+    border: none;
+
+    background: transparent;
+
+    color: #6c757d;
+
+    cursor: pointer;
+}
+
+
+#btnClearSelection:hover {
+    background: #f1f3f5;
+    color: #dc3545;
+}
+
+
+/* Responsividade */
+
+@media (max-width: 600px) {
+
+    .floating-selection-bar {
+        bottom: 12px;
+
+        width: calc(100% - 24px);
+
+        overflow-x: auto;
+
+        justify-content: flex-start;
+
+        border-radius: 12px;
+    }
+
+    .floating-selection-count span {
+        display: none;
+    }
+
+}
     </style>
 
     <!-- O Menu Flutuante (Usa dropdown-menu padrão do Bootstrap para o theme.js assumir) -->
@@ -1402,12 +1484,33 @@ function injetarElementosDeInterface() {
     </ul>
 
     <!-- A Barra de Seleção em Massa (Usa a classe .card para o theme.js trocar o fundo) -->
-    <div id="floatingSelectionBar" class="floating-selection-bar card shadow-lg">
-        <span id="selectionCount" class="fw-bold m-0 p-0 me-2 text-info">0 selecionados</span>
-        <div class="vr bg-secondary opacity-25 mx-2"></div>
-        <button id="btnBulkDownload" class="btn btn-primary btn-sm rounded-pill"><i class="fa fa-download"></i> Baixar Todos</button>
-        <button id="btnBulkAddGroup" class="btn btn-success btn-sm rounded-pill"><i class="fa fa-folder-plus"></i> Adicionar ao Grupo</button>
-    </div>
+<div id="floatingSelectionBar" class="floating-selection-bar shadow-lg">
+    <span id="selectionCount" class="floating-selection-count fw-bold m-0 p-0">0 selecionados</span>
+    <div class="vr bg-secondary opacity-25 mx-2"></div>
+    
+    <!-- Botão de Baixar (Voltou!) -->
+    <button id="btnBulkDownload" type="button" class="selection-action btn btn-primary">
+        <i class="fa fa-download"></i>
+        <span>Baixar</span>
+    </button>
+
+    <!-- Botão Adicionar -->
+    <button id="btnBulkAddGroup" type="button" class="selection-action btn btn-success">
+        <i class="fa fa-folder-plus"></i>
+        <span>Adicionar</span>
+    </button>
+
+    <!-- Botão Remover (Oculto por padrão) -->
+    <button id="btnBulkRemoveGroup" type="button" class="selection-action btn btn-danger" style="display: none;">
+        <i class="fa fa-folder-minus"></i>
+        <span>Remover</span>
+    </button>
+
+    <!-- Botão Fechar -->
+    <button id="btnClearSelection" type="button" title="Limpar seleção">
+        <i class="fa fa-times"></i>
+    </button>
+</div>
     `;
     document.body.insertAdjacentHTML('beforeend', uiHtml);
 }
@@ -1419,13 +1522,29 @@ function injetarElementosDeInterface() {
 function atualizarBarraFlutuante() {
     const checkeds = document.querySelectorAll('.tr-selecionada');
     const barra = document.getElementById('floatingSelectionBar');
+    
     if (checkeds.length > 0) {
         barra.style.display = 'flex';
         document.getElementById('selectionCount').innerText = `${checkeds.length} processo(s)`;
+        
+        // --- NOVA LÓGICA: Alternar botões baseado no filtro ---
+        const filtroAtivo = document.getElementById("selectGrupo")?.value || "todos";
+        const btnAdd = document.getElementById('btnBulkAddGroup');
+        const btnRem = document.getElementById('btnBulkRemoveGroup');
+        
+        if (filtroAtivo.startsWith("grupo:")) {
+            if (btnAdd) btnAdd.style.display = 'none';
+            if (btnRem) btnRem.style.display = 'inline-flex';
+        } else {
+            if (btnAdd) btnAdd.style.display = 'inline-flex';
+            if (btnRem) btnRem.style.display = 'none';
+        }
+        
     } else {
         barra.style.display = 'none';
     }
-}
+} 
+
 
 // Ação de Clique Esquerdo (Selecionar Linha)
 document.addEventListener('click', e => {
@@ -1493,6 +1612,43 @@ document.addEventListener('click', e => {
                 atualizarBarraFlutuante();
                 
                 if (document.getElementById("selectGrupo").value !== "todos") {
+                    filtrarMisto(); 
+                }
+            }
+        });
+    }
+
+    // 4.1 Barra Flutuante (Remover em Lote)
+    if (e.target.closest('#btnBulkRemoveGroup')) {
+        const selectedRows = Array.from(document.querySelectorAll('.tr-selecionada'));
+        if (selectedRows.length === 0) return;
+
+        const checkedsDocIDs = selectedRows.map(row => row.getAttribute('data-docid'));
+        const filtroAtivo = document.getElementById("selectGrupo")?.value;
+        
+        if (!filtroAtivo || !filtroAtivo.startsWith("grupo:")) return;
+        const nomeGrupo = filtroAtivo.replace("grupo:", "");
+
+        Swal.fire({
+            title: `Remover processos?`,
+            text: `Deseja remover ${checkedsDocIDs.length} processo(s) do grupo "${nomeGrupo}"?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Sim, remover'
+        }).then(({ isConfirmed }) => {
+            if (isConfirmed) {
+                let gruposAtuais = obterGrupos();
+                
+                if (gruposAtuais[nomeGrupo]) {
+                    // Remove os IDs selecionados da lista do grupo
+                    gruposAtuais[nomeGrupo] = gruposAtuais[nomeGrupo].filter(id => !checkedsDocIDs.includes(String(id)));
+                    salvarGrupos(gruposAtuais);
+                    showToast("success", `${checkedsDocIDs.length} processo(s) removido(s)`);
+                    
+                    // Limpa a seleção, oculta a barra e recarrega a tabela do grupo
+                    document.querySelectorAll('.tr-selecionada').forEach(row => row.classList.remove('tr-selecionada'));
+                    atualizarBarraFlutuante();
                     filtrarMisto(); 
                 }
             }
@@ -1596,7 +1752,17 @@ document.addEventListener('contextmenu', e => {
         injetarElementosDeInterface(); 
         const menu = document.getElementById('customContextMenu');
         const idAssinador = tr.getAttribute('data-id');
-        
+            if (!tr.classList.contains('tr-selecionada')) {
+
+    // Opcional: remove seleção anterior
+    document
+        .querySelectorAll('#documents-table tr.tr-selecionada')
+        .forEach(row => row.classList.remove('tr-selecionada'));
+
+    tr.classList.add('tr-selecionada');
+
+    atualizarBarraFlutuante();
+}
         // Passa os dados para o menu HTML
         menu.setAttribute('data-idassinador', idAssinador);
         menu.setAttribute('data-docid', tr.getAttribute('data-docid'));

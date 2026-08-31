@@ -278,6 +278,166 @@ div.form-upload, form.form-upload {
 }
             
 
+
+body tr.tr-selecionada > td {
+    background-color: #273338 !important;
+    color: #f1f3f5 !important;
+
+    border-top-color: #3d555d !important;
+    border-bottom-color: #3d555d !important;
+}
+
+
+/* Pequeno destaque lateral */
+
+body tr.tr-selecionada > td:first-child {
+    box-shadow: inset 3px 0 0 #0d6efd !important;
+}
+
+
+/* Links dentro da linha */
+
+body tr.tr-selecionada a {
+    color: #7db7ff !important;
+}
+
+
+/* Textos da linha */
+
+body tr.tr-selecionada td,
+body tr.tr-selecionada td span,
+body tr.tr-selecionada td i {
+    color: #e0e0e0 !important;
+}
+
+
+/* ------------------------------------------
+   MENU DE CONTEXTO
+   ------------------------------------------ */
+
+body #customContextMenu {
+    background-color: #1e1e1e !important;
+
+    border: 1px solid #444 !important;
+
+    border-radius: 10px !important;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.45) !important;
+
+    padding: 6px !important;
+
+    overflow: hidden;
+}
+
+
+/* Itens */
+
+body #customContextMenu .dropdown-item {
+    color: #e0e0e0 !important;
+
+    border-radius: 7px !important;
+
+    padding: 9px 11px !important;
+
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
+}
+
+
+/* Hover */
+
+body #customContextMenu .dropdown-item:hover,
+body #customContextMenu .dropdown-item:focus {
+    background-color: #343a40 !important;
+    color: #ffffff !important;
+}
+
+
+/* Separador */
+
+body #customContextMenu .dropdown-divider {
+    border-color: #444 !important;
+    opacity: 1 !important;
+}
+
+
+/* Ícones */
+
+body #customContextMenu i {
+    width: 20px;
+    text-align: center;
+}
+
+
+/* ------------------------------------------
+   BARRA FLUTUANTE
+   ------------------------------------------ */
+
+body #floatingSelectionBar {
+
+    background-color: #1e1e1e !important;
+
+    color: #e0e0e0 !important;
+
+    border: 1px solid #444 !important;
+
+    box-shadow:
+        0 10px 35px rgba(0, 0, 0, 0.55),
+        0 2px 10px rgba(0, 0, 0, 0.35) !important;
+}
+
+
+/* Contador */
+
+body #floatingSelectionBar .floating-selection-count {
+    color: #e0e0e0 !important;
+}
+
+
+/* Ícone do contador */
+
+body #floatingSelectionBar .selection-icon {
+    background-color: #073045 !important;
+    color: #6ec8ff !important;
+}
+
+
+/* Separador */
+
+body #floatingSelectionBar .floating-selection-divider {
+    background-color: #444 !important;
+}
+
+
+/* Botão fechar */
+
+body #floatingSelectionBar #btnClearSelection {
+    color: #999 !important;
+}
+
+
+body #floatingSelectionBar #btnClearSelection:hover {
+    background-color: #343434 !important;
+    color: #ff6b6b !important;
+}
+
+            body #customContextMenu {
+    background-color: #1e1e1e !important;
+    border-color: #444 !important;
+}
+
+body #customContextMenu .dropdown-item {
+    color: #bbbbbb !important;
+}
+
+body #customContextMenu .dropdown-item:hover {
+    background-color: #343434 !important;
+    color: #fff !important;
+}
+
+
             ` : ''}
 
         #theme-float-btn { position: fixed; bottom: 25px; right: 25px; z-index: 10000; width: 50px; height: 50px; border-radius: 50%; background: #0d6efd; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 6px 16px rgba(0,0,0,0.3); }
