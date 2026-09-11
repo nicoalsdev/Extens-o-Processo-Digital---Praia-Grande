@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Sub-Kanban - Empresas</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <link rel="stylesheet" href="css/sweetalert2.min.css">
+    
+    <style>
+        body { overflow-x: auto; white-space: nowrap; height: 100vh; background: #3a546e; padding: 20px; transition: background 0.3s; }
+        
+        #boardsContainer { display: inline-block; }
+        
+        .board { 
+            display: inline-block; 
+            vertical-align: top; 
+            width: 240px;          
+            margin-right: 15px;    
+            background: #e7e7e7; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
+            transition: all 0.3s ease;
+        }
+        .board-header { 
+            font-weight: 600; 
+            font-size: 0.95rem;    
+            color: #fff; 
+            padding: 8px 10px;     
+            border-top-left-radius: 10px; 
+            border-top-right-radius: 10px; 
+        }
+        .task-list { min-height: 100px; padding: 10px; transition: max-height 0.3s ease; }
+        .task {
+            display: flex; align-items: center; background: #f8f9fa; border-radius: 6px;
+            margin: 4px 0; padding: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: grab; font-size: 0.85rem;    
+        }
+        .task:active { cursor: grabbing; }
+        .task:hover { background: #e9ecef; }
+        .task-content { flex: 1; line-height: 1.2; white-space: normal; }
+        .due-date { color: #6c757d; font-size: 0.75rem; }
+        .top-header { color: #fff; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* ========================================= */
+        /* MODO DE ARRASTO (Colunas Verticais)       */
+        /* ========================================= */
+        body.is-dragging-mode #boardsContainer {
+            display: flex !important;
+            flex-direction: row !important; /* Mantém as colunas lado a lado */
+            align-items: stretch !important;
+            min-height: 80vh; /* Estica a área de soltar até o fundo da tela */
+        }
+        body.is-dragging-mode .board {
+            width: 240px !important; /* Mantém a largura exata original */
+            margin-right: 15px !important;
+            display: flex;
+            flex-direction: column;
+            background: #d4d8db; /* Escurece levemente o fundo para focar no arraste */
+        }
+        body.is-dragging-mode .task-list {
+            flex-grow: 1; /* A lista ocupa todo o espaço vertical gerado */
+            overflow-y: auto;
+        }
+        /* Oculta os detalhes secundários (CNPJ, Data) dos cards temporariamente */
+        body.is-dragging-mode .task-content small {
+            display: none !important;
+        }
+        body.is-dragging-mode .task {
+            padding: 4px 6px;
+            margin: 2px 0;
+        }
+        
+        /* ========================================= */
+        /* TOGGLES PERSONALIZADOS (Cinza -> Verde)   */
+        /* ========================================= */
+        .custom-switch { cursor: pointer; }
+        .custom-switch:checked {
+            background-color: #198754 !important;
+            border-color: #198754 !important;
+        }
+
+        .menu-item-btn {
+            padding: 15px 20px;
+            text-decoration: none;
+            font-size: 15px;
+            color: #ecf0f1;
+            display: block;
+            transition: 0.2s;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #34495e;
+            width: 100%;
+            text-align: left;
+            font-weight: 600;
+        }
+        .menu-item-btn:hover { background-color: #34495e; color: #fff; }
+        .menu-item-btn i { width: 30px; text-align: center; }
+    </style>
+</head>
+<body>
+
+  <!-- MENU EXPANSIVO LATERAL (BOOTSTRAP OFFCANVAS) -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="sideMenu" style="background-color: #2b3e50; color: #ecf0f1; width: 280px;">
+      <div class="offcanvas-header border-bottom border-secondary">
+        <h5 class="offcanvas-title"><i class="fa fa-tools"></i> Ferramentas</h5>
+        <!-- Botão nativo de fechar do Bootstrap -->
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <button class="menu-item-btn" id="btnMenuImportar">
+            <i class="fa fa-file-excel text-success"></i> Importar Excel
+        </button>
+        <button class="menu-item-btn" id="btnMenuGerarLista">
+            <i class="fa fa-list text-info"></i> Gerar Lista
+        </button>
+        <button class="menu-item-btn" id="btnMenuGerarCota">
+            <i class="fa fa-file-contract text-warning"></i> Gerar Cota
+        </button>
+    </div>
+</div>
+
+<!-- CABEÇALHO SUPERIOR -->
+<div class="top-header">
+    <h4 class="m-0 text-dark">
+        <!-- Botão Hambúrguer acionando o Offcanvas nativamente via data-attributes -->
+        <button class="btn btn-sm btn-outline-light me-3 border-0 fs-5" type="button" data-bs-toggle="offcanvas" data-bs-target="#sideMenu" aria-controls="sideMenu">
+            <i class="fa fa-bars  text-dark"></i>
+        </button>
+        <i class="fa fa-sitemap"></i> Empresas - Processo: <span id="tituloProcesso" class="text-info">Carregando...</span>
+    </h4>
+    <div>
+        <button id="btnNovaEmpresaModal" class="btn btn-sm btn-primary fw-bold me-2"><i class="fa fa-plus"></i> Empresa</button>
+        <input type="file" id="excelUpload" accept=".xlsx, .xls" style="display: none;" />
+    </div>
+</div>
+
+<div id="boardsContainer">
+    <div class="board" data-status="Pendente">
+        <div class="board-header" style="background-color: #6c757d;">Pendente / Mapeada</div>
+        <div class="task-list" id="col-pendente"></div>
+    </div>
+
+    <div class="board" data-status="Convocada">
+        <div class="board-header" style="background-color: #ffc107; color: #000;">Convocada (Link Enviado)</div>
+        <div class="task-list" id="col-convocada"></div>
+    </div>
+
+    <div class="board" data-status="Assinada">
+        <div class="board-header" style="background-color: #198754;">Assinada</div>
+        <div class="task-list" id="col-assinada"></div>
+    </div>
+
+    <!-- NOVO BOARD: Não irá assinar -->
+    <div class="board" data-status="NaoAssinara">
+        <div class="board-header" style="background-color: #dc3545;">Não irá assinar</div>
+        <div class="task-list" id="col-nao-assinara"></div>
+    </div>
+</div>
+
+<!-- MODAL 1: Detalhes e Edição da Empresa -->
+<div class="modal fade" id="empresaModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detalhes da Empresa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body text-dark">
+        <div class="row">
+            <div class="col-3 mb-2">Ata: <span id="modalEmpresaAta" class='fw-bold'></span></div>
+            <div class="col-3 mb-2">Nome Abreviado: <span id="modalEmpresaNome" class='fw-bold'></span></div>
+            <div class="col-12 mb-2 d-none">CNPJ: <span id="modalEmpresaCnpj" class='fw-bold'></span></div>
+
+            <hr class="my-2">
+
+            <!-- CAMPO DE COMENTÁRIO (Substituiu a exibição da Razão Social) -->
+            <div class="col-12 mb-2">
+                <label class="form-label fw-bold mb-1"><i class="fa fa-comment"></i> Comentário / Descrição:</label>
+                <textarea id="modalEmpresaComentario" class="form-control form-control-sm" rows="3" placeholder="Escreva anotações internas para esta empresa..."></textarea>
+            </div>
+
+            <!-- TOGGLES DE ASSINATURA -->
+            <div class="col-12 mb-2">
+                <div class="row">
+                    <div class="col-6"> 
+                       <div class="form-check form-switch mt-2">
+                          <input class="form-check-input custom-switch" type="checkbox" id="toggleAssinaturaAjuste">
+                          <label class="form-check-label fw-bold" for="toggleAssinaturaAjuste">Assinatura do Ajuste</label>
+                      </div>
+                  </div>
+                  <div class="col-6"> 
+                   <div class="form-check form-switch mt-2">
+                      <input class="form-check-input custom-switch" type="checkbox" id="toggleAssinaturaTCN">
+                      <label class="form-check-label fw-bold" for="toggleAssinaturaTCN">Assinatura do TCN</label>
+                  </div>
+              </div>
+          </div>
+
+
+      </div>
+
+      <!-- CAMPO DA DATA DE ASSINATURA -->
+      <div class="col-12 mb-2 mt-3">
+        <label class="form-label fw-bold mb-1"><i class="fa fa-calendar"></i> Data da Assinatura:</label>
+        <input type="date" id="modalEmpresaDataAssinatura" class="form-control form-control-sm w-50">
+    </div>
+</div>
+</div>
+<div class="modal-footer d-flex justify-content-between align-items-center">
+    <button id="btnRemoverEmpresa" class="btn btn-danger">Remover</button>
+    <div>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        <button id="btnSalvarEdicaoEmpresa" class="btn btn-primary">Salvar</button>
+    </div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- MODAL 2: Adicionar Nova Empresa Manualmente -->
+<div class="modal fade" id="novaEmpresaModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Adicionar Empresa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body text-dark">
+        <div class="mb-2"><label class="form-label fw-bold">Ata</label><input type="text" id="novaEmpresaAta" class="form-control form-control-sm"></div>
+        <div class="mb-2"><label class="form-label fw-bold">Nome Abreviado / Fantasia</label><input type="text" id="novaEmpresaNome" class="form-control form-control-sm"></div>
+        <div class="mb-2"><label class="form-label fw-bold">Razão Social (Opcional)</label><input type="text" id="novaEmpresaRazao" class="form-control form-control-sm"></div>
+        <div class="mb-2"><label class="form-label fw-bold">CNPJ (Opcional)</label><input type="text" id="novaEmpresaCnpj" class="form-control form-control-sm"></div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button id="btnSalvarNovaEmpresa" class="btn btn-primary">Adicionar</button>
+    </div>
+</div>
+</div>
+</div>
+
+<script src="theme.js"></script>
+<script src="js/Sortable.min.js"></script>
+<script src="js/bootstrap.min.js"></script> 
+<script src="js/sweetalert2.min.js"></script>
+<script src="js/xlsx.full.min.js"></script> 
+<script src="kanban_processo.js"></script>
+</body>
+</html>

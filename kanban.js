@@ -1234,7 +1234,28 @@ async function renderTasks(tasks, processData) {
       prazoInput.addEventListener("input", markDirty);
       descInput.addEventListener("input", markDirty);
 
+      // ==========================================
+    // NOVA INJEÇÃO: BOTÃO SUB-KANBAN DE EMPRESAS
+    // ==========================================
+    const modalFooter = document.querySelector("#taskModal .modal-footer");
+    
+    // Remove o botão antigo se já existir para não duplicar
+    const oldBtn = document.getElementById("btn-abrir-subkanban");
+    if (oldBtn) oldBtn.remove();
 
+    const btnSubKanban = document.createElement("button");
+    btnSubKanban.id = "btn-abrir-subkanban";
+    btnSubKanban.className = "btn btn-info";
+    btnSubKanban.style.marginRight = "auto"; // Empurra para a esquerda
+    btnSubKanban.innerHTML = `<i class="fa fa-sitemap"></i> Gerenciar Empresas`;
+    btnSubKanban.onclick = () => {
+        // Pega a URL da extensão e passa os parâmetros
+        const url = chrome.runtime.getURL(`kanban_processo.html?processId=${task.processId}&processNumber=${encodeURIComponent(task.processNumber)}`);
+        window.open(url, '_blank');
+    };
+
+    // Insere o botão no início do footer
+    modalFooter.insertBefore(btnSubKanban, modalFooter.firstChild);
   }
 
 
@@ -1335,7 +1356,7 @@ document.getElementById("removeTaskBtn").addEventListener("click", async () => {
 
  const confirm = await Swal.fire({
    title: "Remover processo e dados?",
-   text: "Isso removerá as tags, o prazo e a descrição deste processo.",
+   text: "Isso removerá as tags, o prazo, a descrição e o sub-kanban de empresas deste processo.",
    icon: "warning",
    showCancelButton: true,
    confirmButtonColor: "#d33",
@@ -1348,36 +1369,44 @@ document.getElementById("removeTaskBtn").addEventListener("click", async () => {
    const data = await getStorageData();
    const processId = currentTask.processId;
 
-       // 1. Remove todas as tags do processo
+   // 1. Remove todas as tags do processo
    for (const key of Object.keys(data.processTags || {})) {
      if (key.startsWith(processId + "-")) {
        delete data.processTags[key];
+     }
    }
-}
 
-       // 2. CORREÇÃO: Remove também os dados (Descrição, Prazo, Board)
-if (data.processData && data.processData[processId]) {
- delete data.processData[processId];
-}
+   // 2. Remove os dados (Descrição, Prazo, Board)
+   if (data.processData && data.processData[processId]) {
+     delete data.processData[processId];
+   }
 
-       // Salva tudo limpo
-await setStorageData({
- processTags: data.processTags,
- processData: data.processData
-});
+   // 3. NOVO: Remove os dados do sub-kanban de empresas deste processo
+   chrome.storage.local.get(['subKanbanData'], async (res) => {
+       let subKanbans = res.subKanbanData || {};
+       if (subKanbans[processId]) {
+           delete subKanbans[processId];
+           await new Promise(r => chrome.storage.local.set({ subKanbanData: subKanbans }, r));
+       }
+   });
 
-Swal.fire({
- title: "Removido!",
- text: "O processo foi removido do quadro.",
- icon: "success",
- timer: 1500,
- showConfirmButton: false
-});
+   // Salva tudo limpo nas chaves principais
+   await setStorageData({
+     processTags: data.processTags,
+     processData: data.processData
+   });
 
-       // Fecha o modal e atualiza a tela
-document.querySelector("#taskModal .btn-close")?.click();
-await init();
-}
+   Swal.fire({
+     title: "Removido!",
+     text: "O processo foi removido do quadro.",
+     icon: "success",
+     timer: 1500,
+     showConfirmButton: false
+   });
+
+   document.querySelector("#taskModal .btn-close")?.click();
+   await init();
+ }
 });
 
 

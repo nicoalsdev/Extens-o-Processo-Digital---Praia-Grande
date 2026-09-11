@@ -162,7 +162,10 @@
         console.log(` ✨ [MATCH EXATO] Documento ${indice}: Prioridade máxima: COTA (Código 1).`);
     } 
         // B. Verifica COTA (Código 1) - Se estiver cercada de espaços, é prioridade.
-    else if (nomeArquivoComEspacos.includes(' ATA ')) {
+    else if (nomeArquivoComEspacos.includes(' TCN ')) {
+        tipoEncontrado = TIPOS_DOCUMENTOS.find(doc => doc.codigo === '219');
+        console.log(` ✨ [MATCH EXATO] Documento ${indice}: Prioridade máxima: TERMO (Código 219).`);
+    }else if (nomeArquivoComEspacos.includes(' ATA ')) {
         tipoEncontrado = TIPOS_DOCUMENTOS.find(doc => doc.codigo === '19');
         console.log(` ✨ [MATCH EXATO] Documento ${indice}: Prioridade máxima: ATA (Código 19).`);
     }
@@ -846,9 +849,10 @@ function removeAllTags(idProcesso, callback) {
     const idStr = String(idProcesso);
 
     // 1️⃣ Busca o estado MAIS RECENTE do storage no momento exato da exclusão
-    chrome.storage.local.get(['processTags', 'processData'], (result) => {
+    chrome.storage.local.get(['processTags', 'processData', 'subKanbanData'], (result) => {
         const currentTags = result.processTags || {};
         const currentData = result.processData || {};
+        const currentSubKanban = result.subKanbanData || {};
 
         let tagsRemovedCount = 0;
 
@@ -868,18 +872,26 @@ function removeAllTags(idProcesso, callback) {
             delete currentData[idStr];
         }
 
+        // NOVO: Limpa o sub-kanban de empresas associado a este processo
+        let subKanbanRemovido = false;
+        if (currentSubKanban[idStr]) {
+            delete currentSubKanban[idStr];
+            subKanbanRemovido = true;
+        }
+
         // Se nada foi removido, interrompe sem regravar desnecessariamente
-        if (tagsRemovedCount === 0 && !currentData[idStr]) {
+        if (tagsRemovedCount === 0 && !currentData[idStr] && !subKanbanRemovido) {
             if (callback) callback(false);
             return;
         }
 
-        // 2️⃣ Grava a alteração atômica
+        // 2️⃣ Grava a alteração atômica incluindo a limpeza do sub-kanban
         chrome.storage.local.set({
             processTags: currentTags,
-            processData: currentData
+            processData: currentData,
+            subKanbanData: currentSubKanban
         }, () => {
-            console.log(`[Tags] ${tagsRemovedCount} tag(s) do processo ${idStr} foram removidas com sucesso.`);
+            console.log(`[Tags/Empresas] Dados do processo ${idStr} foram limpos com sucesso.`);
 
             // 3️⃣ Dispara a remoção no Google Sheets em background
             if (typeof removerStatusEtapaProcesso === 'function') {

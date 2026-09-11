@@ -360,12 +360,12 @@ function formatarData(data) {
                     textocota += `A EMPRESA `;
                 }
 
-                for (var v = termoseEmpresa.length - 1; v >= 0; v--) {
-                    if(v>0){
+                for (var v = 0; v < termoseEmpresa.length; v++) {
+                    if (v < termoseEmpresa.length - 1) {
                         textocota += termoseEmpresa[v] + "; ";
-                    }else{
+                    } else {
                         textocota += termoseEmpresa[v] + ".";
-                    }    
+                    }
                 }
 
                 textocota += "”</strong>";
@@ -437,42 +437,33 @@ function formatarData(data) {
                     var ncomp=0;
                     if (itensSelecionados.includes("DOM")) {
                         ncomp++;
-                        textocota +=`no Diário Oficial do Município`;
-                        if(ncomp==ncomprovantes){
-                        }else if(ncomp<ncomprovantes-1){
-                            textocota += `, `;
-                        }else if(ncomp==ncomprovantes-1){
-                            textocota += ` e `;
-                        }
+                        textocota += `no Diário Oficial do Município`;
                     }
 
                     if (itensSelecionados.includes("DOU")) {
                         ncomp++;
-                        textocota += `no Diário Oficial da União`;
-                        if(ncomp==ncomprovantes){
-                        }else if(ncomp<ncomprovantes-1){
-                            textocota += `, `;
-                        }else if(ncomp==ncomprovantes-1){
+
+                        if (ncomp === ncomprovantes) {
                             textocota += ` e `;
+                        } else if (ncomp < ncomprovantes) {
+                            textocota += `, `;
                         }
+
+                        textocota += `no Diário Oficial da União`;
                     }
 
                     if (itensSelecionados.includes("DOE")) {
                         ncomp++;
-                        textocota += `no Diário Oficial do Estado`;
-                        if(ncomp==ncomprovantes){
-                        }else if(ncomp<ncomprovantes-1){
-                            textocota += `, `;
-                        }else if(ncomp==ncomprovantes-1){
+
+                        if (ncomp === ncomprovantes) {
                             textocota += ` e `;
+                        } else if (ncomp < ncomprovantes) {
+                            textocota += `, `;
                         }
+
+                        textocota += `no Diário Oficial do Estado`;
                     }
 
-                    if(i==x){
-                        textocota += ` e `;
-                    }else if(i<x){
-                        textocota += `, `;  
-                    }
 
                 }
 

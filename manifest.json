@@ -19,6 +19,7 @@
     "https://www.intra.pg/*",
     "https://loginunicointerno.praiagrande.sp.gov.br/*",
     "https://processodigital.praiagrande.sp.gov.br/*",
+    "https://prefeitura.praiagrande.sp.gov.br/*",
     "https://script.google.com/*"
   ],
 
@@ -90,6 +91,19 @@
       "js": [
         "content_script_assinador.js","js/inject_fw.js"
       ]
+    },
+    {
+      "matches": [
+        "https://prefeitura.praiagrande.sp.gov.br/mgc/mgc_contrato.php?acao=inclusao"
+      ],
+      "css": [
+        "css/bootstrap.min.css" 
+      ],
+      "js": [
+        "secretarias.js",
+        "content_contrato.js",
+        "js/bootstrap.min.js"
+      ]
     }
   ],
 
@@ -108,15 +122,16 @@
   "web_accessible_resources": [
     {
       "resources": [
+        "secretarias.js",
         "kanban.html",
         "lista_assinador.html",
         "tags.html",
         "settings.html",
-        "secretarias.js",
         "js/*",
         "css/*",
         "imgs/*",
-        "tooltip.js"
+        "tooltip.js",
+        "inject_novo_contrato.js"
       ],
       "matches": ["<all_urls>"]
     }

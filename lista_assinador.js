@@ -1534,9 +1534,9 @@ function atualizarBarraFlutuante() {
         
         if (filtroAtivo.startsWith("grupo:")) {
             if (btnAdd) btnAdd.style.display = 'none';
-            if (btnRem) btnRem.style.display = 'inline-flex';
+            if (btnRem) btnRem.style.display = 'inline';
         } else {
-            if (btnAdd) btnAdd.style.display = 'inline-flex';
+            if (btnAdd) btnAdd.style.display = 'inline';
             if (btnRem) btnRem.style.display = 'none';
         }
         
