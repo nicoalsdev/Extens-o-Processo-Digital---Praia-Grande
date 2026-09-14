@@ -108,7 +108,11 @@
                     </div>
 
                 </div>
-
+                <div class="mb-3 ">
+    <button type="button" id="btn-preencher-teste" class="btn btn-warning w-100 mb-2 rounded text-dark fw-bold">
+        <i class="fas fa-magic me-2"></i>Preencher Dados de Teste
+    </button>
+</div>
                 <div class="mb-3 position-relative">
                     <div class="row d-none">
                         <div class="col">
@@ -138,12 +142,19 @@
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-bold">Termo(s):</label>
+                    <label class="form-label fw-bold">Termo(s), Empresa(s) e Situação:</label>
                     <div id="termo_ata_container">
-                        <div class="d-flex align-items-center mb-2">
-                            <input type="text" class="form-control termo-ata-input me-2 rounded" placeholder="Digite o(s) termo(s)"> 
-                            <input type="text" class="form-control termo-empresa-input me-2 rounded" placeholder="Digite o nome da EMPRESA ou CONTRATADO">
-                            <button type="button" class="btn btn-success adicionar-termo-ata rounded-circle">
+                        <div class="d-flex align-items-center mb-2 gap-2">
+                            <input type="text" class="form-control termo-ata-input rounded" placeholder="Termo(s)"> 
+                            <input type="text" class="form-control termo-empresa-input rounded" placeholder="Nome da Empresa">
+                            <select class="form-select termo-situacao-select rounded">
+                                <option value="Assinou">Assinou</option>
+                                <option value="Não Assinou o Termo">Não Assinou o Termo</option>
+                                <option value="Não Assinou o TCN">Não Assinou o TCN</option>
+                                <option value="Não Respondeu">Não Respondeu</option>
+                                <option value="Não Irá Assinar">Não Irá Assinar</option>
+                            </select>
+                            <button type="button" class="btn btn-success adicionar-termo-ata rounded-circle flex-shrink-0">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
@@ -175,16 +186,18 @@
                                 <input type="checkbox" class="form-check-input" id="dou" name="itens" value="DOU">
                                 <label class="form-check-label" for="dou">DOU</label>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-check">
+                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="doe" name="itens" value="DOE">
                                 <label class="form-check-label" for="doe">DOE</label>
                             </div>
-                            <div class="form-check">
+                              <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="errata" name="itens" value="ERRATA">
                                 <label class="form-check-label" for="errata">ERRATA</label>
                             </div>
+                        </div>
+                        <div class="col-md-6">
+                           
+                          
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="erro_siam" name="itens" value="Erro de Lançamento SIAM">
                                 <label class="form-check-label" for="erro_siam">Erro de Lançamento SIAM</label>
@@ -217,17 +230,17 @@
                                 <label class="form-check-label" for="erro_pncp">Erro PNCP</label>
                             </div>
 
-                            <div class="form-check">
+                            <div class="form-check d-none">
                                 <input type="checkbox" class="form-check-input" id="empresa_nao_assinou" name="itens" value="Empresa Não Assinou">
                                 <label class="form-check-label" for="empresa_nao_assinou">Empresa Não Assinou</label>
                             </div>
 
-                            <div class="form-check">
+                            <div class="form-check d-none">
                                 <input type="checkbox" class="form-check-input" id="empresa_nao_devolveu" name="itens" value="Empresa Não Devolveu">
                                 <label class="form-check-label" for="empresa_nao_devolveu">Empresa Não Devolveu Termo</label>
                             </div>
 
-                            <div class="form-check">
+                            <div class="form-check d-none">
                                 <input type="checkbox" class="form-check-input" id="empresas_multiplas_nao_assinaram" name="itens" value="Empresas Não Assinaram">
                                 <label class="form-check-label" for="empresas_multiplas_nao_assinaram">Empresas Não Assinaram</label>
                             </div>

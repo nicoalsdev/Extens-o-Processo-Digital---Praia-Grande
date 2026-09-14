@@ -848,7 +848,6 @@ function getProcessIdFromListElement(processoEl) {
 function removeAllTags(idProcesso, callback) {
     const idStr = String(idProcesso);
 
-    // 1️⃣ Busca o estado MAIS RECENTE do storage no momento exato da exclusão
     chrome.storage.local.get(['processTags', 'processData', 'subKanbanData'], (result) => {
         const currentTags = result.processTags || {};
         const currentData = result.processData || {};
@@ -856,7 +855,6 @@ function removeAllTags(idProcesso, callback) {
 
         let tagsRemovedCount = 0;
 
-        // Limpa apenas as chaves do processo alvo
         Object.keys(currentTags).forEach(tagInstanceId => {
             if (
                 tagInstanceId.startsWith(idStr + '-') ||
@@ -867,33 +865,29 @@ function removeAllTags(idProcesso, callback) {
             }
         });
 
-        // Limpa metadados estendidos do Kanban/Data se existirem
         if (currentData[idStr]) {
             delete currentData[idStr];
         }
 
-        // NOVO: Limpa o sub-kanban de empresas associado a este processo
+        // 🔥 CORREÇÃO 1 & 2: Garante a remoção do subkanban junto com as tags
         let subKanbanRemovido = false;
         if (currentSubKanban[idStr]) {
             delete currentSubKanban[idStr];
             subKanbanRemovido = true;
         }
 
-        // Se nada foi removido, interrompe sem regravar desnecessariamente
         if (tagsRemovedCount === 0 && !currentData[idStr] && !subKanbanRemovido) {
             if (callback) callback(false);
             return;
         }
 
-        // 2️⃣ Grava a alteração atômica incluindo a limpeza do sub-kanban
         chrome.storage.local.set({
             processTags: currentTags,
             processData: currentData,
             subKanbanData: currentSubKanban
         }, () => {
-            console.log(`[Tags/Empresas] Dados do processo ${idStr} foram limpos com sucesso.`);
+            console.log(`[Tags/Empresas] Dados e subkanban do processo ${idStr} limpos com sucesso.`);
 
-            // 3️⃣ Dispara a remoção no Google Sheets em background
             if (typeof removerStatusEtapaProcesso === 'function') {
                 removerStatusEtapaProcesso(idStr);
             } else {
@@ -4108,41 +4102,36 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         }
 
        // Localize o listener chrome.runtime.onMessage.addListener e ajuste a ação:
-        if (msg.action === 'removeTagFromProcess') {
-            chrome.storage.local.get(['processTags', 'processData'], (data) => {
-                let tags = data.processTags || {};
-                let pData = data.processData || {};
+     if (msg.action === 'removeTagFromProcess') {
+    chrome.storage.local.get(['processTags', 'processData', 'subKanbanData'], (data) => {
+        let tags = data.processTags || {};
+        let pData = data.processData || {};
+        let subKanbans = data.subKanbanData || {};
 
-                const tag = tags[msg.tagInstanceId];
-                if (tag) {
-                    const processId = tag.processId;
+        const tag = tags[msg.tagInstanceId];
+        if (tag) {
+            const processId = tag.processId;
 
-            // Se for tag de board, executa a limpeza profunda que você solicitou
-                    if (tag.isBoardTag) {
-                // 1. Remove todas as tags do processo
-                        for (const key of Object.keys(tags)) {
-                            if (key.startsWith(processId + "-")) {
-                                delete tags[key];
-                            }
-                        }
-                // 2. Remove os dados (Descrição, Prazo, Board)
-                        if (pData[processId]) {
-                            delete pData[processId];
-                        }
-                    } else {
-                // Se for tag comum, remove só ela
-                        delete tags[msg.tagInstanceId];
+            if (tag.isBoardTag) {
+                for (const key of Object.keys(tags)) {
+                    if (key.startsWith(processId + "-")) {
+                        delete tags[key];
                     }
-
-                    chrome.storage.local.set({ processTags: tags, processData: pData }, () => {
-                        showToast('info', 'Tag e dados do Kanban removidos com sucesso');
-                // Reload para limpar o estado visual da página (badges de prazo, etc)
-                        setTimeout(() => location.reload(), 1000);
-                    });
                 }
+                if (pData[processId]) delete pData[processId];
+                if (subKanbans[processId]) delete subKanbans[processId]; // 🔥 Limpa subkanban
+            } else {
+                delete tags[msg.tagInstanceId];
+            }
+
+            chrome.storage.local.set({ processTags: tags, processData: pData, subKanbanData: subKanbans }, () => {
+                showToast('info', 'Tag e subkanban removidos com sucesso');
+                setTimeout(() => location.reload(), 1000);
             });
-            return true;
         }
+    });
+    return true;
+}
 
         if (msg.action === 'settingsUpdated') {
             loadSettings(true);

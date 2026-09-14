@@ -8,10 +8,34 @@ let empresasData = {};
 
 document.addEventListener('DOMContentLoaded', async () => {
     if (!processId) {
-        if(typeof Swal !== 'undefined') Swal.fire('Erro', 'ID do processo não encontrado na URL.', 'error');
-        else alert('ID do processo não encontrado na URL.');
+        if (typeof Swal !== 'undefined') {
+            Swal.fire('Erro', 'ID do processo não encontrado na URL.', 'error').then(() => window.close());
+        } else {
+            alert('ID do processo não encontrado na URL.');
+            window.close();
+        }
         return;
     }
+
+    // Valida se o ID realmente existe persistido no storage antes de abrir
+    const existeNoStorage = await new Promise(resolve => {
+        chrome.storage.local.get(['subKanbanData'], (result) => {
+            const allSub = result.subKanbanData || {};
+            resolve(!!allSub[processId]);
+        });
+    });
+
+    if (!existeNoStorage) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire('Aviso', 'Este ID de subkanban não existe ou foi removido.', 'warning').then(() => window.close());
+        } else {
+            alert('Este ID de subkanban não existe ou foi removido.');
+            window.close();
+        }
+        return;
+    }
+
+    document.getElementById('tituloProcesso').textContent = processNumber;
     await carregarDados();
     inicializarSortables();
 });
@@ -283,6 +307,7 @@ document.getElementById('btnNovaEmpresaModal').addEventListener('click', (e) => 
     document.getElementById('novaEmpresaNome').value = '';
     document.getElementById('novaEmpresaRazao').value = '';
     document.getElementById('novaEmpresaCnpj').value = '';
+    document.getElementById('novaEmpresaEmail').value = '';
     const bs = window.bootstrap || bootstrap;
     if (bs) new bs.Modal(document.getElementById('novaEmpresaModal')).show();
 });
@@ -292,6 +317,7 @@ document.getElementById('btnSalvarNovaEmpresa').addEventListener('click', async 
     const nomeAb = document.getElementById('novaEmpresaNome').value.trim();
     const nomeComp = document.getElementById('novaEmpresaRazao').value.trim();
     const cnpj = document.getElementById('novaEmpresaCnpj').value.trim();
+    const email = document.getElementById('novaEmpresaEmail').value.trim();
 
     if (!ata || !nomeAb) {
         if (typeof Swal !== 'undefined') Swal.fire('Aviso', 'A Ata e o Nome Abreviado / Fantasia são obrigatórios.', 'warning');
@@ -301,7 +327,7 @@ document.getElementById('btnSalvarNovaEmpresa').addEventListener('click', async 
     const id = 'emp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     
     empresasData[id] = {
-        id, nomeAbreviado: nomeAb, nomeCompleto: nomeComp || nomeAb, ata, cnpj,
+        id, nomeAbreviado: nomeAb, nomeCompleto: nomeComp || nomeAb, ata, cnpj, email,
         dataAssinatura: '', status: 'Pendente',
         assinaturaAjuste: false, assinaturaTCN: false // Adicionado estado inicial
     };
@@ -396,46 +422,78 @@ document.getElementById('btnMenuGerarLista').addEventListener('click', () => {
         <title>Lista de Empresas - ${processNumber}</title>
         <style>
             body { font-family: Calibri, Arial, sans-serif; margin: 20px; color: #000; }
-            
-            /* Tabela compacta alinhada à esquerda, sem ocupar 100% da folha */
             table { width: auto; border-collapse: collapse; margin-top: 10px; }
+            th, td { border: 1px solid #000; padding: 4px 10px; font-size: 13px; vertical-align: middle; }
+            th { text-align: center; background-color: #f2f2f2; font-weight: bold; }
+            .header-main { font-size: 16px; font-weight: normal; text-align: center; background-color: #fff; }
             
-            th, td { border: 1px solid #000; padding: 4px 10px; font-size: 14px; }
-            th { text-align: center; background-color: #fff; font-weight: normal; }
-            .header-main { font-size: 16px; font-weight: normal; text-align: center; }
-            
-            /* Larguras compactas e controladas */
             .col-ata { text-align: center; font-weight: bold; white-space: nowrap; }
             .col-empresa { text-align: left; white-space: nowrap; }
+            .col-data { text-align: center; white-space: nowrap; }
+            .col-status { text-align: left; color: #b02a37; font-weight: 600; white-space: nowrap; }
+            .col-blank { width: 80px; } 
             
-            /* Colunas da direita com tamanho fixo ideal para visto/assinatura */
-            .col-blank { width: 90px; } 
+            .btn-imprimir {
+                margin-bottom: 20px; padding: 8px 15px; cursor: pointer;
+                background-color: #0d6efd; color: white; border: none; border-radius: 4px; font-weight: bold;
+            }
+            .btn-imprimir:hover { background-color: #0b5ed7; }
             
+            @media print {
+                body { margin: 0; padding: 0; }
+                .no-print { display: none !important; }
+            }
         </style>
     </head>
     <body>
-       
+        <button class="btn-imprimir no-print" onclick="window.print()">🖨️ Imprimir Lista</button>
+        
         <table>
             <thead>
                 <tr>
-                    <th colspan="4" class="header-main">${tituloTabela}</th>
+                    <th colspan="5" class="header-main">${tituloTabela}</th>
                 </tr>
                 <tr>
                     <th>Ata</th>
                     <th>Empresa</th>
-                    <th></th>
+                    <th>Data Assinatura</th>
+                    <th>Pendência</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
     `;
 
-    empresasArray.forEach(empresa => {
+empresasArray.forEach(empresa => {
+        let textoPendencia = "";
+        const status = empresa.status || 'Pendente';
+        const assAjuste = !!empresa.assinaturaAjuste;
+        const assTCN = !!empresa.assinaturaTCN;
+
+        // Regra para empresas que estão no board "Não irá assinar"
+        if (status === 'NaoAssinara') {
+            textoPendencia = "Não vai Assinar";
+        } else if (assAjuste || assTCN) {
+            // Regra anterior para verificação de pendências normais de assinatura
+            let pendencias = [];
+            if (!assAjuste) pendencias.push("Falta assinar o Termo");
+            if (!assTCN) pendencias.push("Falta assinar o TCN");
+            
+            textoPendencia = pendencias.length > 0 ? pendencias.join(" / ") : "";
+        }
+
+        // Regra da cor cinza claro para a data se tiver assinatura e faltar o Termo
+        let estiloData = "";
+        if (empresa.dataAssinatura && !assAjuste && status !== 'NaoAssinara') {
+            estiloData = 'style="color: #adb5bd;"';
+        }
+
         htmlConteudo += `
                 <tr>
                     <td class="col-ata">${empresa.ata || ''}</td>
                     <td class="col-empresa">${empresa.nomeAbreviado.toUpperCase()}</td>
-                    <td class="col-blank"></td>
+                    <td class="col-data" ${estiloData}>${empresa.dataAssinatura || ''}</td>
+                    <td class="col-status">${textoPendencia}</td>
                     <td class="col-blank"></td>
                 </tr>
         `;
@@ -460,8 +518,116 @@ document.getElementById('btnMenuGerarLista').addEventListener('click', () => {
 // 3. Gerar Cota
 document.getElementById('btnMenuGerarCota').addEventListener('click', () => {
     fecharMenuLateral();
-    if(typeof Swal !== 'undefined') Swal.fire('Em breve', 'A função de Gerar Cota será implementada.', 'info');
+    
+    const empresasArray = Object.values(empresasData);
+    if (empresasArray.length === 0) {
+        if(typeof Swal !== 'undefined') {
+            Swal.fire('Aviso', 'Não há empresas cadastradas para gerar a cota.', 'warning');
+        } else {
+            alert('Não há empresas cadastradas.');
+        }
+        return;
+    }
+
+    // 🔥 Ordena as empresas por ordem do número da ata/contrato de forma numérica/alfanumérica
+    empresasArray.sort((a, b) => {
+        const ataA = a.ata ? String(a.ata) : '';
+        const ataB = b.ata ? String(b.ata) : '';
+        return ataA.localeCompare(ataB, undefined, { numeric: true, sensitivity: 'base' });
+    });
+
+    // Processa e mapeia os dados das empresas ordenadas para o formato esperado pela cota
+    const empresasParaCota = empresasArray.map(empresa => {
+        const statusBoard = empresa.status || 'Pendente';
+        const assAjuste = !!empresa.assinaturaAjuste;
+        const assTCN = !!empresa.assinaturaTCN;
+        let situacaoMapeada = "Não Respondeu";
+
+        if (statusBoard === 'Assinada' && assAjuste && assTCN) {
+            situacaoMapeada = "Assinou";
+        } else if (statusBoard === 'NaoAssinara') {
+            situacaoMapeada = "Não Irá Assinar";
+        } else if ((assAjuste && !assTCN) || (!assAjuste && assTCN) || (statusBoard === 'Convocada')) {
+             situacaoMapeada = "Não Assinou o Termo";
+        } else {
+           situacaoMapeada = "Não Respondeu";
+        }
+
+        return {
+            ata: empresa.ata || "",
+            empresa: empresa.nomeCompleto || empresa.nomeAbreviado || "",
+            situacao: situacaoMapeada
+        };
+    });
+
+    const dadosCodificados = encodeURIComponent(JSON.stringify(empresasParaCota));
+    const urlCota = `/tools/Cota/cota.html?processNumber=${encodeURIComponent(processNumber)}&empresas=${dadosCodificados}`;
+    window.open(urlCota, '_blank');
 });
 
+// 4. Copiar E-mails Pendentes (Exclui Assinada e Não irá assinar)
+document.getElementById('btnMenuCopiarEmails').addEventListener('click', () => {
+    fecharMenuLateral();
 
+    const empresasArray = Object.values(empresasData);
+    if (empresasArray.length === 0) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire('Aviso', 'Não há empresas cadastradas.', 'warning');
+        } else {
+            alert('Não há empresas cadastradas.');
+        }
+        return;
+    }
 
+    // 🔥 Ordena as empresas por ordem do número da ata/contrato
+    empresasArray.sort((a, b) => {
+        const ataA = a.ata ? String(a.ata) : '';
+        const ataB = b.ata ? String(b.ata) : '';
+        return ataA.localeCompare(ataB, undefined, { numeric: true, sensitivity: 'base' });
+    });
+
+    // Filtra empresas que NÃO estão nos boards 'Assinada' nem 'NaoAssinara'
+    const emailsPendentes = [];
+    empresasArray.forEach(empresa => {
+        const status = empresa.status || 'Pendente';
+        if (status !== 'Assinada' && status !== 'NaoAssinara') {
+            if (empresa.email && empresa.email.trim() !== '') {
+                const emailTrim = empresa.email.trim();
+                if (!emailsPendentes.includes(emailTrim)) {
+                    emailsPendentes.push(emailTrim);
+                }
+            }
+        }
+    });
+
+    if (emailsPendentes.length === 0) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire('Aviso', 'Nenhum e-mail encontrado para as empresas pendentes/convocadas.', 'info');
+        } else {
+            alert('Nenhum e-mail encontrado.');
+        }
+        return;
+    }
+
+    const textoEmails = emailsPendentes.join('; ');
+
+    navigator.clipboard.writeText(textoEmails).then(() => {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                toast: true,
+                position: 'bottom-end',
+                showConfirmButton: false,
+                timer: 3000,
+                icon: 'success',
+                title: `${emailsPendentes.length} e-mail(s) copiado(s) em ordem de ata!`
+            });
+        } else {
+            alert('E-mails copiados para a área de transferência!');
+        }
+    }).catch(err => {
+        console.error('Erro ao copiar e-mails: ', err);
+        if (typeof Swal !== 'undefined') {
+            Swal.fire('Erro', 'Não foi possível copiar os e-mails automaticamente.', 'error');
+        }
+    });
+});

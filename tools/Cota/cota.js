@@ -1,5 +1,58 @@
 document.addEventListener('DOMContentLoaded', function() {
 
+
+// 🔥 Captura dados passados via URL pelo Kanban-Processo (se houver)
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramProcessNumber = urlParams.get('processNumber');
+    const paramEmpresas = urlParams.get('empresas');
+
+    if (paramProcessNumber) {
+        const inputProcFisico = document.getElementById('processo_numero');
+        if (inputProcFisico) inputProcFisico.value = paramProcessNumber;
+    }
+
+    if (paramEmpresas) {
+        try {
+            const empresasRecebidas = JSON.parse(decodeURIComponent(paramEmpresas));
+            if (empresasRecebidas && empresasRecebidas.length > 0) {
+                // Limpa o container inicial
+                termoAtaContainer.innerHTML = "";
+
+                empresasRecebidas.forEach((dado, index) => {
+                    const novoTermoAtaInput = document.createElement('div');
+                    novoTermoAtaInput.className = 'd-flex align-items-center mb-2 gap-2';
+                    novoTermoAtaInput.innerHTML = `
+                        <input type="text" class="form-control termo-ata-input rounded" value="${dado.ata}" placeholder="Termo(s)">
+                        <input type="text" class="form-control termo-empresa-input rounded" value="${dado.empresa}" placeholder="Nome da Empresa">
+                        <select class="form-select termo-situacao-select rounded">
+                            <option value="Assinou" ${dado.situacao === "Assinou" ? "selected" : ""}>Assinou</option>
+                            <option value="Não Assinou o Termo" ${dado.situacao === "Não Assinou o Termo" ? "selected" : ""}>Não Assinou o Termo</option>
+                            <option value="Não Assinou o TCN" ${dado.situacao === "Não Assinou o TCN" ? "selected" : ""}>Não Assinou o TCN</option>
+                            <option value="Não Respondeu" ${dado.situacao === "Não Respondeu" ? "selected" : ""}>Não Respondeu</option>
+                            <option value="Não Irá Assinar" ${dado.situacao === "Não Irá Assinar" ? "selected" : ""}>Não Irá Assinar</option>
+                        </select>
+                        <button type="button" class="btn ${index === 0 ? 'btn-success adicionar-termo-ata' : 'btn-danger remover-termo-ata'} rounded-circle flex-shrink-0">
+                            <i class="fas ${index === 0 ? 'fa-plus' : 'fa-trash'}"></i>
+                        </button>
+                    `;
+
+                    termoAtaContainer.appendChild(novoTermoAtaInput);
+
+                    if (index === 0) {
+                        novoTermoAtaInput.querySelector('.adicionar-termo-ata').addEventListener('click', adicionarTermoAtaInput);
+                    } else {
+                        novoTermoAtaInput.querySelector('.remover-termo-ata').addEventListener('click', function() {
+                            this.parentNode.remove();
+                        });
+                    }
+                });
+            }
+        } catch (e) {
+            console.error("Erro ao carregar empresas da URL:", e);
+        }
+    }
+
+
     // 1. Referências aos elementos do DOM
     const formCota = document.getElementById('cotaForm'); // Certifique-se que o <form> tenha esse ID
     const btnGerar = document.getElementById('btnGerar');
@@ -131,7 +184,7 @@ function formatarData(data) {
                         return arr[0];
                     } else {
                         const lastItem = arr[arr.length - 1];
-                        const otherItems = arr.slice(0, arr.length - 1).join(', ');
+                        const otherItems = arr.slice(0, arr.length - 1).join('; ');
                         return `${otherItems} e ${lastItem}`;
                     }
                 }
@@ -144,19 +197,26 @@ function formatarData(data) {
                     // Função para adicionar dinamicamente novos campos de "Termo de Ata"
                 function adicionarTermoAtaInput() {
                     const novoTermoAtaInput = document.createElement('div');
-                    novoTermoAtaInput.className = 'd-flex align-items-center mb-2'; // Classes flex do Bootstrap
+                    novoTermoAtaInput.className = 'd-flex align-items-center mb-2 gap-2';
                     novoTermoAtaInput.innerHTML = `
-                    <input type="text" class="form-control termo-ata-input me-2 rounded" placeholder="Digite o(s) termo(s)">
-                    <input type="text" class="form-control termo-empresa-input me-2 rounded" placeholder="Digite o nome da EMPRESA">
-                    <button type="button" class="btn btn-danger remover-termo-ata rounded-circle">
-                    <i class="fas fa-trash"></i>
-                    </button>
+        <input type="text" class="form-control termo-ata-input rounded" placeholder="Termo(s)">
+        <input type="text" class="form-control termo-empresa-input rounded" placeholder="Nome da Empresa">
+        <select class="form-select termo-situacao-select rounded">
+            <option value="Assinou">Assinou</option>
+            <option value="Não Assinou o Termo">Não Assinou o Termo</option>
+            <option value="Não Assinou o TCN">Não Assinou o TCN</option>
+            <option value="Não Respondeu">Não Respondeu</option>
+            <option value="Não Irá Assinar">Não Irá Assinar</option>
+        </select>
+        <button type="button" class="btn btn-danger remover-termo-ata rounded-circle flex-shrink-0">
+            <i class="fas fa-trash"></i>
+        </button>
                     `;
                     termoAtaContainer.appendChild(novoTermoAtaInput);
                     const removerBotao = novoTermoAtaInput.querySelector('.remover-termo-ata');
                     removerBotao.addEventListener('click', function() {
-                    this.parentNode.remove(); // Remove a div pai (input + botão)
-                });
+                        this.parentNode.remove();
+                    });
                 }
 
 
@@ -278,17 +338,52 @@ function formatarData(data) {
                     const siglaNomeDestino = siglaNomeDestinoInput.value;
                     const tipotermo = tipo_termo_select.value;
                     const lugares = siglaNomeDestino.split(",");
+
                     const termosAtaInputs = termoAtaContainer.querySelectorAll('.termo-ata-input');
                     const termosEmpresasInputs = termoAtaContainer.querySelectorAll('.termo-empresa-input');
-                    const termosAta = Array.from(termosAtaInputs).map(input => input.value).filter(value => value !== "");
-                    const termoseEmpresa = Array.from(termosEmpresasInputs).map(input => input.value).filter(value => value !== "");
+                    const termosSituacaoSelects = termoAtaContainer.querySelectorAll('.termo-situacao-select');
 
-                    const anoTermoAta = anoTermoAtaInput.value;
-                    const itensSelecionados = Array.from(document.querySelectorAll('input[name="itens"]:checked'))
-                    .map(checkbox => checkbox.value);
-                    const cotaSeguinte = document.getElementById('cota_seguinte').checked;
+                    let termosAta = [];
+    let termoseEmpresa = []; // 🔥 Recriada para evitar o ReferenceError
+    let termosAtaAssinaram = [];
+    let termoseEmpresaAssinaram = [];
 
-                    const dataAtual = new Date();
+    let naoRestituiram = [];
+    let naoAssinaramEmail = [];
+    let naoRespondeu = [];
+    let naoIraAssinar = [];
+
+    for (let i = 0; i < termosAtaInputs.length; i++) {
+        let tVal = termosAtaInputs[i].value.trim();
+        let eVal = termosEmpresasInputs[i].value.trim();
+        let sVal = termosSituacaoSelects[i].value;
+
+        if (tVal !== "" && eVal !== "") {
+            const empresaFormatada = `<span class="fw-bold">${eVal}</span>`;
+
+            // Alimenta as listas gerais
+            termosAta.push(tVal);
+            termoseEmpresa.push(eVal);
+
+            if (sVal === "Assinou") {
+                termosAtaAssinaram.push(tVal);
+                termoseEmpresaAssinaram.push(eVal);
+            } else if (sVal === "Não Assinou o Termo" || sVal === "Não Assinou o TCN") {
+                naoRestituiram.push(empresaFormatada);
+            } else if (sVal === "Não Irá Assinar") {
+                naoIraAssinar.push(empresaFormatada);
+            } else if (sVal === "Não Respondeu") {
+                naoRespondeu.push(empresaFormatada);
+            }
+        }
+    }
+
+    const anoTermoAta = anoTermoAtaInput.value;
+    const itensSelecionados = Array.from(document.querySelectorAll('input[name="itens"]:checked'))
+    .map(checkbox => checkbox.value);
+    const cotaSeguinte = document.getElementById('cota_seguinte').checked;
+
+    const dataAtual = new Date();
                     const dataFormatadaParaDoc = formatarData(dataAtual); // ex: 23/04/2025
                     const dataExtensoParaDoc = formatarDataExtenso(dataAtual); // ex: 23 de Abril de 2025
 
@@ -340,35 +435,39 @@ function formatarData(data) {
 
 
 
-                if (termosAta.length > 1) {
+                // Montagem do bloco principal (apenas para quem assinou)
+                if (termosAtaAssinaram.length > 1) {
                     textocota += `, os Termos de ${tipotermo} nº.s `;
                 } else {
                     textocota += ` o Termo de ${tipotermo} nº. `;
                 }
 
-                textocota +=`${formatArrayForDisplay(termosAta)}/${anoTermoAta}, `;
+                textocota += `${formatArrayForDisplay(termosAtaAssinaram)}/${anoTermoAta}, `;
 
                 if (tipotermo == "CONTRATO"){
-                    textocota +=`<strong>“CONTRATO Nº. ${formatArrayForDisplay(termosAta)}/${anoTermoAta}, QUE ENTRE SI CELEBRAM A PREFEITURA DA ESTÂNCIA BALNEÁRIA DE PRAIA GRANDE E `;
+                    if (termosAtaAssinaram.length > 1) {
+                    textocota += `<strong>“CONTRATOS Nºs. ${formatArrayForDisplay(termosAtaAssinaram)}/${anoTermoAta}, QUE ENTRE SI CELEBRAM A PREFEITURA DA ESTÂNCIA BALNEÁRIA DE PRAIA GRANDE E `;
                 }else{
-                    textocota +=`<strong>“TERMO DE ${tipotermo} PARA <span class="editable" contenteditable="true">XXX</span>, QUE ENTRE SI CELEBRAM A PREFEITURA DA ESTÂNCIA BALNEÁRIA DE PRAIA GRANDE E `;
+                     textocota += `<strong>“CONTRATO Nº. ${formatArrayForDisplay(termosAtaAssinaram)}/${anoTermoAta}, QUE ENTRE SI CELEBRAM A PREFEITURA DA ESTÂNCIA BALNEÁRIA DE PRAIA GRANDE E `;
+                }
+                } else {
+                    if (termosAtaAssinaram.length > 1) {
+                    textocota += `<strong>“TERMOS DE ${tipotermo} PARA <span class="editable" contenteditable="true">XXX</span>, QUE ENTRE SI CELEBRAM A PREFEITURA DA ESTÂNCIA BALNEÁRIA DE PRAIA GRANDE E `;
+                } else {
+                    textocota += `<strong>“TERMO DE ${tipotermo} PARA <span class="editable" contenteditable="true">XXX</span>, QUE ENTRE SI CELEBRAM A PREFEITURA DA ESTÂNCIA BALNEÁRIA DE PRAIA GRANDE E `;
+                }
+                    
                 }
 
-                if (termoseEmpresa.length > 1) {
+                if (termoseEmpresaAssinaram.length > 1) {
                     textocota += `AS EMPRESAS `;
                 } else {
                     textocota += `A EMPRESA `;
                 }
 
-                for (var v = 0; v < termoseEmpresa.length; v++) {
-                    if (v < termoseEmpresa.length - 1) {
-                        textocota += termoseEmpresa[v] + "; ";
-                    } else {
-                        textocota += termoseEmpresa[v] + ".";
-                    }
-                }
-
-                textocota += "”</strong>";
+                textocota += `${formatArrayForDisplay(termoseEmpresaAssinaram)}.<strong>”</strong>`;
+             
+                textocota += "</strong>";
 
                 if (termosAta.length > 1) {
                     textocota +=`, que foram devidamente registrados em livro competente`;
@@ -560,6 +659,63 @@ function formatarData(data) {
                     </p>`;
                 }
 
+             // 🔥 Bloco Automatizado para Situações de Assinatura (Frases separadas por tipo)
+
+
+    // Separa as empresas com base na escolha do select
+let textosSituacaoArray = [];
+
+    // Função auxiliar para tratar a concordância exata
+    function formatarFraseSituacao(listaEmpresas, verboSingular, verboPlural, complementoTexto) {
+        if (listaEmpresas.length === 0) return "";
+        const plural = listaEmpresas.length > 1;
+        const empresasStr = formatArrayForDisplay(listaEmpresas);
+        
+        // Define o prefixo dependendo se já existe outra frase antes no parágrafo
+        const prefixo = (textosSituacaoArray.length > 0) 
+            ? (plural ? 'As empresas' : 'A empresa') 
+            : (plural ? 'Informo que as empresas' : 'Informo que a empresa');
+        
+        const verbo = plural ? verboPlural : verboSingular;
+        return `${prefixo} ${empresasStr} ${verbo} ${complementoTexto}.`;
+    }
+
+    // 1. Não restituíram / restituiu
+    if (naoRestituiram.length > 0) {
+        textosSituacaoArray.push(
+            formatarFraseSituacao(naoRestituiram, 'não restituiu o Termo', 'não restituíram os Termos', 'devidamente assinados')
+        );
+    }
+
+    // 2. Não respondeu / se manifestou
+    if (naoRespondeu.length > 0) {
+        textosSituacaoArray.push(
+            formatarFraseSituacao(naoRespondeu, 'não se manifestou', 'não se manifestaram', 'sobre a assinatura do ajuste, mesmo após a prorrogação do prazo')
+        );
+    }
+
+    // 3. Não efetuou / efetuaram assinatura por e-mail
+    if (naoAssinaramEmail.length > 0) {
+        textosSituacaoArray.push(
+            formatarFraseSituacao(naoAssinaramEmail, 'não efetuou a assinatura', 'não efetuaram a assinatura', 'conforme resposta via e-mail sob fls. <span class="editable" contenteditable="true">XXX</span>')
+        );
+    }
+
+    // 4. Informou / informaram que não irá / irão assinar
+    if (naoIraAssinar.length > 0) {
+        textosSituacaoArray.push(
+            formatarFraseSituacao(naoIraAssinar, 'informou que não irá assinar', 'informaram que não irão assinar', 'conforme manifestação sob fls. <span class="editable" contenteditable="true">XXX</span>')
+        );
+    }
+
+    if (textosSituacaoArray.length > 0) {
+        textocota += `
+        <p style='margin-top:0cm;margin-right:0cm;margin-bottom:.0001pt;margin-left:0cm;font-size:11.0pt;font-family:"Bookman Old Style",sans-serif;text-align:justify;text-indent:35.45pt;'>
+        ${textosSituacaoArray.join(' ')}.
+        </p>`;
+    }
+              
+
                 const cotaSeguinteHTML = cotaSeguinte ? `
                    <p style='margin-right:0cm;margin-left:0cm;font-size:16px;font-family:"Calibri",sans-serif;margin-top:0cm;margin-bottom:.0001pt;font-size:11.0pt;margin:0cm;background:white;'><strong><span style='font-size:13px;font-family:"Tahoma",sans-serif;color:#212529;'>&Agrave;</span></strong></p>
 <p style='margin-right:0cm;margin-left:0cm;font-size:16px;font-family:"Calibri",sans-serif;margin-top:0cm;margin-bottom:.0001pt;font-size:11.0pt;margin:0cm;background:white; border-box;font-variant-ligatures: normal;font-variant-caps: normal;orphans: 2;text-align:start;widows: 2;-webkit-text-stroke-width: 0px;text-decoration-thickness: initial;text-decoration-style: initial;text-decoration-color: initial;word-spacing:0px;'><strong><span style='font-size:13px;font-family:"Tahoma",sans-serif;color:#212529;'>SESURB-15</span></strong></p>
@@ -587,27 +743,67 @@ function formatarData(data) {
                     // Event listener para selecionar texto do preview
 selecionarTextoPreviewButton.addEventListener('click', () => {
     const range = document.createRange();
-                    range.selectNodeContents(documentoPreview); // Usa selectNodeContents para selecionar apenas o conteúdo
-                    const selection = window.getSelection();
-                    selection.removeAllRanges();
-                    selection.addRange(range);
+    range.selectNodeContents(documentoPreview);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
 
-                    // Opcional: Copiar para a área de transferência após a seleção
-                    try {
-                        document.execCommand('copy');
-                    /* Swal.fire({
-                    icon: 'info',
-                    title: 'Texto Copiado!',
-                    text: 'O texto do preview foi copiado para a área de transferência.',
-                    showConfirmButton: false,
-                    timer: 1500
-                    });
-                    */
-                    } catch (err) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Falha ao Copiar!',
-                            text: 'Não foi possível copiar o texto automaticamente. Por favor, selecione e copie manualmente.',
-                        });
-                    }
+    try {
+        document.execCommand('copy');
+    } catch (err) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Falha ao Copiar!',
+            text: 'Não foi possível copiar o texto automaticamente.',
+        });
+    }
+});
+
+// Botão de preenchimento automático para testes
+const btnPreencherTeste = document.getElementById('btn-preencher-teste');
+if (btnPreencherTeste) {
+    btnPreencherTeste.addEventListener('click', function() {
+            // Dados de exemplo fornecidos
+        const dadosTeste = [
+            { termo: "111", empresa: "aaa", situacao: "Assinou" },
+            { termo: "222", empresa: "bbb", situacao: "Não Assinou o Termo" },
+            { termo: "333", empresa: "ccc", situacao: "Não Assinou o TCN" },
+            { termo: "444", empresa: "ddd", situacao: "Não Respondeu" },
+            { termo: "555", empresa: "eee", situacao: "Não Irá Assinar" },
+            { termo: "666", empresa: "fff", situacao: "Assinou" }
+        ];
+
+            // Limpa o container mantendo apenas o primeiro campo ou limpando todos
+        termoAtaContainer.innerHTML = "";
+
+        dadosTeste.forEach((dado, index) => {
+            const novoTermoAtaInput = document.createElement('div');
+            novoTermoAtaInput.className = 'd-flex align-items-center mb-2 gap-2';
+            novoTermoAtaInput.innerHTML = `
+                    <input type="text" class="form-control termo-ata-input rounded" value="${dado.termo}" placeholder="Termo(s)">
+                    <input type="text" class="form-control termo-empresa-input rounded" value="${dado.empresa}" placeholder="Nome da Empresa">
+                    <select class="form-select termo-situacao-select rounded">
+                        <option value="Assinou" ${dado.situacao === "Assinou" ? "selected" : ""}>Assinou</option>
+                        <option value="Não Assinou o Termo" ${dado.situacao === "Não Assinou o Termo" ? "selected" : ""}>Não Assinou o Termo</option>
+                        <option value="Não Assinou o TCN" ${dado.situacao === "Não Assinou o TCN" ? "selected" : ""}>Não Assinou o TCN</option>
+                        <option value="Não Respondeu" ${dado.situacao === "Não Respondeu" ? "selected" : ""}>Não Respondeu</option>
+                        <option value="Não Irá Assinar" ${dado.situacao === "Não Irá Assinar" ? "selected" : ""}>Não Irá Assinar</option>
+                    </select>
+                    <button type="button" class="btn ${index === 0 ? 'btn-success adicionar-termo-ata' : 'btn-danger remover-termo-ata'} rounded-circle flex-shrink-0">
+                        <i class="fas ${index === 0 ? 'fa-plus' : 'fa-trash'}"></i>
+                    </button>
+            `;
+
+            termoAtaContainer.appendChild(novoTermoAtaInput);
+
+                // Configura os eventos dos botões da linha gerada
+            if (index === 0) {
+                novoTermoAtaInput.querySelector('.adicionar-termo-ata').addEventListener('click', adicionarTermoAtaInput);
+            } else {
+                novoTermoAtaInput.querySelector('.remover-termo-ata').addEventListener('click', function() {
+                    this.parentNode.remove();
                 });
+            }
+        });
+    });
+}

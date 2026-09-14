@@ -1352,61 +1352,58 @@ document.getElementById("SearchProcessBtn").addEventListener("click", () => {
 // =========================================================================
 
 document.getElementById("removeTaskBtn").addEventListener("click", async () => {
- if (!currentTask) return;
+    if (!currentTask) return;
 
- const confirm = await Swal.fire({
-   title: "Remover processo e dados?",
-   text: "Isso removerá as tags, o prazo, a descrição e o sub-kanban de empresas deste processo.",
-   icon: "warning",
-   showCancelButton: true,
-   confirmButtonColor: "#d33",
-   cancelButtonColor: "#6c757d",
-   confirmButtonText: "Sim, remover tudo",
-   cancelButtonText: "Cancelar"
-});
+    const confirm = await Swal.fire({
+        title: "Remover processo e dados?",
+        text: "Isso removerá as tags, o prazo, a descrição e o sub-kanban de empresas deste processo.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Sim, remover tudo",
+        cancelButtonText: "Cancelar"
+    });
 
- if (confirm.isConfirmed) {
-   const data = await getStorageData();
-   const processId = currentTask.processId;
+    if (confirm.isConfirmed) {
+        const data = await getStorageData();
+        const processId = currentTask.processId;
 
-   // 1. Remove todas as tags do processo
-   for (const key of Object.keys(data.processTags || {})) {
-     if (key.startsWith(processId + "-")) {
-       delete data.processTags[key];
-     }
-   }
+        for (const key of Object.keys(data.processTags || {})) {
+            if (key.startsWith(processId + "-")) {
+                delete data.processTags[key];
+            }
+        }
 
-   // 2. Remove os dados (Descrição, Prazo, Board)
-   if (data.processData && data.processData[processId]) {
-     delete data.processData[processId];
-   }
+        if (data.processData && data.processData[processId]) {
+            delete data.processData[processId];
+        }
 
-   // 3. NOVO: Remove os dados do sub-kanban de empresas deste processo
-   chrome.storage.local.get(['subKanbanData'], async (res) => {
-       let subKanbans = res.subKanbanData || {};
-       if (subKanbans[processId]) {
-           delete subKanbans[processId];
-           await new Promise(r => chrome.storage.local.set({ subKanbanData: subKanbans }, r));
-       }
-   });
+        // 🔥 CORREÇÃO 1: Limpeza atômica do subKanbanData no Kanban
+        chrome.storage.local.get(['subKanbanData'], async (res) => {
+            let subKanbans = res.subKanbanData || {};
+            if (subKanbans[processId]) {
+                delete subKanbans[processId];
+                await new Promise(r => chrome.storage.local.set({ subKanbanData: subKanbans }, r));
+            }
+        });
 
-   // Salva tudo limpo nas chaves principais
-   await setStorageData({
-     processTags: data.processTags,
-     processData: data.processData
-   });
+        await setStorageData({
+            processTags: data.processTags,
+            processData: data.processData
+        });
 
-   Swal.fire({
-     title: "Removido!",
-     text: "O processo foi removido do quadro.",
-     icon: "success",
-     timer: 1500,
-     showConfirmButton: false
-   });
+        Swal.fire({
+            title: "Removido!",
+            text: "O processo foi removido do quadro.",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false
+        });
 
-   document.querySelector("#taskModal .btn-close")?.click();
-   await init();
- }
+        document.querySelector("#taskModal .btn-close")?.click();
+        await init();
+    }
 });
 
 

@@ -75,51 +75,56 @@
         /* ========================================= */
         /* TOGGLES PERSONALIZADOS (Cinza -> Verde)   */
         /* ========================================= */
-        .custom-switch { cursor: pointer; }
-        .custom-switch:checked {
-            background-color: #198754 !important;
-            border-color: #198754 !important;
-        }
+        .custom-switch { cursor: pointer;
+            background-color: #fff !important;}
 
-        .menu-item-btn {
-            padding: 15px 20px;
-            text-decoration: none;
-            font-size: 15px;
-            color: #ecf0f1;
-            display: block;
-            transition: 0.2s;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid #34495e;
-            width: 100%;
-            text-align: left;
-            font-weight: 600;
-        }
-        .menu-item-btn:hover { background-color: #34495e; color: #fff; }
-        .menu-item-btn i { width: 30px; text-align: center; }
-    </style>
-</head>
-<body>
+            .custom-switch:checked {
+                background-color: #198754 !important;
+                border-color: #198754 !important;
+            }
 
-  <!-- MENU EXPANSIVO LATERAL (BOOTSTRAP OFFCANVAS) -->
-  <div class="offcanvas offcanvas-start" tabindex="-1" id="sideMenu" style="background-color: #2b3e50; color: #ecf0f1; width: 280px;">
-      <div class="offcanvas-header border-bottom border-secondary">
-        <h5 class="offcanvas-title"><i class="fa fa-tools"></i> Ferramentas</h5>
-        <!-- Botão nativo de fechar do Bootstrap -->
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            .menu-item-btn {
+                padding: 15px 20px;
+                text-decoration: none;
+                font-size: 15px;
+                color: #ecf0f1;
+                display: block;
+                transition: 0.2s;
+                background: transparent;
+                border: none;
+                border-bottom: 1px solid #34495e;
+                width: 100%;
+                text-align: left;
+                font-weight: 600;
+            }
+            .menu-item-btn:hover { background-color: #34495e; color: #fff; }
+            .menu-item-btn i { width: 30px; text-align: center; }
+        </style>
+    </head>
+    <body>
+
+      <!-- MENU EXPANSIVO LATERAL (BOOTSTRAP OFFCANVAS) -->
+      <div class="offcanvas offcanvas-start" tabindex="-1" id="sideMenu" style="background-color: #2b3e50; color: #ecf0f1; width: 280px;">
+          <div class="offcanvas-header border-bottom border-secondary">
+            <h5 class="offcanvas-title"><i class="fa fa-tools"></i> Ferramentas</h5>
+            <!-- Botão nativo de fechar do Bootstrap -->
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <button class="menu-item-btn" id="btnMenuImportar">
+                <i class="fa fa-file-excel text-success"></i> Importar Excel
+            </button>
+            <button class="menu-item-btn" id="btnMenuCopiarEmails">
+                <i class="fa fa-envelope text-info"></i> Copiar E-mails Pendentes
+            </button>
+            <button class="menu-item-btn" id="btnMenuGerarLista">
+                <i class="fa fa-list text-info"></i> Gerar Lista
+            </button>
+            <button class="menu-item-btn" id="btnMenuGerarCota">
+                <i class="fa fa-file-contract text-warning"></i> Gerar Cota
+            </button>
+        </div>
     </div>
-    <div class="offcanvas-body p-0">
-        <button class="menu-item-btn" id="btnMenuImportar">
-            <i class="fa fa-file-excel text-success"></i> Importar Excel
-        </button>
-        <button class="menu-item-btn" id="btnMenuGerarLista">
-            <i class="fa fa-list text-info"></i> Gerar Lista
-        </button>
-        <button class="menu-item-btn" id="btnMenuGerarCota">
-            <i class="fa fa-file-contract text-warning"></i> Gerar Cota
-        </button>
-    </div>
-</div>
 
 <!-- CABEÇALHO SUPERIOR -->
 <div class="top-header">
@@ -169,7 +174,7 @@
     </div>
     <div class="modal-body text-dark">
         <div class="row">
-            <div class="col-3 mb-2">Ata: <span id="modalEmpresaAta" class='fw-bold'></span></div>
+            <div class="col-3 mb-2">Nº. da Ata ou Contrato: <span id="modalEmpresaAta" class='fw-bold'></span></div>
             <div class="col-3 mb-2">Nome Abreviado: <span id="modalEmpresaNome" class='fw-bold'></span></div>
             <div class="col-12 mb-2 d-none">CNPJ: <span id="modalEmpresaCnpj" class='fw-bold'></span></div>
 
@@ -202,8 +207,8 @@
       </div>
 
       <!-- CAMPO DA DATA DE ASSINATURA -->
-      <div class="col-12 mb-2 mt-3">
-        <label class="form-label fw-bold mb-1"><i class="fa fa-calendar"></i> Data da Assinatura:</label>
+      <div class="col-12 mb-2 mt-3 d-flex align-items-center gap-2">
+        <label class="form-label fw-bold mb-0 text-nowrap"><i class="fa fa-calendar"></i> Data da Assinatura:</label>
         <input type="date" id="modalEmpresaDataAssinatura" class="form-control form-control-sm w-50">
     </div>
 </div>
@@ -228,10 +233,11 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
     </div>
     <div class="modal-body text-dark">
-        <div class="mb-2"><label class="form-label fw-bold">Ata</label><input type="text" id="novaEmpresaAta" class="form-control form-control-sm"></div>
+        <div class="mb-2"><label class="form-label fw-bold">Nº. da Ata ou Contrato:</label><input type="text" id="novaEmpresaAta" class="form-control form-control-sm"></div>
         <div class="mb-2"><label class="form-label fw-bold">Nome Abreviado / Fantasia</label><input type="text" id="novaEmpresaNome" class="form-control form-control-sm"></div>
         <div class="mb-2"><label class="form-label fw-bold">Razão Social (Opcional)</label><input type="text" id="novaEmpresaRazao" class="form-control form-control-sm"></div>
         <div class="mb-2"><label class="form-label fw-bold">CNPJ (Opcional)</label><input type="text" id="novaEmpresaCnpj" class="form-control form-control-sm"></div>
+        <div class="mb-2"><label class="form-label fw-bold">E-mail (Opcional)</label><input type="text" id="novaEmpresaEmail" class="form-control form-control-sm"></div>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
