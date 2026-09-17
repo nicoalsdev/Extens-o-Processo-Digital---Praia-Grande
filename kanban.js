@@ -1248,9 +1248,24 @@ async function renderTasks(tasks, processData) {
     btnSubKanban.className = "btn btn-info";
     btnSubKanban.style.marginRight = "auto"; // Empurra para a esquerda
     btnSubKanban.innerHTML = `<i class="fa fa-sitemap"></i> Gerenciar Empresas`;
-    btnSubKanban.onclick = () => {
-        // Pega a URL da extensão e passa os parâmetros
-        const url = chrome.runtime.getURL(`kanban_processo.html?processId=${task.processId}&processNumber=${encodeURIComponent(task.processNumber)}`);
+       btnSubKanban.onclick = async () => {
+        const processId = task.processId;
+        
+        // Busca diretamente do storage para garantir o dado mais recente e evitar conflitos
+        await new Promise(resolve => {
+            chrome.storage.local.get(['subKanbanData'], async (result) => {
+                let subKanbans = result.subKanbanData || {};
+                
+                // Se o processo ainda não possui dados criados, inicializa apenas ele, preservando os demais
+                if (!subKanbans[processId]) {
+                    subKanbans[processId] = {};
+                    await new Promise(r => chrome.storage.local.set({ subKanbanData: subKanbans }, r));
+                }
+                resolve();
+            });
+        });
+
+        const url = chrome.runtime.getURL(`kanban_processo.html?processId=${processId}&processNumber=${encodeURIComponent(task.processNumber)}`);
         window.open(url, '_blank');
     };
 

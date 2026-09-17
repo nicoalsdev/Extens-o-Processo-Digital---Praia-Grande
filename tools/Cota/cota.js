@@ -446,9 +446,9 @@ function formatarData(data) {
 
                 if (tipotermo == "CONTRATO"){
                     if (termosAtaAssinaram.length > 1) {
-                    textocota += `<strong>“CONTRATOS Nºs. ${formatArrayForDisplay(termosAtaAssinaram)}/${anoTermoAta}, QUE ENTRE SI CELEBRAM A PREFEITURA DA ESTÂNCIA BALNEÁRIA DE PRAIA GRANDE E `;
+                    textocota += `<strong>“CONTRATOS DE <span class="editable" contenteditable="true">XXX</span>, QUE ENTRE SI CELEBRAM A PREFEITURA DA ESTÂNCIA BALNEÁRIA DE PRAIA GRANDE E `;
                 }else{
-                     textocota += `<strong>“CONTRATO Nº. ${formatArrayForDisplay(termosAtaAssinaram)}/${anoTermoAta}, QUE ENTRE SI CELEBRAM A PREFEITURA DA ESTÂNCIA BALNEÁRIA DE PRAIA GRANDE E `;
+                     textocota += `<strong>“CONTRATO DE <span class="editable" contenteditable="true">XXX</span>, QUE ENTRE SI CELEBRAM A PREFEITURA DA ESTÂNCIA BALNEÁRIA DE PRAIA GRANDE E `;
                 }
                 } else {
                     if (termosAtaAssinaram.length > 1) {
