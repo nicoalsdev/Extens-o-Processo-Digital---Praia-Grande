@@ -141,6 +141,7 @@ const API_URL =
   "Locais",
   "ContagemSelecionados",
   "Calculado",
+  "Finalidado",
 
   // 🔽 NOVOS CAMPOS
   "Created",
@@ -171,6 +172,7 @@ const SEARCH_ENDPOINT =
   "Locais",
   "ContagemSelecionados",
   "Calculado",
+  "Finalidado",
 
   // 🔽 autor / edição
   "Created",
@@ -634,7 +636,7 @@ async function buscarAssinaturasTabela(id, elementoDestino, doc) {
         colortextspan = "primary";
     }
     
-    const finalHtml = `
+const finalHtml = `
         <span
             class="fw-bold text-${colortextspan} "
             data-bs-toggle="tooltip"
@@ -647,6 +649,14 @@ async function buscarAssinaturasTabela(id, elementoDestino, doc) {
     `;
 
     elementoDestino.innerHTML = finalHtml;
+
+    // 🚨 NOVO: Marca a linha no HTML se o processo tiver todas as assinaturas e estiver pronto
+    const linha = elementoDestino.closest("tr");
+    if (concluidos >= total && total > 0) {
+        linha.classList.add("assinaturas-completas");
+    } else {
+        linha.classList.remove("assinaturas-completas");
+    }
 
     if (concluidos > 0) {
         const botao = elementoDestino.closest("tr").querySelector(".btn-enviar");
@@ -1314,10 +1324,10 @@ function renderTabela(lista) {
         const dataEdicao = doc.Modified ? formatarData(doc.Modified) : "-";
         
         const escapedTitle = doc.Title ? doc.Title.replace(/"/g, '&quot;') : "";
-
+        const isFinalizado = (doc.Finalidado === true || String(doc.Finalidado).toLowerCase() === 'true');
         // Removemos o checkbox e o cursor indica que a linha é clicável
-        html += `
-            <tr data-id="${idAssinador || ''}" data-docid="${doc.ID}" data-titulo="${escapedTitle}" data-contagem="${doc.Contagem}" data-link="${link}" style="cursor: pointer; transition: background-color 0.2s;">
+      html += `
+            <tr data-id="${idAssinador || ''}" data-docid="${doc.ID}" data-titulo="${escapedTitle}" data-contagem="${doc.Contagem}" data-link="${link}" data-finalizado="${isFinalizado ? 'true' : 'false'}" style="cursor: pointer; transition: background-color 0.2s;">
                 
                 <td class='d-none'>${doc.ID}</td>
                 
@@ -1506,6 +1516,12 @@ tr.tr-selecionada > td:first-child {
         <span>Remover</span>
     </button>
 
+    <!-- Botão Marcar como Finalizado -->
+    <button id="btnBulkFinalizar" type="button" class="selection-action btn btn-warning text-dark d-flex align-items-center gap-2" style="display: none;">
+        <i class="fa fa-check-circle m-0 p-0"></i>
+        <span class="m-0 p-0">Finalizar</span>
+    </button>
+
     <!-- Botão Fechar -->
     <button id="btnClearSelection" type="button" title="Limpar seleção">
         <i class="fa fa-times"></i>
@@ -1527,7 +1543,18 @@ function atualizarBarraFlutuante() {
         barra.style.display = 'flex';
         document.getElementById('selectionCount').innerText = `${checkeds.length} processo(s)`;
         
-        // --- NOVA LÓGICA: Alternar botões baseado no filtro ---
+        // 🚨 Verifica se há PELO MENOS UM processo selecionado que NÃO está finalizado
+        const temNaoFinalizado = Array.from(checkeds).some(row => 
+            row.getAttribute('data-finalizado') === 'false' && !row.classList.contains('ja-finalizado')
+        );
+        
+        const btnFinalizar = document.getElementById('btnBulkFinalizar');
+        if (btnFinalizar) {
+            // Se tiver pelo menos um para finalizar, mostra o botão, senão, esconde!
+            btnFinalizar.style.display = temNaoFinalizado ? 'inline-flex' : 'none';
+        }
+
+        // --- Alternar botões de grupo ---
         const filtroAtivo = document.getElementById("selectGrupo")?.value || "todos";
         const btnAdd = document.getElementById('btnBulkAddGroup');
         const btnRem = document.getElementById('btnBulkRemoveGroup');
@@ -1543,7 +1570,7 @@ function atualizarBarraFlutuante() {
     } else {
         barra.style.display = 'none';
     }
-} 
+}
 
 
 // Ação de Clique Esquerdo (Selecionar Linha)
@@ -1752,6 +1779,35 @@ document.addEventListener('click', e => {
         });
         menu.style.display = 'none';
     }
+
+   // Ação: Marcar como Finalizado em Lote via API
+if (e.target.closest('#btnBulkFinalizar')) {
+        // Pega as linhas selecionadas que AINDA NÃO FORAM FINALIZADAS
+        const selectedRows = Array.from(document.querySelectorAll('.tr-selecionada')).filter(row => 
+            row.getAttribute('data-finalizado') === 'false' && !row.classList.contains('ja-finalizado')
+        );
+
+        if (selectedRows.length === 0) return;
+
+        const itensParaFinalizar = selectedRows.map(row => ({
+            docid: row.getAttribute('data-docid')
+        })).filter(item => item.docid);
+
+        Swal.fire({
+            title: `Finalizar ${itensParaFinalizar.length} processo(s)?`,
+            text: "Os processos serão finalizados instantaneamente no sistema.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, finalizar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showToast("info", "Finalizando no servidor...");
+                processarFinalizacaoEmSegundoPlano(itensParaFinalizar, selectedRows);
+            }
+        });
+    }
+
 });
 
 
@@ -1867,6 +1923,69 @@ function atualizarSinosMonitoramento() {
         });
     });
 }
+
+
+async function processarFinalizacaoEmSegundoPlano(itens, rowsHtmlSelecionadas) {
+    try {
+        // 1. Pega o token de segurança do SharePoint para permitir alterações (Request Digest)
+        const resDigest = await fetch("https://www.intra.pg/SEAD/_api/contextinfo", {
+            method: "POST",
+            headers: { "Accept": "application/json;odata=verbose" },
+            credentials: "include"
+        });
+        const dataDigest = await resDigest.json();
+        const digestValue = dataDigest.d.GetContextWebInformation.FormDigestValue;
+
+        // 2. Descobre o nome interno da entidade da lista para formatar a requisição
+        const resList = await fetch("https://www.intra.pg/SEAD/_api/web/lists(guid'DA67FC64-1B63-4608-B859-8DE4BC9B1FD8')", {
+            method: "GET",
+            headers: { "Accept": "application/json;odata=verbose" },
+            credentials: "include"
+        });
+        const dataList = await resList.json();
+        const entityTypeName = dataList.d.ListItemEntityTypeFullName; // Ex: SP.Data.AssDigitalListItem
+
+        // 3. Atualiza item por item diretamente no banco de dados
+        for (const [index, item] of itens.entries()) {
+            const updateRes = await fetch(`https://www.intra.pg/SEAD/_api/web/lists(guid'DA67FC64-1B63-4608-B859-8DE4BC9B1FD8')/items(${item.docid})`, {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json;odata=verbose",
+                    "Content-Type": "application/json;odata=verbose",
+                    "X-RequestDigest": digestValue,
+                    "IF-MATCH": "*",                // Substitui qualquer versão atual
+                    "X-HTTP-Method": "MERGE"        // Faz o Update ao invés de criar novo
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    "__metadata": { "type": entityTypeName },
+                    "Finalidado": true // O nome exato do campo conforme o seu endpoint inicial
+                })
+            });
+
+         if (updateRes.ok && rowsHtmlSelecionadas[index]) {
+                // Marca a linha como finalizada, desmarca a seleção e deixa opaca
+                rowsHtmlSelecionadas[index].classList.add('ja-finalizado');
+                rowsHtmlSelecionadas[index].classList.remove('tr-selecionada');
+                rowsHtmlSelecionadas[index].style.opacity = '0.5';
+                
+                // 🚨 NOVO: Atualiza o atributo no HTML para impedir que o botão apareça de novo nesta sessão
+                rowsHtmlSelecionadas[index].setAttribute('data-finalizado', 'true');
+            }
+            
+            // Pausa de 200ms para não sobrecarregar as requisições do SharePoint
+            await new Promise(r => setTimeout(r, 200));
+        }
+        
+        showToast("success", "Processos finalizados com sucesso!");
+        atualizarBarraFlutuante();
+
+    } catch (error) {
+        console.error("Erro ao finalizar via API:", error);
+        showToast("error", "Ocorreu um erro na comunicação com o sistema.");
+    }
+}
+
 
 // ===================================================
 // INICIALIZAÇÃO E BOOT
