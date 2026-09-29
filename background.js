@@ -477,6 +477,11 @@ case "trackProcess":
     return true; // Mantém porta aberta para resposta assíncrona
 
 
+case "baixarArquivoInterno":
+    baixarArquivoInterno(message.url);
+    break;
+
+
 default:
             //log("Mensagem ignorada:", msg);
 }
@@ -715,5 +720,42 @@ async function verificarProcessosMonitorados() {
     // Se encontrou novos assinantes ou concluiu algum, salva no banco local
     if (houveAlteracao) {
         chrome.storage.local.set({ processosMonitorados: monitorados });
+    }
+}
+
+
+
+
+async function baixarArquivoInterno(url) {
+
+    try {
+
+        console.log("Baixando:", url);
+
+        const resposta = await fetch(url, {
+            credentials: "include"
+        });
+
+        if (!resposta.ok) {
+            throw new Error(
+                `HTTP ${resposta.status} - ${resposta.statusText}`
+            );
+        }
+
+        const blob = await resposta.blob();
+
+        console.log("Arquivo recebido:", blob.size, "bytes");
+
+        // Aqui precisamos transformar o Blob em uma URL
+        // que o Chrome possa baixar sem tratar como
+        // download HTTP inseguro.
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao baixar arquivo:",
+            erro
+        );
+
     }
 }

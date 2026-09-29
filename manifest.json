@@ -12,7 +12,8 @@
     "alarms",
     "clipboardWrite",
     "unlimitedStorage",
-    "notifications"
+    "notifications",
+    "downloads"
   ],
   
   "host_permissions": [
@@ -20,7 +21,8 @@
     "https://loginunicointerno.praiagrande.sp.gov.br/*",
     "https://processodigital.praiagrande.sp.gov.br/*",
     "https://prefeitura.praiagrande.sp.gov.br/*",
-    "https://script.google.com/*"
+    "https://script.google.com/*",
+    "http://10.1.0.100:88/*"
   ],
 
   "background": {
@@ -102,6 +104,38 @@
       "js": [
         "secretarias.js",
         "content_contrato.js",
+        "js/sweetalert2.min.js",
+        "js/inject_fw.js",
+        "js/bootstrap.min.js"
+      ]
+    },
+    {
+      "matches": [
+        "https://audesp.tce.sp.gov.br/audesp-licitacoes/iniciarIncluirAjuste.do"
+      ],
+      "css": [
+        "css/sweetalert2.min.css","css/all.min.css" 
+      ],
+      "js": [
+        "secretarias.js",
+        "content_audesp.js",
+        "js/sweetalert2.min.js",
+        "js/inject_fw.js",
+        "js/bootstrap.min.js"
+      ]
+    },
+     {
+      "matches": [
+        "http://10.1.0.100:88/*"
+      ],
+      "css": [
+        "css/sweetalert2.min.css","css/all.min.css" 
+      ],
+      "js": [
+        "secretarias.js",
+        "content_siam.js",
+        "js/sweetalert2.min.js",
+        "js/inject_fw.js",
         "js/bootstrap.min.js"
       ]
     }

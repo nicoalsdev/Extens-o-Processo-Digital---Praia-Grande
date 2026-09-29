@@ -199,10 +199,15 @@ btnMarcarTodos.addEventListener('click', () => {
 });
 
 document.getElementById('btn-salvar-dados').addEventListener('click', () => {
-    // 1. Captura o número e ano do processo para formar a chave. 
-    const numProcesso = document.getElementById('frm_numero_processo') ? document.getElementById('frm_numero_processo').value : '00000';
-    const anoProcesso = document.getElementById('frm_ano_processo') ? document.getElementById('frm_ano_processo').value : new Date().getFullYear();
-    const chaveProcesso = `${numProcesso}/${anoProcesso}`;
+    // 1. Captura o número e ano do CONTRATO a partir dos elementos do formulário
+    const numContratoInput = document.getElementById('frm_numero_contrato');
+    const anoContratoInput = document.getElementById('frm_ano_contrato');
+
+    const numContrato = numContratoInput && numContratoInput.value.trim() !== '' ? numContratoInput.value.trim() : '00000';
+    const anoContrato = anoContratoInput && anoContratoInput.value.trim() !== '' ? anoContratoInput.value.trim() : new Date().getFullYear();
+
+    // Cria a chave no formato "contrato/ano" (Exemplo: "123/2026")
+    const chaveContrato = `${numContrato}/${anoContrato}`;
 
     // 2. Coletar os secretários responsáveis (marcados na sidebar)
     const responsaveisAssinatura = [];
@@ -210,7 +215,7 @@ document.getElementById('btn-salvar-dados').addEventListener('click', () => {
         const nomeSelecionado = chk.value;
         
         // Busca o objeto completo na lista global de secretarias para pegar o CPF
-        const dadosSecretario = window.secretarias.find(sec => sec.nome === nomeSelecionado);
+        const dadosSecretario = window.secretarias ? window.secretarias.find(sec => sec.nome === nomeSelecionado) : null;
         
         if (dadosSecretario) {
             responsaveisAssinatura.push({
@@ -220,24 +225,37 @@ document.getElementById('btn-salvar-dados').addEventListener('click', () => {
         }
     });
 
-    // 3. Coleta os dados dos campos do formulário e inclui o array de responsáveis
+    // 3. Coleta todos os dados relevantes do formulário do Contrato
     const dadosContrato = {
-        "numero contrato": document.getElementById('frm_numero_contrato') ? document.getElementById('frm_numero_contrato').value : '',
-        "ano contrato": document.getElementById('frm_ano_contrato') ? document.getElementById('frm_ano_contrato').value : '',
-        "Data de Assinatura": document.getElementById('frm_data_assinatura') ? document.getElementById('frm_data_assinatura').value : '',
-        "Cláusulas Financeiras": document.getElementById('frm_descritivo_clausula_financeira') ? document.getElementById('frm_descritivo_clausula_financeira').value : '',
-        "Cláusulas Penais": document.getElementById('frm_descricao_clausula_penal') ? document.getElementById('frm_descricao_clausula_penal').value : '',
-        "Término Vigência": document.getElementById('frm_termino_vigencia') ? document.getElementById('frm_termino_vigencia').value : '',
-        "Responsaveis": responsaveisAssinatura
+        "numero_contrato": numContrato,
+        "ano_contrato": anoContrato,
+        "id_licitacao": document.getElementById('frm_id_licitacao') ? document.getElementById('frm_id_licitacao').value : '',
+        "numero_licitacao": document.getElementById('frm_numero_licitacao') ? document.getElementById('frm_numero_licitacao').value : '',
+        "ano_licitacao": document.getElementById('frm_ano_licitacao') ? document.getElementById('frm_ano_licitacao').value : '',
+        "id_modalidade": document.getElementById('frm_id_modalidade') ? document.getElementById('frm_id_modalidade').value : '',
+        "objeto_licitacao": document.getElementById('frm_objeto_licitacao') ? document.getElementById('frm_objeto_licitacao').value : '',
+        "id_fornecedor": document.getElementById('frm_id_fornecedor') ? document.getElementById('frm_id_fornecedor').value : '',
+        "data_cadastro": document.getElementById('frm_data_cadastro') ? document.getElementById('frm_data_cadastro').value : '',
+        "data_assinatura": document.getElementById('frm_data_assinatura') ? document.getElementById('frm_data_assinatura').value : '',
+        "inicio_vigencia": document.getElementById('frm_inicio_vigencia') ? document.getElementById('frm_inicio_vigencia').value : '',
+        "termino_vigencia": document.getElementById('frm_termino_vigencia') ? document.getElementById('frm_termino_vigencia').value : '',
+        "clausulas_financeiras": document.getElementById('frm_descritivo_clausula_financeira') ? document.getElementById('frm_descritivo_clausula_financeira').value : '',
+        "clausulas_penais": document.getElementById('frm_descricao_clausula_penal') ? document.getElementById('frm_descricao_clausula_penal').value : '',
+        "tipo_contratacao": document.getElementById('frm_id_tipo_contratacao') ? document.getElementById('frm_id_tipo_contratacao').value : '',
+        "plano_contas": document.getElementById('frm_id_plano_contas') ? document.getElementById('frm_id_plano_contas').value : '',
+        "responsaveis": responsaveisAssinatura
     };
 
     // 4. Recupera o JSON existente no LocalStorage, insere/atualiza a chave e salva novamente
-    let bancoDados = JSON.parse(localStorage.getItem('mgc_dados_contratos') || '{}');
-    bancoDados[chaveProcesso] = dadosContrato;
-    localStorage.setItem('mgc_dados_contratos', JSON.stringify(bancoDados));
+chrome.storage.local.get(['mgc_dados_contratos'], (result) => {
+        let bancoDados = result.mgc_dados_contratos || {};
+        bancoDados[chaveContrato] = dadosContrato;
 
-    alert(`✅ Dados salvos com sucesso sob o processo: ${chaveProcesso}`);
-    console.log("💾 JSON Atualizado no LocalStorage:", bancoDados);
+        chrome.storage.local.set({ mgc_dados_contratos: bancoDados }, () => {
+            alert(`✅ Dados salvos com sucesso na Extensão para o contrato: ${chaveContrato}`);
+            console.log("💾 JSON Atualizado no chrome.storage:", bancoDados);
+        });
+    });
 });
 
 // ==========================================
@@ -287,7 +305,7 @@ window.addEventListener('load', () => {
         if (el) el.checked = true;
     };
 
-    // 2. Preenchendo os campos solicitados
+    // 2. Preenchendo os campos solicitados (valores iniciais)
     setValor('frm_ano_contrato', '2026');
     setValor('frm_data_cadastro', dataAtual);
     setValor('frm_data_assinatura', dataAtual);
@@ -296,48 +314,56 @@ window.addEventListener('load', () => {
     setValor('frm_descritivo_clausula_financeira', 'Cláusula Quinta e Cláusula Décima Segunda');
     setValor('frm_descricao_clausula_penal', 'Cláusula Décima');
 
-    // 3. Marcando os botões de rádio
+    // 3. Marcando os botões de rádio e SIMULANDO O CLIQUE físico na exigência
     checkRadio('frm_permite_aditamento_n');
-    checkRadio('frm_exigencia_s');
     checkRadio('frm_exigencia_garantia_n');
-
-    // ==========================================
-    // 4. Trava do campo Notificar Término de Vigência
-    // ==========================================
-    // NOTA: Se o MGC usar botões de rádio separados, o ID do "Não" geralmente termina com "_n".
-    // Se for um <select>, ele captura pelo nome principal.
-    const campoNotificarN = document.getElementById('frm_notificar_termino_vigencia_n'); 
-    const campoNotificarSelect = document.getElementById('frm_notificar_termino_vigencia');
-
-    function travarNotificar() {
-        if (campoNotificarN) campoNotificarN.checked = true;
-        if (campoNotificarSelect) campoNotificarSelect.value = 'N'; // Adapte para o valor que o MGC usa se for diferente de 'N'
-        console.log("🔒 Campo 'Notificar Término' revertido para NÃO.");
+    
+    const radioExigenciaS = document.getElementById('frm_exigencia_s');
+    if (radioExigenciaS) {
+        radioExigenciaS.click(); // Substitui o checkRadio para disparar os eventos internos da página
     }
 
-    // Executa a trava imediatamente
-    travarNotificar();
+    // ==========================================
+    // 4. Espelhar Data de Assinatura no Início de Vigência
+    // ==========================================
+    const inputAssinatura = document.getElementById('frm_data_assinatura');
+    const inputVigencia = document.getElementById('frm_inicio_vigencia');
 
-    // Se o sistema MGC altera esse campo sozinho sempre que a data de vigência muda,
-    // colocamos um "espião" na data de vigência para forçar o "Não" logo após a mudança.
-    const inicioVigencia = document.getElementById('frm_inicio_vigencia');
-    if (inicioVigencia) {
-        inicioVigencia.addEventListener('change', () => {
-            // Dá um atraso pequeno para o script original do MGC rodar primeiro, e depois revertemos
-            setTimeout(travarNotificar, 200);
+    if (inputAssinatura && inputVigencia) {
+        const espelharData = (e) => {
+            inputVigencia.value = e.target.value;
+            // Força o sistema a reconhecer que a data de vigência mudou
+            inputVigencia.dispatchEvent(new Event('input', { bubbles: true }));
+            inputVigencia.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+        
+        // Fica "ouvindo" toda vez que você digita ou usa o calendário na data de assinatura
+        inputAssinatura.addEventListener('input', espelharData);
+        inputAssinatura.addEventListener('change', espelharData);
+    }
+
+    // ==========================================
+    // 5. Trava absoluta do campo Notificar Término de Vigência
+    // ==========================================
+    const campoNotificarSelect = document.getElementById('frm_notificar_termino_vigencia');
+
+    if (campoNotificarSelect) {
+        // 1. Define inicialmente como "N"
+        campoNotificarSelect.value = 'N'; 
+        
+        // 2. Bloqueia qualquer tentativa de mudança (seja sua ou do sistema MGC)
+        campoNotificarSelect.addEventListener('change', (e) => {
+            if (e.target.value !== 'N') {
+                e.target.value = 'N'; // Força de volta para N imediatamente
+                console.log("🔒 Sistema tentou alterar 'Notificar Término'. Revertido para 'Não'.");
+            }
         });
     }
 
-   // ==========================================
-    // 5. Preenchimento da Moeda / Índice Financeiro
     // ==========================================
-    // Injeta os valores diretamente nos campos que o MGC espera receber da lupa
-    
-    // ATENÇÃO: O ID '1' é o mais comum para "Real" na maioria dos bancos do MGC. 
-    // Se ao salvar der erro de "Moeda Inválida", troque o '1' abaixo pelo ID correto do seu sistema.
+    // 6. Preenchimento da Moeda / Índice Financeiro
+    // ==========================================
     setValor('frm_id_indice_financeiro', '1'); 
-    
     setValor('frm_abreviacao_moeda', 'R$');
     setValor('frm_nome_moeda', 'Real');
-
 });
