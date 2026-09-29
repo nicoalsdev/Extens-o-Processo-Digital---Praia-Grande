@@ -2100,8 +2100,11 @@ async function executarBusca(termoManual = null) {
         const idAssinadorItem = extrairIdAssinador(link);
         const idLimpo = normalizarParaBusca(idAssinadorItem);
 
-        // Retorna se o termo bate com o Título OU com o ID do documento
-        return tituloLimpo.includes(valorLimpo) || (idLimpo && idLimpo === valorLimpo);
+        // 3. Prepara a busca por categoria (NOVO)
+        const categoriaLimpa = normalizarParaBusca(item.Categoria || "");
+
+        // Retorna se o termo bate com o Título, com o ID do documento OU com a Categoria
+        return tituloLimpo.includes(valorLimpo) || (idLimpo && idLimpo === valorLimpo) || categoriaLimpa.includes(valorLimpo);
     });
     
     // Aplica os filtros de grupo se existirem
