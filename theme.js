@@ -1093,6 +1093,9 @@ footer.layout-principal-rodape.rodape.simples {
 }
 
 
+.pd-notification-panel{
+  background-color: #1e1e1e !important;
+}
 
                 ` : ''}
             `;
