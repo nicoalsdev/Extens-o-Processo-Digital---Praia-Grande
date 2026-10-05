@@ -96,7 +96,7 @@
     },
     {
       "matches": [
-        "https://prefeitura.praiagrande.sp.gov.br/mgc/mgc_contrato.php?acao=inclusao"
+        "https://prefeitura.praiagrande.sp.gov.br/mgc/mgc_contrato.php"
       ],
       "css": [
         "css/bootstrap.min.css" 
