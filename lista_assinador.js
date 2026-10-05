@@ -2283,22 +2283,6 @@ if (document.readyState === "loading") {
     inicializarInterfaceModoVisual();
 }
 
-// 🚨 SEGUNDA CAMADA DE PROTEÇÃO (Para injeções dinâmicas de HTML/SharePoint):
-// Se o botão demorar para aparecer no DOM por causa de requisições assíncronas,
-// tentamos ligar ele novamente a cada 1 segundo até encontrá-lo (máximo 5 tentativas)
-let tentativasBotao = 0;
-const checarBotaoInterval = setInterval(() => {
-    const btn = document.getElementById("toggleView");
-    if (btn) {
-        //ligarToggleButton();
-        // Atualiza o texto inicial do botão baseado no localStorage
-        //btn.innerText = modoTabela ? "🗂 Visualizar como Cards" : "📄 Visualizar como Tabela";
-        clearInterval(checarBotaoInterval);
-    }
-    tentativasBotao++;
-    if (tentativasBotao >= 5) clearInterval(checarBotaoInterval);
-}, 1000);
-
 
 
 // 1. Configuração única e segura para os cliques de delegação do container principal
@@ -2397,13 +2381,6 @@ function atualizarSinosMonitoramento() {
         }
     });
 }
-
-
-
-
-
-
-
 
 
 // 3. ATIVAÇÃO COMPLETA NO FLUXO CORRETO DE CARREGAMENTO
