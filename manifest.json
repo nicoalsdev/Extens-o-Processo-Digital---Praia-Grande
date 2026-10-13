@@ -96,10 +96,10 @@
     },
     {
       "matches": [
-        "https://prefeitura.praiagrande.sp.gov.br/mgc/mgc_contrato.php"
+        "https://prefeitura.praiagrande.sp.gov.br/mgc/mgc_contrato.php/*","https://prefeitura.praiagrande.sp.gov.br/mgc/mgc_aditamento.php/*"
       ],
       "css": [
-        "css/bootstrap.min.css" 
+        "css/sweetalert2.min.css","css/all.min.css" ,"css/bootstrap.min.css"
       ],
       "js": [
         "secretarias.js",
@@ -111,10 +111,10 @@
     },
     {
       "matches": [
-        "https://audesp.tce.sp.gov.br/audesp-licitacoes/iniciarIncluirAjuste.do"
+        "https://audesp.tce.sp.gov.br/*"
       ],
       "css": [
-        "css/sweetalert2.min.css","css/all.min.css" 
+        "css/sweetalert2.min.css","css/all.min.css"  ,"css/bootstrap.min.css"
       ],
       "js": [
         "secretarias.js",

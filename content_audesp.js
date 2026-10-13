@@ -67,7 +67,6 @@ function initContratadosAutocomplete() {
         return;
     }
 
-    // Cria as listas de autocompletar dinâmicas
     const dataListDoc = document.createElement('datalist');
     dataListDoc.id = 'lista-docs-contratados';
     
@@ -82,10 +81,8 @@ function initContratadosAutocomplete() {
     inputDoc.setAttribute('autocomplete', 'off');
     inputNome.setAttribute('autocomplete', 'off');
 
-    // Carrega os dados salvos previamente e preenche as listas
     carregarListasContratados();
 
-    // Evento de clique no botão para salvar os dados
     btnSalvar.addEventListener('click', () => {
         const doc = inputDoc.value.trim();
         const nome = inputNome.value.trim();
@@ -93,16 +90,13 @@ function initContratadosAutocomplete() {
         if (doc && nome) {
             chrome.storage.local.get(['contratados_salvos'], (result) => {
                 let contratados = result.contratados_salvos || [];
-                
-                // Verifica se já existe o documento para evitar duplicatas
                 const index = contratados.findIndex(c => c.doc === doc);
                 if (index === -1) {
-                    contratados.push({ doc, nome }); // Adiciona novo
+                    contratados.push({ doc, nome }); 
                 } else {
-                    contratados[index].nome = nome; // Atualiza o nome se o documento já existir
+                    contratados[index].nome = nome; 
                 }
 
-                // Salva no banco da extensão e atualiza as listas no HTML
                 chrome.storage.local.set({ contratados_salvos: contratados }, () => {
                     atualizarDatalists(contratados);
                 });
@@ -110,7 +104,6 @@ function initContratadosAutocomplete() {
         }
     });
 
-    // Autopreenchimento cruzado: seleciona o nome e preenche o documento
     inputNome.addEventListener('input', (e) => {
         chrome.storage.local.get(['contratados_salvos'], (result) => {
             const contratados = result.contratados_salvos || [];
@@ -119,7 +112,6 @@ function initContratadosAutocomplete() {
         });
     });
 
-    // Autopreenchimento cruzado: seleciona o documento e preenche o nome
     inputDoc.addEventListener('input', (e) => {
         chrome.storage.local.get(['contratados_salvos'], (result) => {
             const contratados = result.contratados_salvos || [];
@@ -142,11 +134,9 @@ function atualizarDatalists(contratados) {
     
     if (!dataListDoc || !dataListNome) return;
 
-    // Limpa as opções atuais
     dataListDoc.innerHTML = '';
     dataListNome.innerHTML = '';
 
-    // Insere as novas opções baseadas no armazenamento local
     contratados.forEach(c => {
         const optionDoc = document.createElement('option');
         optionDoc.value = c.doc;
@@ -160,10 +150,8 @@ function atualizarDatalists(contratados) {
     });
 }
 
-
-
 // ==========================================
-// 1. INJETAR ESTILOS DA SIDEBAR (CSS)
+// 3. INJETAR ESTILOS DA SIDEBAR
 // ==========================================
 function injetarEstilosSidebar() {
     if (document.getElementById('mgc-sidebar-style')) return;
@@ -178,7 +166,7 @@ function injetarEstilosSidebar() {
             width: 360px;
             height: 100vh;
             z-index: 999999;
-            background-color: #f8f9fa !important; /* Cor de fundo sólida */
+            background-color: #f8f9fa !important; 
             opacity: 1 !important;
             transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15) !important;
@@ -209,7 +197,7 @@ function injetarEstilosSidebar() {
             user-select: none;
             transition: all 0.15s ease-in-out;
             font-size: 0.825rem;
-            background-color: #ffffff !important; /* Garante fundo branco nos cards */
+            background-color: #ffffff !important; 
         }
         
         .contrato-row:hover {
@@ -227,7 +215,7 @@ function injetarEstilosSidebar() {
 }
 
 // ==========================================
-// 2. INICIALIZAR A BARRA LATERAL DA AUDESP
+// 4. INICIALIZAR A BARRA LATERAL DA AUDESP
 // ==========================================
 function initSidebarAudesp() {
     injetarEstilosSidebar();
@@ -237,12 +225,12 @@ function initSidebarAudesp() {
     sidebar.className = 'bg-light text-dark shadow d-flex flex-column border-start';
 
     sidebar.innerHTML = `
-        <button id="mgc-sidebar-toggle-audesp" class="btn btn-light border shadow-sm d-flex align-items-center justify-content-center" title="Abrir/Fechar Lista de Contratos">
+        <button id="mgc-sidebar-toggle-audesp" class="btn btn-light border shadow-sm d-flex align-items-center justify-content-center" title="Abrir/Fechar Lista">
             <span class="fs-5">◀</span>
         </button>
         
         <div class="p-3 text-center fw-bold border-bottom bg-white fs-5 d-flex justify-content-between align-items-center">
-            <span>Contratos Salvos</span>
+            <span id="titulo-sidebar-audesp">Carregando...</span>
             <button id="btn-atualizar-contratos" class="btn btn-sm btn-outline-primary" title="Atualizar Lista">🔄</button>
         </div>
         
@@ -254,173 +242,178 @@ function initSidebarAudesp() {
     `;
     document.body.appendChild(sidebar);
 
-    // Toggle de Abertura/Fechamento
     const btnToggle = document.getElementById('mgc-sidebar-toggle-audesp');
     btnToggle.addEventListener('click', () => {
         sidebar.classList.toggle('aberta');
         btnToggle.querySelector('span').innerText = sidebar.classList.contains('aberta') ? '▶' : '◀';
     });
 
-    // Botão de recarregar a lista
     document.getElementById('btn-atualizar-contratos').addEventListener('click', renderizarListaContratos);
 
-    // Primeira renderização dos itens salvos
     renderizarListaContratos();
 }
 
+// Variável global para armazenar a instância nativa do Modal do Bootstrap
+let modalEdicaoInstancia = null;
+
 // ==========================================
-// 3. RENDERIZAR LISTA DE CONTRATOS DA EXTENSÃO
+// 5. RENDERIZAR LISTA DE CONTRATOS/ADITAMENTOS
 // ==========================================
 function renderizarListaContratos() {
     const listaContainer = document.getElementById('mgc-lista-contratos-salvos');
+    if (!listaContainer) return;
 
-    if (!listaContainer) {
-        console.error('❌ [AUDESP] Container da lista não encontrado.');
-        return;
-    }
+    const isAudespAditamento = window.location.href.includes('iniciarTermoAditivo.do');
+    const storageKey = isAudespAditamento ? 'mgc_dados_aditamentos' : 'mgc_dados_contratos';
+    
+    document.getElementById('titulo-sidebar-audesp').innerText = isAudespAditamento ? 'Aditamentos Salvos' : 'Contratos Salvos';
 
-    console.log('🔎 [AUDESP] Iniciando leitura dos contratos...');
-    console.log('🔎 [AUDESP] Extension ID:', chrome.runtime.id);
-    console.log('🔎 [AUDESP] chrome.storage disponível:', !!chrome.storage);
-    console.log('🔎 [AUDESP] chrome.storage.local disponível:', !!chrome.storage?.local);
-
-    if (!chrome.storage || !chrome.storage.local) {
-        listaContainer.innerHTML = `
-            <div class="alert alert-danger small">
-                <strong>Erro da extensão</strong><br>
-                A API de armazenamento não está disponível neste contexto.
-            </div>
-        `;
-
-        console.error('❌ [AUDESP] chrome.storage.local não está disponível.');
-        return;
-    }
-
-    chrome.storage.local.get('mgc_dados_contratos', (result) => {
-
-        if (chrome.runtime.lastError) {
-            console.error(
-                '❌ [AUDESP] Erro ao ler storage:',
-                chrome.runtime.lastError
-            );
-
-            listaContainer.innerHTML = `
-                <div class="alert alert-danger small">
-                    <strong>Erro ao acessar os dados.</strong><br>
-                    ${chrome.runtime.lastError.message}
-                </div>
-            `;
-
-            return;
-        }
-
-        console.log('📦 [AUDESP] Resultado completo:', result);
-        console.log('📄 [AUDESP] mgc_dados_contratos:', result.mgc_dados_contratos);
-
-        const bancoDados = result.mgc_dados_contratos;
-
+    chrome.storage.local.get(storageKey, (result) => {
+        const bancoDados = result[storageKey];
         listaContainer.innerHTML = '';
 
-        if (!bancoDados || typeof bancoDados !== 'object') {
-            console.warn('⚠️ [AUDESP] Nenhum mgc_dados_contratos encontrado.');
-
-            listaContainer.innerHTML = `
-                <div class="text-center p-3 text-muted small">
-                    Nenhum contrato salvo encontrado na Extensão.
-                </div>
-            `;
-
+        if (!bancoDados || Object.keys(bancoDados).length === 0) {
+            listaContainer.innerHTML = `<div class="text-center p-3 text-muted small">Nenhum registro salvo.</div>`;
             return;
         }
 
-        const chaves = Object.keys(bancoDados);
-
-        console.log(`📊 [AUDESP] Contratos encontrados: ${chaves.length}`);
-        console.log('📋 [AUDESP] Chaves:', chaves);
-
-        if (chaves.length === 0) {
-            listaContainer.innerHTML = `
-                <div class="text-center p-3 text-muted small">
-                    Nenhum contrato salvo encontrado na Extensão.
-                </div>
-            `;
-            return;
-        }
-
-        chaves.forEach(chave => {
-
-            const dadosContrato = bancoDados[chave];
-
-            console.log(`📂 [AUDESP] Criando item: ${chave}`, dadosContrato);
-
+        Object.keys(bancoDados).forEach(chave => {
+            const dadosRegistro = bancoDados[chave];
             const item = document.createElement('div');
-
-            item.className =
-                'list-group-item list-group-item-action contrato-row py-2 px-3 border rounded mb-2';
-
-            const numLic = dadosContrato.numero_licitacao
-                ? `${dadosContrato.numero_licitacao}/${dadosContrato.ano_licitacao || ''}`
-                : 'S/N';
-
-            const qtdResp = Array.isArray(dadosContrato.responsaveis)
-                ? dadosContrato.responsaveis.length
-                : 0;
+            item.className = 'list-group-item list-group-item-action contrato-row p-3 mb-2 border rounded shadow-sm';
+            
+            const infoExtra = isAudespAditamento 
+                ? `<b>Base:</b> ${dadosRegistro.contrato_base || 'N/A'}` 
+                : `<b>Licitação:</b> ${dadosRegistro.numero_licitacao || 'S/N'}/${dadosRegistro.ano_licitacao || ''}`;
+            
+            const qtdResp = Array.isArray(dadosRegistro.responsaveis) ? dadosRegistro.responsaveis.length : 0;
 
             item.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <strong class="text-primary fs-6">
-                        Contrato ${chave}
-                    </strong>
-
-                    <span class="badge bg-secondary">
-                        ${dadosContrato.data_assinatura || 'Sem Data'}
-                    </span>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong class="text-primary fs-6">${isAudespAditamento ? chave : `Contrato ${chave}`}</strong>
+                    <span class="badge bg-secondary">${dadosRegistro.data_assinatura || 'Sem Data'}</span>
                 </div>
-
-                <div class="text-muted small" style="font-size: 0.75rem;">
-                    <div>
-                        <b>Licitação:</b> ${numLic}
-                    </div>
-
-                    <div>
-                        <b>Responsáveis:</b> ${qtdResp} selecionado(s)
-                    </div>
+                <div class="text-muted small mb-3 lh-sm">
+                    <div>${infoExtra}</div>
+                    <div><b>Responsáveis:</b> ${qtdResp} selecionado(s)</div>
+                </div>
+                <div class="d-flex justify-content-end gap-2 border-top pt-2">
+                    <button class="btn btn-sm btn-outline-primary btn-editar">Editar</button>
+                    <button class="btn btn-sm btn-outline-danger btn-remover">Remover</button>
                 </div>
             `;
 
-            item.addEventListener('click', () => {
+            // Selecionar (preencher formulário)
+            item.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') return; 
+                document.querySelectorAll('.contrato-row').forEach(el => el.classList.remove('active'));
+                item.classList.add('active');
+                carregarDadosFormulario(dadosRegistro);
+            });
 
-                document
-                    .querySelectorAll('.contrato-row')
-                    .forEach(el => el.classList.remove('ativa'));
+            // Remover
+            item.querySelector('.btn-remover').addEventListener('click', (e) => {
+                e.stopPropagation();
+                if(confirm(`Tem certeza que deseja remover ${isAudespAditamento ? chave : `Contrato ${chave}`}?`)) {
+                    delete bancoDados[chave];
+                    chrome.storage.local.set({ [storageKey]: bancoDados }, renderizarListaContratos);
+                }
+            });
 
-                item.classList.add('ativa');
-
-                console.log(
-                    `📂 [AUDESP] Carregando contrato ${chave}:`,
-                    dadosContrato
-                );
-
-                carregarDadosFormulario(dadosContrato);
+            // Editar
+            item.querySelector('.btn-editar').addEventListener('click', (e) => {
+                e.stopPropagation();
+                abrirModalEdicao(chave, dadosRegistro, storageKey, bancoDados);
             });
 
             listaContainer.appendChild(item);
         });
-
-        console.log('✅ [AUDESP] Lista de contratos renderizada.');
     });
 }
 
 // ==========================================
-// 4. PREENCHIMENTO DOS CAMPOS NA PÁGINA (A DEFINIR)
+// 5.1 LÓGICA DO MODAL DE EDIÇÃO (BOOTSTRAP NATIVO)
+// ==========================================
+function injetarModalBase() {
+    if (document.getElementById('mgc-modal-edicao')) return;
+
+    // HTML Oficial do Modal do Bootstrap
+    const modalHTML = `
+        <div class="modal fade" id="mgc-modal-edicao" tabindex="-1" aria-labelledby="mgc-modal-title" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content shadow-lg border-0">
+                    <div class="modal-header bg-light border-bottom-0">
+                        <h5 class="modal-title fw-bold text-dark" id="mgc-modal-title">Editar Dados</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4" id="mgc-modal-edicao-body">
+                        <!-- Campos injetados via JS -->
+                    </div>
+                    <div class="modal-footer bg-light border-top-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary px-4" id="mgc-modal-salvar">Salvar Alterações</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Inicializa a instância nativa do Bootstrap vinculada ao HTML criado
+    const modalEl = document.getElementById('mgc-modal-edicao');
+    modalEdicaoInstancia = new bootstrap.Modal(modalEl);
+}
+
+function abrirModalEdicao(chave, dadosRegistro, storageKey, bancoDados) {
+    injetarModalBase();
+    
+    const modalBody = document.getElementById('mgc-modal-edicao-body');
+    const btnSalvar = document.getElementById('mgc-modal-salvar');
+    
+    modalBody.innerHTML = ''; 
+
+    // Gera os campos
+    Object.keys(dadosRegistro).forEach(key => {
+        if (typeof dadosRegistro[key] === 'object' && dadosRegistro[key] !== null) return;
+
+        const fieldDiv = document.createElement('div');
+        fieldDiv.className = 'mb-3';
+        fieldDiv.innerHTML = `
+            <label class="form-label small fw-semibold text-secondary mb-1">${key.replace(/_/g, ' ').toUpperCase()}</label>
+            <input type="text" class="form-control mgc-edit-input" data-key="${key}" value="${dadosRegistro[key] || ''}">
+        `;
+        modalBody.appendChild(fieldDiv);
+    });
+
+    // Abre o modal usando a API nativa do Bootstrap
+    modalEdicaoInstancia.show();
+
+    // Renova o botão salvar para evitar duplicação de cliques
+    const novoBtnSalvar = btnSalvar.cloneNode(true);
+    btnSalvar.parentNode.replaceChild(novoBtnSalvar, btnSalvar);
+
+    novoBtnSalvar.addEventListener('click', () => {
+        document.getElementById('mgc-modal-edicao-body').querySelectorAll('.mgc-edit-input').forEach(input => {
+            dadosRegistro[input.getAttribute('data-key')] = input.value;
+        });
+
+        bancoDados[chave] = dadosRegistro;
+        
+        chrome.storage.local.set({ [storageKey]: bancoDados }, () => {
+            modalEdicaoInstancia.hide(); // Fecha o modal usando a API nativa
+            renderizarListaContratos();  // Atualiza a listagem
+        });
+    });
+}
+
+// ==========================================
+// 6. PREENCHIMENTO DOS CAMPOS NA PÁGINA
 // ==========================================
 function carregarDadosFormulario(dados) {
     if (!dados) return;
 
-    // Helper para preencher inputs e disparar eventos de alteração (vital em formulários dinâmicos)
     const preencherCampo = (seletorOuEl, valor) => {
         if (valor === undefined || valor === null) return;
-        
         const input = typeof seletorOuEl === 'string' 
             ? (document.querySelector(seletorOuEl) || document.getElementById(seletorOuEl))
             : seletorOuEl;
@@ -432,17 +425,14 @@ function carregarDadosFormulario(dados) {
         }
     };
 
-    // Preenche os campos principais do contratado/contratante originais[cite: 1]
     preencherCampo('#numDocContratante', dados.cpf_contratante);
     preencherCampo('#nomeContratante', dados.nome_contratante);
     preencherCampo('#numDocContratado', dados.cpf_contratado || dados.cnpj_contratado);
     preencherCampo('#nomeContratadoConclusao', dados.nome_contratado);
     
-    // Mapeamento extra (Licitação)[cite: 1]
     preencherCampo('input[name="numeroLicitacao"]', dados.numero_licitacao);
     preencherCampo('input[name="anoLicitacao"]', dados.ano_licitacao);
     
-    // Novos campos mapeados para o Audesp 
     preencherCampo('#anoContrato', dados.ano_contrato);
     preencherCampo('#clausulasFinanceiras', dados.clausulas_financeiras);
     preencherCampo('#clausulasPenais', dados.clausulas_penais);
@@ -452,7 +442,6 @@ function carregarDadosFormulario(dados) {
     preencherCampo('#objetoContrato', dados.objeto_licitacao);
     preencherCampo('#dtFimVigencia', dados.termino_vigencia);
 
-    // Selects obrigatórios e inalteráveis travados conforme a regra de negócio
     preencherCampo('#exigenciaClausulasPenais', 'true');
     preencherCampo('#tipoVigenciaId', '1');
 }
