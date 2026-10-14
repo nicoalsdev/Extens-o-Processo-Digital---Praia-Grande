@@ -543,6 +543,18 @@ body #customContextMenu .dropdown-item:hover {
     background-color: rgb(29 29 29);
 }
 
+            
+/* Aplica o fundo ao .container APENAS se a div .topo-login existir na página */
+            body:has(.topo-login) .container {
+                background-color: #1e1e1e !important;
+            }
+            
+            /* Oculta a div topo-login em qualquer lugar que ela apareça */
+            .topo-login {
+                display: none !important;
+            }
+
+          
         `;
 
    // Remove estilos anteriores para evitar acumulação
@@ -1096,6 +1108,7 @@ footer.layout-principal-rodape.rodape.simples {
 .pd-notification-panel{
   background-color: #1e1e1e !important;
 }
+
 
                 ` : ''}
             `;

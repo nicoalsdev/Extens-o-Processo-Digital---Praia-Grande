@@ -234,7 +234,7 @@ document.getElementById('btn-injetar-pessoa').addEventListener('click', () => {
         return;
     }
     document.dispatchEvent(new CustomEvent('AUTO_GESTORES', { detail: selecionados }));
-    document.dispatchEvent(new CustomEvent('AUTO_RESPONSAVEIS', { detail: selecionados }));
+document.dispatchEvent(new CustomEvent('AUTO_RESPONSAVEIS', { detail: selecionados }));
 });
 
 // ==========================================
@@ -269,12 +269,15 @@ function salvarDadosMGC(callback = null) {
     let dadosSalvar = { responsaveis: responsaveisAssinatura };
     let storageKey = "";
 
-    if (isAditamento) {
+   if (isAditamento) {
         storageKey = 'mgc_dados_aditamentos';
         const numAdit = document.getElementById('frm_numero') ? document.getElementById('frm_numero').value.trim() : '000';
         const anoAdit = document.getElementById('frm_ano') ? document.getElementById('frm_ano').value.trim() : new Date().getFullYear();
         
         chaveRegistro = `aditamento ${numAdit}/${anoAdit} do contrato: ${contratoBaseAditamento}`;
+        
+        // Coletar quais tipos de aditamento foram marcados nos checkboxes
+        const tiposSelecionados = Array.from(document.querySelectorAll('.tipo_aditamento:checked')).map(chk => chk.value);
         
         dadosSalvar = {
             ...dadosSalvar,
@@ -282,11 +285,16 @@ function salvarDadosMGC(callback = null) {
             contrato_base: contratoBaseAditamento,
             numero_aditamento: numAdit,
             ano_aditamento: anoAdit,
+            data_cadastro: document.getElementById('frm_data_cadastro') ? document.getElementById('frm_data_cadastro').value : '',
             data_assinatura: document.getElementById('frm_data_assinatura') ? document.getElementById('frm_data_assinatura').value : '',
-            inicio_vigencia: document.getElementById('frm_inicio_vigencia') ? document.getElementById('frm_inicio_vigencia').value : '',
-            termino_vigencia: document.getElementById('frm_termino_vigencia') ? document.getElementById('frm_termino_vigencia').value : ''
+            data_inicio: document.getElementById('frm_data_inicio') ? document.getElementById('frm_data_inicio').value : '',
+            data_termino: document.getElementById('frm_data_termino') ? document.getElementById('frm_data_termino').value : '',
+            data_publicacao: document.getElementById('frm_data_publicacao') ? document.getElementById('frm_data_publicacao').value : '',
+            descricao_alteracao: document.getElementById('frm_descricao_alteracao') ? document.getElementById('frm_descricao_alteracao').value : '',
+            tipos_aditamento: tiposSelecionados.join(', ') // Salva os valores "01, 02, etc" separados por vírgula
         };
     } else {
+       
         storageKey = 'mgc_dados_contratos';
         const numContratoInput = document.getElementById('frm_numero_contrato');
         const anoContratoInput = document.getElementById('frm_ano_contrato');
@@ -342,13 +350,18 @@ window.addEventListener('load', () => {
     ['link_confirmar', 'link_continuar'].forEach(id => {
         const btnOriginal = document.getElementById(id);
         
-        // Verifica se o botão existe e se possui um onclick nativo
-        if (btnOriginal && btnOriginal.getAttribute('onclick')) {
+        // Verifica se o botão existe (removida a obrigatoriedade do atributo 'onclick')
+        if (btnOriginal) {
             
             // 1. Cria um clone exato do botão para a interface
             const btnClone = btnOriginal.cloneNode(true);
             btnClone.id = id + '_ext_clone'; // Altera o ID para não causar conflitos
-            btnClone.removeAttribute('onclick'); // Remove a ação original do clone
+            
+            // Limpa atributos de ação direta do clone para ele não pular nosso script
+            btnClone.removeAttribute('onclick'); 
+            if (btnClone.tagName.toLowerCase() === 'a') {
+                btnClone.setAttribute('href', 'javascript:void(0);');
+            }
             
             // 2. Oculta o botão original na tela, mantendo-o no DOM
             btnOriginal.style.display = 'none';
@@ -359,6 +372,7 @@ window.addEventListener('load', () => {
             // 4. Adiciona o nosso evento de salvar no botão clonado
             btnClone.addEventListener('click', (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 
                 // Feedback visual de carregamento
                 const textoOriginal = btnClone.innerHTML;
@@ -371,8 +385,8 @@ window.addEventListener('load', () => {
                     btnClone.innerHTML = textoOriginal;
                     btnClone.disabled = false;
                     
-                    // Clica programaticamente no botão original oculto.
-                    // Isso aciona as funções nativas (submeter_formulario) sem violar o CSP!
+                    // Clica programaticamente no botão original oculto
+                    // Isso aciona as funções nativas sem violar o CSP!
                     btnOriginal.click();
                 });
             });
@@ -401,7 +415,7 @@ window.addEventListener('load', () => {
     };
 
 
-    if (!isAditamento) {
+   if (!isAditamento) {
         setValor('frm_ano_contrato', '2026');
         setValor('frm_data_cadastro', dataAtual);
         setValor('frm_descritivo_clausula_financeira', 'Cláusula Quinta e Cláusula Décima Segunda');
@@ -415,14 +429,22 @@ window.addEventListener('load', () => {
         setValor('frm_id_indice_financeiro', '1'); 
         setValor('frm_abreviacao_moeda', 'R$');
         setValor('frm_nome_moeda', 'Real');
+    } else {
+        // Preenchimento automático específico para aditamentos
+        setValor('frm_ano', '2026');
+        setValor('frm_data_cadastro', dataAtual);
     }
     
     setValor('frm_data_assinatura', dataAtual);
-    setValor('frm_inicio_vigencia', dataAtual);
+    
+    // O ID do campo de vigência muda dependendo se é contrato ou aditamento
+    const idCampoVigencia = isAditamento ? 'frm_data_inicio' : 'frm_inicio_vigencia';
+    setValor(idCampoVigencia, dataAtual);
 
     const inputAssinatura = document.getElementById('frm_data_assinatura');
-    const inputVigencia = document.getElementById('frm_inicio_vigencia');
+    const inputVigencia = document.getElementById(idCampoVigencia);
 
+    // Espelha a data de assinatura na vigência / início
     if (inputAssinatura && inputVigencia) {
         const espelharData = (e) => {
             inputVigencia.value = e.target.value;

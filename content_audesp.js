@@ -412,8 +412,11 @@ function abrirModalEdicao(chave, dadosRegistro, storageKey, bancoDados) {
 function carregarDadosFormulario(dados) {
     if (!dados) return;
 
+    // Verifica se estamos na tela de Aditamento da Audesp
+    const isAudespAditamento = window.location.href.includes('iniciarTermoAditivo.do');
+
     const preencherCampo = (seletorOuEl, valor) => {
-        if (valor === undefined || valor === null) return;
+        if (valor === undefined || valor === null || valor === '') return;
         const input = typeof seletorOuEl === 'string' 
             ? (document.querySelector(seletorOuEl) || document.getElementById(seletorOuEl))
             : seletorOuEl;
@@ -425,23 +428,51 @@ function carregarDadosFormulario(dados) {
         }
     };
 
+    // --- CAMPOS COMUNS (Contratante / Contratado) ---
     preencherCampo('#numDocContratante', dados.cpf_contratante);
     preencherCampo('#nomeContratante', dados.nome_contratante);
     preencherCampo('#numDocContratado', dados.cpf_contratado || dados.cnpj_contratado);
     preencherCampo('#nomeContratadoConclusao', dados.nome_contratado);
     
-    preencherCampo('input[name="numeroLicitacao"]', dados.numero_licitacao);
-    preencherCampo('input[name="anoLicitacao"]', dados.ano_licitacao);
-    
-    preencherCampo('#anoContrato', dados.ano_contrato);
-    preencherCampo('#clausulasFinanceiras', dados.clausulas_financeiras);
-    preencherCampo('#clausulasPenais', dados.clausulas_penais);
-    preencherCampo('#dtInicioVigencia', dados.inicio_vigencia);
-    preencherCampo('#dtAssinatura', dados.data_assinatura);
-    preencherCampo('#numContrato', dados.numero_contrato);
-    preencherCampo('#objetoContrato', dados.objeto_licitacao);
-    preencherCampo('#dtFimVigencia', dados.termino_vigencia);
+    if (isAudespAditamento) {
+        // --- MAPEAMENTO ESPECÍFICO PARA ADITAMENTO ---
+        preencherCampo('#numTermo', dados.numero_aditamento);
+        preencherCampo('#anoTermo', dados.ano_aditamento);
+        
+        // Objeto e Justificativa
+        preencherCampo('#objetoTermo', dados.descricao_alteracao);
+        preencherCampo('#justificativa', 'true'); // Sempre sim
+        preencherCampo('#justificativaAssinatura', dados.descricao_justificativa || dados.descricao_alteracao);
+        
+        // Datas
+        preencherCampo('#dtInicioVigencia', dados.data_assinatura);
+        preencherCampo('#dtFimVigencia', dados.data_termino);
+        
+        // Exigência de Garantia (Converte S/N do MGC para true/false da Audesp)
+        if (dados.exigencia_garantia) {
+            const exigenciaBool = dados.exigencia_garantia === 'S' ? 'true' : 'false';
+            preencherCampo('#exigenciaGarantia', exigenciaBool);
+        }
 
-    preencherCampo('#exigenciaClausulasPenais', 'true');
-    preencherCampo('#tipoVigenciaId', '1');
+        // Autorização do Termo Aditivo
+        if (dados.data_autorizacao) {
+            preencherCampo('#autorizacaoAssinatura', 'true');
+            preencherCampo('#dtAutorizacao', dados.data_autorizacao);
+        }
+
+    } else {
+        // --- MAPEAMENTO ORIGINAL PARA CONTRATOS ---
+        preencherCampo('input[name="numeroLicitacao"]', dados.numero_licitacao);
+        preencherCampo('input[name="anoLicitacao"]', dados.ano_licitacao);
+        preencherCampo('#anoContrato', dados.ano_contrato);
+        preencherCampo('#clausulasFinanceiras', dados.clausulas_financeiras);
+        preencherCampo('#clausulasPenais', dados.clausulas_penais);
+        preencherCampo('#dtInicioVigencia', dados.inicio_vigencia);
+        preencherCampo('#dtFimVigencia', dados.termino_vigencia);
+        preencherCampo('#dtAssinatura', dados.data_assinatura);
+        preencherCampo('#numContrato', dados.numero_contrato);
+        preencherCampo('#objetoContrato', dados.objeto_licitacao);
+        preencherCampo('#exigenciaClausulasPenais', 'true');
+        preencherCampo('#tipoVigenciaId', '1');
+    }
 }
