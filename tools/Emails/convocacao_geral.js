@@ -230,3 +230,50 @@ function salvarDadosGerais(dados) {
 
     localStorage.setItem("emailsGerais", JSON.stringify(lista));
 }
+document.getElementById('EnviarEmailFormatado').addEventListener('click', enviarEmailFormatado);
+
+async function enviarEmailFormatado() {
+    const emailGeradoDiv = document.getElementById('email_gerado');
+    if (emailGeradoDiv.classList.contains('hidden')) {
+        alert("Por favor, clique em 'Gerar E-mail' antes de enviar.");
+        return;
+    }
+
+    // Capture os elementos gerados pela página
+    const tituloTexto = document.getElementById('titulo_email').innerText;
+    const htmlContent = document.getElementById('output_email').innerHTML;
+    const textContent = document.getElementById('output_email').innerText;
+    
+    const emailsCopiaInput = document.getElementById('emails_copia');
+    const emailsCopia = emailsCopiaInput ? emailsCopiaInput.value : "";
+
+    try {
+        // 1. Prepara o conteúdo em HTML (Rich Text) e Texto Puro
+        const blobHtml = new Blob([htmlContent], { type: 'text/html' });
+        const blobText = new Blob([textContent], { type: 'text/plain' });
+
+        // 2. Grava no Clipboard usando a API do navegador em formato HTML
+        const item = new ClipboardItem({
+            'text/html': blobHtml,
+            'text/plain': blobText
+        });
+        await navigator.clipboard.write([item]);
+
+        // 3. Prepara o link mailto preenchendo apenas Assunto e Cópia (CC)
+        const ccEncoded = encodeURIComponent(emailsCopia.trim());
+        const subjectEncoded = encodeURIComponent(tituloTexto.trim());
+        const mailtoLink = `mailto:?cc=${ccEncoded}&subject=${subjectEncoded}`;
+
+        // 4. Abre o leitor de e-mail padrão do sistema
+        window.location.href = mailtoLink;
+
+        // 5. Instrui o usuário sobre o Ctrl + V
+        setTimeout(() => {
+            alert(" O e-mail formatado (com cores e links) foi copiado!\n\nQuando a janela do seu e-mail abrir, basta clicar no corpo da mensagem e pressionar 'Ctrl + V'.");
+        }, 400);
+
+    } catch (err) {
+        console.error('Erro ao copiar HTML formatado:', err);
+        alert('Não foi possível copiar o e-mail formatado automaticamente. Verifique as permissões do navegador.');
+    }
+}

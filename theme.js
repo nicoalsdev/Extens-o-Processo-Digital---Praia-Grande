@@ -655,7 +655,7 @@ a.item .glyphicon:hover {
 .col-md-4,
 .col-lg-12 {
     background-color: #1e1e1e !important;
-    background: #1e1e1e !important;
+    background: #1a1a1a !important;
 }
 
 .form-group .col-md-12{
@@ -866,15 +866,23 @@ span:not([class*="tag"]):not([class*="tags"]):not([class*="badge"]) {
        5. NAVBAR
     =============================== */
 
-    .navbar,
-    .navbar-default,
-    .navbar-collapse,
-    .navegacao-principal,
-    .layout-principal-cabecalho {
+    .navegacao-principal{
         background-color: #1a1a1a !important;
         background-image: none !important;
         border-color: #1a1a1a !important;
     }
+
+
+    .navbar,
+    .navbar-default,
+    .navbar-collapse{
+
+        background-image: none !important;
+        border-color: #1a1a1a !important;
+    }
+
+
+
 
     /* ===============================
        6. INPUTS
