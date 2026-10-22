@@ -546,7 +546,7 @@ body #customContextMenu .dropdown-item:hover {
             
 /* Aplica o fundo ao .container APENAS se a div .topo-login existir na página */
             body:has(.topo-login) .container {
-                background-color: #1e1e1e !important;
+                background-color: #1a1a1a !important;
             }
             
             /* Oculta a div topo-login em qualquer lugar que ela apareça */
@@ -648,14 +648,16 @@ a.item .glyphicon:hover {
 .well,
 .card,
 .table,
-.navbar,
 .container,
 .col-md-12,
 .col-md-6,
 .col-md-4,
 .col-lg-12 {
     background-color: #1e1e1e !important;
-    background: #1a1a1a !important;
+}
+
+    .navbar, .navbar-default, .navbar-collapse {
+ background-color: #1a1a1a !important;
 }
 
 .form-group .col-md-12{
@@ -1116,6 +1118,8 @@ footer.layout-principal-rodape.rodape.simples {
 .pd-notification-panel{
   background-color: #1e1e1e !important;
 }
+
+
 
 
                 ` : ''}
