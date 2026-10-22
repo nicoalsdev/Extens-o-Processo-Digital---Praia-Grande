@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agenda | Gerenciador Processo Digital</title>
+  <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/sweetalert2.min.css">
+  <link rel="stylesheet" href="calendario.css">
+</head>
+<body>
+  <main class="calendar-app d-flex flex-column h-100">
+    
+    <!-- Cabeçalho Principal Estilo Google Agenda (Modo Claro) -->
+<!-- Cabeçalho Principal Estilo Google Agenda (Modo Claro) -->
+    <header class="calendar-header d-flex align-items-center px-3 py-2 border-bottom">
+      <!-- Lado Esquerdo: Menu, Logo e Título -->
+      <div class="d-flex align-items-center me-4" style="width: 240px; flex-shrink: 0;">
+        <button class="btn btn-icon me-2" aria-label="Menu principal">≡</button>
+        <div class="calendar-logo me-2" aria-hidden="true">20</div>
+        <h1 class="h5 mb-0 fw-normal" style="color: #3c4043;">Agenda</h1>
+      </div>
+
+      <!-- Centro: Navegação e Data -->
+      <div class="d-flex align-items-center gap-3">
+        <button id="btnHoje" class="btn btn-outline-secondary btn-sm px-3 rounded-pill" style="color: #3c4043; border-color: #dadce0;">Hoje</button>
+        <div class="d-flex align-items-center gap-1">
+          <button id="btnAnterior" class="btn btn-icon rounded-circle" aria-label="Período anterior">‹</button>
+          <button id="btnProximo" class="btn btn-icon rounded-circle" aria-label="Próximo período">›</button>
+        </div>
+        <h2 id="periodoAtual" class="h4 mb-0 calendar-period fw-normal ms-2" style="color: #3c4043;" aria-live="polite"></h2>
+      </div>
+
+      <!-- Lado Direito: Visualização (Oculto como no seu código) -->
+      <div class="d-flex align-items-center ms-auto gap-3 d-none">
+        <select class="form-select form-select-sm rounded-3 view-select" style="width: auto; color: #3c4043; border-color: #dadce0;" onchange="document.querySelector(`.view-btn[data-view='${this.value}']`).click()">
+          <option value="month">Mês</option>
+          <option value="week">Semana</option>
+          <option value="day">Dia</option>
+          <option value="list">Agenda</option>
+        </select>
+        <!-- Botões ocultos para manter a compatibilidade com o JS existente -->
+        <div class="d-none">
+          <button class="view-btn" data-view="month"></button>
+          <button class="view-btn" data-view="week"></button>
+          <button class="view-btn" data-view="day"></button>
+          <button class="view-btn" data-view="list"></button>
+        </div>
+      </div>
+
+      <!-- Botão Criar (Sem mb-4 para alinhar corretamente com os itens acima) -->
+      <button id="btnNovoEvento" class="btn-create ms-auto">
+        <svg width="36" height="36" viewBox="0 0 36 36"><path fill="#34A853" d="M16 16v14h4V20z"></path><path fill="#4285F4" d="M30 16H20l-4 4h14z"></path><path fill="#FBBC05" d="M6 16v4h10l4-4z"></path><path fill="#EA4335" d="M20 16V6h-4v14z"></path><path fill="none" d="M0 0h36v36H0z"></path></svg>
+        <span class="ms-2 fw-semibold">Criar</span>
+      </button>
+    </header>
+
+    <!-- Área Principal de Conteúdo -->
+    <div class="calendar-layout flex-grow-1 overflow-hidden d-flex">
+      
+      <!-- Barra Lateral à Esquerda -->
+      <aside class="calendar-sidebar d-flex flex-column p-3 h-100 overflow-auto border-end">
+     
+
+        <!-- Mini Calendário -->
+        <div class="sidebar-month mb-4" id="miniCalendar"></div>
+        
+        <!-- Pesquisa (Visual) -->
+        <div class="search-people mb-4 small px-2 py-2 rounded d-flex align-items-center d-none">
+          <span class="me-2">👥</span> Pesquisar pessoas
+        </div>
+
+        <!-- Filtros (Minhas agendas) -->
+        <h3 class="h6 mb-2 fw-normal d-flex align-items-center justify-content-between d-none" style="color: #3c4043;">
+          Minhas agendas <span class="text-muted">^</span>
+        </h3>
+        <select id="filtroCategoria" class="form-select form-select-sm mb-4 d-none" style="border-color: transparent; padding-left: 8px;">
+          <option value="todas">Ver todas</option>
+          <option value="pessoal">Pessoal</option>
+          <option value="trabalho">Trabalho</option>
+          <option value="lembrete">Lembrete</option>
+          <option value="feriado">Feriados</option>
+          <option value="ponto_facultativo">Pontos facultativos</option>
+        </select>
+
+        <h3 class="h6 mb-2 fw-normal" style="color: #3c4043;">Próximos eventos</h3>
+        <div id="proximosEventos" class="upcoming-events mb-4"></div>
+
+          <div class="mt-auto border-top pt-3 d-flex flex-column gap-2">
+             <span id="Decreto" class="small text-muted" role="status">Decreto Municipal 8511/2026</span>
+
+          </div>
+
+
+        <!-- Ações e Sincronização -->
+        <div class="mt-auto border-top pt-3 d-flex flex-column gap-2">
+          <span id="statusFeriados" class="small text-muted" role="status">Feriados em cache</span>
+          <button id="btnAtualizarFeriados" class="btn btn-sm text-start border-0 sidebar-action-btn">↻ Atualizar feriados</button>
+          <button id="btnExportar" class="btn btn-sm text-start border-0 sidebar-action-btn">↓ Exportar agenda</button>
+          <button id="btnImportar" class="btn btn-sm text-start border-0 sidebar-action-btn">↑ Importar agenda</button>
+          <input id="arquivoImportacao" type="file" accept="application/json,.json" hidden>
+        </div>
+      </aside>
+
+      <!-- Grelha Principal do Calendário -->
+      <section class="calendar-main flex-grow-1 h-100">
+        <div id="calendar" class="calendar-grid h-100" aria-label="Calendário"></div>
+      </section>
+      
+    </div>
+  </main>
+  <script src="../js/sweetalert2.min.js"></script>
+  <script src="calendario.js"></script>
+</body>
+</html>
