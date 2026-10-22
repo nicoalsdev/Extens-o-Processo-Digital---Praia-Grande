@@ -93,25 +93,30 @@ async function lerListaCache() {
 
 
 function initializeTooltips() {
-    // Busca todos os elementos que deveriam ser tooltips
+    // 1. Limpa forçadamente qualquer tooltip órfão que tenha ficado preso no HTML
+    document.querySelectorAll('.tooltip').forEach(t => t.remove());
+
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
 
-    // Tenta usar a classe Tooltip do Bootstrap
     if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
-        tooltipRetryCount = MAX_RETRIES; // Sucesso: impede novas tentativas
+        tooltipRetryCount = MAX_RETRIES; 
         
-        // Inicializa os tooltips
+        // 2. Desvincula instâncias anteriores para evitar conflitos de duplicação
+        [...tooltipTriggerList].forEach(el => {
+            const instanciaExistente = bootstrap.Tooltip.getInstance(el);
+            if (instanciaExistente) {
+                instanciaExistente.dispose();
+            }
+        });
+
+        // 3. Inicializa os tooltips de forma limpa
         [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-        // console.log("✅ Tooltips inicializados com sucesso.");
         return;
 
     } else if (tooltipRetryCount < MAX_RETRIES) {
-        // Tenta novamente em 200ms
         tooltipRetryCount++;
         setTimeout(initializeTooltips, 200);
-        
     } else {
-        // Falha após todas as tentativas
         console.error("❌ Erro: Bootstrap JS Tooltip class não está disponível.");
     }
 }
