@@ -44,20 +44,20 @@
     })[cat] || "Evento";
   }
 
- function eventColor(evt) {
-  return ({
-    pessoal: "#34a853", 
-    trabalho: "#1a73e8", 
-    lembrete: "#f9ab00",
-    feriado: "#d93025", 
-    ponto_facultativo: "#9334e6", 
-    falta_abonada: "#2e7d32", 
-    licenca_medica: "#e53935", 
-    licenca_premio: "#8e24aa", 
-    outras_licencas: "#fb8c00", 
-    ferias: "#00acc1"
-  })[evt.category] || "#1a73e8";
-}
+  function eventColor(evt) {
+    return ({
+      pessoal: "#34a853", 
+      trabalho: "#1a73e8", 
+      lembrete: "#f9ab00",
+      feriado: "#d93025", 
+      ponto_facultativo: "#9334e6", 
+      falta_abonada: "#2e7d32", 
+      licenca_medica: "#e53935", 
+      licenca_premio: "#8e24aa", 
+      outras_licencas: "#fb8c00", 
+      ferias: "#00acc1"
+    })[evt.category] || "#1a73e8";
+  }
 
   function eventClass(evt) { return `cat-${evt.category || "trabalho"}`; }
 
@@ -285,7 +285,7 @@
           const events = visibleEvents().filter(e => (e.endDate || e.date) >= todayKey).slice(0,7);
           $("#proximosEventos").innerHTML = events.length ? events.map(e => {
             const d = parseDate(e.date);
-            return `<div class="upcoming-item" data-event="${escapeHtml(e.id)}"><div class="upcoming-date"><b>${d.getDate()}</b><span>${new Intl.DateTimeFormat("pt-BR",{month:"short"}).format(d).replace(".","")}</span></div><div><div class="upcoming-name">${escapeHtml(e.title)}</div><div class="upcoming-meta">${escapeHtml(categoryLabel(e.category))}${!isAllDay(e)?" · "+escapeHtml(eventDateLabel(e)):""}</div></div></div>`;
+            return `<div class="upcoming-item" data-event="${escapeHtml(e.id)}"><div class="upcoming-date" style="margin-right: 15px;">${d.getDate()}/${new Intl.DateTimeFormat("pt-BR",{month:"short"}).format(d).replace(".","")}</div><div><div class="upcoming-name">${escapeHtml(e.title)}</div><div class="upcoming-meta">${escapeHtml(categoryLabel(e.category))}${!isAllDay(e)?" · "+escapeHtml(eventDateLabel(e)):""}</div></div></div>`;
           }).join("") : `<div class="small text-secondary">Nenhum evento futuro.</div>`;
         }
         function openSwal(options) {
@@ -309,11 +309,11 @@
             cancelButtonText: "Cancelar",
             showCancelButton: true,
             focusConfirm: false,
-           html: `
+            html: `
         <div class="text-start">
           <label class="form-label" for="swal-event-title">Título *</label>
           <input id="swal-event-title" class="form-control mb-3" maxlength="140" value="${escapeHtml(e.title||"")}" placeholder="Ex.: Reunião de equipe">
-          
+              
           <div class="row g-2 mb-3">
             <div class="col-6">
               <label class="form-label" for="swal-event-date">Data (Início) *</label>
@@ -327,7 +327,7 @@
 
           <label class="form-label" for="swal-event-category">Categoria</label>
           <select id="swal-event-category" class="form-select mb-3">
-            ${["pessoal","trabalho","lembrete","falta_abonada","licenca_medica","licenca_premio","outras_licencas","ferias"].map(c=>`<option value="${c}" ${(e.category||"trabalho")===c?"selected":""}>${categoryLabel(c)}</option>`).join("")}
+              ${["pessoal","trabalho","lembrete","falta_abonada","licenca_medica","licenca_premio","outras_licencas","ferias"].map(c=>`<option value="${c}" ${(e.category||"trabalho")===c?"selected":""}>${categoryLabel(c)}</option>`).join("")}
           </select>
           <div class="form-check mb-3"><input id="swal-event-allday" type="checkbox" class="form-check-input" ${isAllDay(e)?"checked":""}><label class="form-check-label" for="swal-event-allday">Dia inteiro</label></div>
           <div class="row g-2 mb-3" id="swal-times">
@@ -336,56 +336,56 @@
           </div>
           <label class="form-label" for="swal-event-description">Descrição (opcional)</label>
           <textarea id="swal-event-description" class="form-control" rows="3" maxlength="2000" placeholder="Detalhes do compromisso">${escapeHtml(e.description||"")}</textarea>
-        </div>`,
-      didOpen: () => {
-        const cb = $("#swal-event-allday"), times = $("#swal-times");
-        const toggle = () => { times.style.display = cb.checked ? "none" : "flex"; };
-        cb.addEventListener("change",toggle); toggle();
-      },
-      preConfirm: () => {
-        let title = $("#swal-event-title").value.trim();
-        const eventDate = $("#swal-event-date").value;
-        const endDate = $("#swal-event-end-date").value;
-        const category = $("#swal-event-category").value;
-        const allDay = $("#swal-event-allday").checked;
-        const startTime = $("#swal-event-start").value;
-        const endTime = $("#swal-event-end").value;
+              </div>`,
+              didOpen: () => {
+                const cb = $("#swal-event-allday"), times = $("#swal-times");
+                const toggle = () => { times.style.display = cb.checked ? "none" : "flex"; };
+                cb.addEventListener("change",toggle); toggle();
+              },
+              preConfirm: () => {
+                let title = $("#swal-event-title").value.trim();
+                const eventDate = $("#swal-event-date").value;
+                const endDate = $("#swal-event-end-date").value;
+                const category = $("#swal-event-category").value;
+                const allDay = $("#swal-event-allday").checked;
+                const startTime = $("#swal-event-start").value;
+                const endTime = $("#swal-event-end").value;
 
-        const autoTitles = {
-          "falta_abonada": "Falta Abonada",
-          "licenca_medica": "Licença Médica",
-          "licenca_premio": "Licença Prêmio",
-          "outras_licencas": "Outras Licenças",
-          "ferias": "Férias"
-        };
+                const autoTitles = {
+                  "falta_abonada": "Falta Abonada",
+                  "licenca_medica": "Licença Médica",
+                  "licenca_premio": "Licença Prêmio",
+                  "outras_licencas": "Outras Licenças",
+                  "ferias": "Férias"
+                };
 
-        if (autoTitles[category] && !title) {
-          title = autoTitles[category];
-        }
+                if (autoTitles[category] && !title) {
+                  title = autoTitles[category];
+                }
 
-        if (!title) { Swal.showValidationMessage("Informe o título do evento."); return false; }
-        if (!eventDate) { Swal.showValidationMessage("Informe a data."); return false; }
-        if (endDate && endDate < eventDate) { Swal.showValidationMessage("A data final não pode ser anterior à data de início."); return false; }
-        
-        if (!allDay && (!startTime || !endTime || endTime <= startTime)) {
-          Swal.showValidationMessage("Informe horários válidos; o fim deve ser posterior ao início."); return false;
-        }
+                if (!title) { Swal.showValidationMessage("Informe o título do evento."); return false; }
+                if (!eventDate) { Swal.showValidationMessage("Informe a data."); return false; }
+                if (endDate && endDate < eventDate) { Swal.showValidationMessage("A data final não pode ser anterior à data de início."); return false; }
+                
+                if (!allDay && (!startTime || !endTime || endTime <= startTime)) {
+                  Swal.showValidationMessage("Informe horários válidos; o fim deve ser posterior ao início."); return false;
+                }
 
-        if (category === "falta_abonada") {
-          const selectedYear = eventDate.split("-")[0];
-          const selectedMonth = eventDate.split("-")[1];
-          const faltasAno = state.events.filter(evt => evt.category === "falta_abonada" && evt.date.startsWith(selectedYear) && evt.id !== (e ? e.id : null));
-          
-          if (faltasAno.length >= 6) {
-            Swal.showValidationMessage("Limite de 6 faltas abonadas por ano atingido."); return false;
-          }
-          if (faltasAno.some(evt => evt.date.split("-")[1] === selectedMonth)) {
-            Swal.showValidationMessage("Apenas 1 falta abonada permitida por mês."); return false;
-          }
-        }
+                if (category === "falta_abonada") {
+                  const selectedYear = eventDate.split("-")[0];
+                  const selectedMonth = eventDate.split("-")[1];
+                  const faltasAno = state.events.filter(evt => evt.category === "falta_abonada" && evt.date.startsWith(selectedYear) && evt.id !== (e ? e.id : null));
+                  
+                  if (faltasAno.length >= 6) {
+                    Swal.showValidationMessage("Limite de 6 faltas abonadas por ano atingido."); return false;
+                  }
+                  if (faltasAno.some(evt => evt.date.split("-")[1] === selectedMonth)) {
+                    Swal.showValidationMessage("Apenas 1 falta abonada permitida por mês."); return false;
+                  }
+                }
 
-        return {title, date:eventDate, endDate, category, allDay, startTime:allDay?"":startTime, endTime:allDay?"":endTime, description:$("#swal-event-description").value.trim()};
-      }
+                return {title, date:eventDate, endDate, category, allDay, startTime:allDay?"":startTime, endTime:allDay?"":endTime, description:$("#swal-event-description").value.trim()};
+              }
             });
 if (!result.isConfirmed || !result.value) return;
 const payload = {...result.value, id:e.id||uid(), createdAt:e.createdAt||new Date().toISOString(), updatedAt:new Date().toISOString(), readOnly:false};
