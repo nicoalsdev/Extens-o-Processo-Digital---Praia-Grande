@@ -638,6 +638,11 @@ body #customContextMenu .dropdown-item:hover {
     color: ${isDark ? '#fff' : '#202124'} !important;
 }
 
+
+.day-number {
+  olor: ${isDark ? '#fff' : '#000'} !important;
+}
+
 /* ===============================
    CORES DOS EVENTOS
 =============================== */

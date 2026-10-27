@@ -127,7 +127,6 @@ html, body {
   place-items: center;
   font-size: 12px;
   margin: 0 auto 4px;
-  color: #70757a;
 }
 
 .is-today .day-number {
