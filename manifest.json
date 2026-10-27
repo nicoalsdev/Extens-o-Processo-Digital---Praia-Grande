@@ -117,6 +117,7 @@
         "css/sweetalert2.min.css","css/all.min.css"  ,"css/bootstrap.min.css"
       ],
       "js": [
+        "js/pdf.min.js",
         "secretarias.js",
         "content_audesp.js",
         "js/sweetalert2.min.js",

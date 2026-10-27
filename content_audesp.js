@@ -526,3 +526,204 @@ function carregarDadosFormulario(dados) {
         preencherCampo('#tipoVigenciaId', '1');
     }
 }
+
+// ==========================================
+// CONFIGURAÇÕES E REGEX DAS FONTES
+// ==========================================
+const fontesMap = {
+  "1": "TESOURO",
+  "2": "TRANSFERENCIAS E CONVENIOS ESTADUAIS-VINCULADOS",
+  "3": "RECURSOS PROPRIOS DE FUNDOS ESPECIAIS DE DESPESA-VINCULADOS",
+  "4": "RECURSOS PROPRIOS DA ADMINISTRACAO INDIRETA",
+  "5": "TRANSFERENCIAS E CONVENIOS FEDERAIS-VINCULADOS",
+  "6": "OUTRAS FONTES DE RECURSOS",
+  "7": "OPERACOES DE CREDITO",
+  "8": "EMENDAS PARLAMENTARES INDIVIDUAIS"
+};
+pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('js/pdf.worker.min.js');
+
+// Se precisar, certifique-se de definir o Worker do PDF.js apontando para o arquivo local da sua extensão
+// pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.min.js');
+
+// ==========================================
+// INJEÇÃO DO BOTÃO NA INTERFACE
+// ==========================================
+window.addEventListener('load', () => {
+    // Inicializa suas outras funções já existentes
+    // initSecretariasAutocomplete();
+    // initContratadosAutocomplete();
+    // initSidebarAudesp();
+
+    injetarBotaoExtratorPdf();
+});
+
+function injetarBotaoExtratorPdf() {
+    // Procura o fieldset alvo
+    const fieldset = document.querySelector('fieldset.ajusteEmpenho');
+    if (!fieldset) {
+        // Se a página for dinâmica e o fieldset demorar a carregar, tenta novamente
+        setTimeout(injetarBotaoExtratorPdf, 1500);
+        return;
+    }
+
+    // Evita injetar duas vezes
+    if (document.getElementById('btn-importar-empenhos-pdf')) return;
+
+    // Cria o container para o botão e o input de arquivo oculto
+    const container = document.createElement('div');
+    container.style.padding = '10px';
+    container.style.backgroundColor = '#f8f9fa';
+    container.style.border = '1px dashed #ccc';
+    container.style.marginBottom = '15px';
+    container.style.display = 'inline-block';
+    container.style.width = '100%';
+
+    const title = document.createElement('strong');
+    title.textContent = '🤖 Automação de Empenhos: ';
+    
+    const btn = document.createElement('button');
+    btn.id = 'btn-importar-empenhos-pdf';
+    btn.type = 'button';
+    btn.className = 'ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only';
+    btn.innerHTML = '<span class="ui-button-text">Carregar PDF de Empenhos</span>';
+    btn.style.marginLeft = '10px';
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'application/pdf';
+    fileInput.style.display = 'none';
+
+    // Ações de clique
+    btn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', processarPdfEmpenhos);
+
+    container.appendChild(title);
+    container.appendChild(btn);
+    container.appendChild(fileInput);
+
+    // Insere o container logo no início do fieldset, após a legend
+    fieldset.insertBefore(container, fieldset.querySelector('.controle_campo'));
+}
+
+// ==========================================
+// PROCESSAMENTO DO PDF
+// ==========================================
+async function processarPdfEmpenhos(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const btn = document.getElementById('btn-importar-empenhos-pdf');
+    btn.querySelector('span').textContent = "Processando PDF...";
+    btn.disabled = true;
+
+    const fileReader = new FileReader();
+    
+    fileReader.onload = async function() {
+        const typedarray = new Uint8Array(this.result);
+        
+        try {
+            const pdf = await pdfjsLib.getDocument(typedarray).promise;
+            let empenhosExtraidos = [];
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const textoPagina = textContent.items.map(item => item.str).join(" ") + " ";
+                
+                const dados = extrairDadosEmpenho(textoPagina, i);
+                
+                if (dados.numeroEmpenho !== "Não encontrado") {
+                    empenhosExtraidos.push(dados);
+                }
+            }
+
+            if (empenhosExtraidos.length > 0) {
+                btn.querySelector('span').textContent = `Injetando ${empenhosExtraidos.length} empenhos...`;
+                await injetarEmpenhosNaPagina(empenhosExtraidos);
+                btn.querySelector('span').textContent = "Concluído!";
+            } else {
+                alert("Nenhum dado de empenho válido encontrado no PDF.");
+                btn.querySelector('span').textContent = "Carregar PDF de Empenhos";
+            }
+            
+        } catch (error) {
+            console.error("Erro ao ler o PDF:", error);
+            alert("Erro ao processar o PDF. Verifique o console.");
+            btn.querySelector('span').textContent = "Carregar PDF de Empenhos";
+        } finally {
+            btn.disabled = false;
+            event.target.value = ''; // Reseta o input de arquivo
+        }
+    };
+
+    fileReader.readAsArrayBuffer(file);
+}
+
+function extrairDadosEmpenho(textoPage, numeroPagina) {
+    const matchData = textoPage.match(/(\d{2}\/\d{2}\/\d{4})/);
+    const matchNumEmpenho = textoPage.match(/\d{4,6}-\d{4}[^\d]*(\d{4,6})/);
+    const matchAno = textoPage.match(/(\/20\d{2})/);
+    
+    const matchFonte = textoPage.match(/(0[1-8])\s+(TESOURO|TRANSFERENCIAS|RECURSOS|OUTRAS|OPERACOES|EMENDAS)/);
+    
+    const matchesValores = [...textoPage.matchAll(/(\d{1,3}(?:\.\d{3})*,\d{2})/g)];
+    const valorEstaNota = matchesValores.length >= 3 ? matchesValores[2][1] : null;
+
+    let fonteValue = "Não encontrado";
+    if (matchFonte) {
+        fonteValue = parseInt(matchFonte[1], 10).toString();
+    }
+
+    return {
+        paginaOrigem: numeroPagina,
+        dataEmpenho: matchData ? matchData[1] : "Não encontrado",
+        numeroEmpenho: matchNumEmpenho ? matchNumEmpenho[1] : "Não encontrado",
+        anoEmpenho: matchAno ? matchAno[1] : "Não encontrado",
+        fonteValue: fonteValue,
+        valor: valorEstaNota ? valorEstaNota.replace(/\./g, '') : "Não encontrado"
+    };
+}
+
+// ==========================================
+// PREENCHIMENTO AUTOMÁTICO (AUTOMATIZADOR)
+// ==========================================
+async function injetarEmpenhosNaPagina(empenhos) {
+    for (const empenho of empenhos) {
+        // Ignora empenhos que falharam na extração
+        if (empenho.numeroEmpenho === "Não encontrado") continue;
+
+        // 1. Preenche os campos físicos
+        const inputNum = document.getElementById('numNotaEmpenho');
+        const inputData = document.getElementById('dtNotaEmpenho');
+        const inputValor = document.getElementById('vrNotaEmpenho');
+        const selectFonte = document.getElementById('fonteRecursos');
+
+        if (inputNum) inputNum.value = empenho.numeroEmpenho;
+        if (inputData) inputData.value = empenho.dataEmpenho;
+        if (inputValor) inputValor.value = empenho.valor;
+        if (selectFonte) selectFonte.value = empenho.fonteValue;
+
+        // 2. Dispara eventos de 'change' e 'input' para garantir que os scripts 
+        // da prefeitura reconheçam que os campos foram preenchidos
+        [inputNum, inputData, inputValor, selectFonte].forEach(el => {
+            if(el) {
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+
+        // 3. Clica no botão "Adicionar"
+        const btnAdicionar = document.querySelector('.ajusteEmpenhoBtn');
+        if (btnAdicionar) {
+            btnAdicionar.click();
+        }
+
+        // 4. Aguarda 600ms antes de inserir o próximo. 
+        // Isso dá tempo para a tabela animar e adicionar a linha sem sobrescrever
+        await new Promise(resolve => setTimeout(resolve, 600));
+    }
+    
+    setTimeout(() => {
+        alert(`Extensão: ${empenhos.length} empenho(s) preenchido(s) e adicionado(s) com sucesso!`);
+    }, 500);
+}
