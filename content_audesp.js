@@ -59,7 +59,7 @@ function initSecretariasAutocomplete() {
 // ==========================================
 function initContratadosAutocomplete() {
     const inputDoc = document.getElementById('numDocContratado') || document.querySelector('input[name="numDocContratado"]');
-    const inputNome = document.getElementById('nomeContratadoConclusao') || document.querySelector('input[name="nomeContratadoConclusao"]');
+    const inputNome = document.getElementById('nomeContratado') || document.querySelector('input[name="nomeContratado"]') || document.getElementById('nomeContratadoConclusao') || document.querySelector('input[name="nomeContratadoConclusao"]');
     const btnSalvar = document.getElementById('ajusteConclusaoContratadoBtn');
 
     if (!inputDoc || !inputNome || !btnSalvar) {
@@ -115,7 +115,8 @@ function initContratadosAutocomplete() {
     inputDoc.addEventListener('input', (e) => {
         chrome.storage.local.get(['contratados_salvos'], (result) => {
             const contratados = result.contratados_salvos || [];
-            const selecionado = contratados.find(c => c.doc === e.target.value);
+            const valorDoc = e.target.value.trim().replace(/\D/g, '');
+            const selecionado = contratados.find(c => String(c.doc || '').trim() === e.target.value.trim() || String(c.doc || '').replace(/\D/g, '') === valorDoc);
             if (selecionado) inputNome.value = selecionado.nome;
         });
     });
@@ -409,6 +410,36 @@ function abrirModalEdicao(chave, dadosRegistro, storageKey, bancoDados) {
 // ==========================================
 // 6. PREENCHIMENTO DOS CAMPOS NA PÁGINA
 // ==========================================
+function salvarResponsaveisContratadaNoAutocomplete(responsaveis) {
+    if (!Array.isArray(responsaveis) || !responsaveis.length) return;
+
+    chrome.storage.local.get(['contratados_salvos'], (result) => {
+        const contratados = Array.isArray(result.contratados_salvos) ? result.contratados_salvos : [];
+
+        responsaveis.forEach(pessoa => {
+            const nome = String(pessoa.nome || '').trim();
+            const doc = String(pessoa.cpf || pessoa.doc || '').trim();
+            if (!nome || !doc) return;
+
+            const existente = contratados.find(c =>
+                String(c.doc || '').replace(/\D/g, '') === doc.replace(/\D/g, '')
+                || String(c.nome || '').trim().toLowerCase() === nome.toLowerCase()
+            );
+
+            if (existente) {
+                existente.doc = doc;
+                existente.nome = nome;
+            } else {
+                contratados.push({ doc, nome });
+            }
+        });
+
+        chrome.storage.local.set({ contratados_salvos: contratados }, () => {
+            atualizarDatalists(contratados);
+        });
+    });
+}
+
 function carregarDadosFormulario(dados) {
     if (!dados) return;
 
@@ -427,12 +458,28 @@ function carregarDadosFormulario(dados) {
             input.dispatchEvent(new Event('change', { bubbles: true }));
         }
     };
-
+    console.log(dados);
     // --- CAMPOS COMUNS (Contratante / Contratado) ---
     preencherCampo('#numDocContratante', dados.cpf_contratante);
     preencherCampo('#nomeContratante', dados.nome_contratante);
-    preencherCampo('#numDocContratado', dados.cpf_contratado || dados.cnpj_contratado);
-    preencherCampo('#nomeContratadoConclusao', dados.nome_contratado);
+    const responsaveisContratada = Array.isArray(dados.responsaveis_contratada)
+        ? dados.responsaveis_contratada
+        : [];
+
+    // Importa todos os responsáveis para o autocomplete. Os campos de formulário
+    // representam uma pessoa por vez, então são preenchidos inicialmente com o primeiro.
+    if (responsaveisContratada.length) {
+        salvarResponsaveisContratadaNoAutocomplete(responsaveisContratada);
+        const primeiroResponsavel = responsaveisContratada[0];
+        preencherCampo('#numDocContratado', primeiroResponsavel.cpf || primeiroResponsavel.doc);
+        preencherCampo('#nomeContratado', primeiroResponsavel.nome);
+        preencherCampo('#nomeContratadoConclusao', primeiroResponsavel.nome);
+        preencherCampo('#assinouContratoContratado', 'true');
+    } else {
+        preencherCampo('#numDocContratado', dados.cpf_contratado || dados.cnpj_contratado);
+        preencherCampo('#nomeContratado', dados.nome_contratado);
+        preencherCampo('#nomeContratadoConclusao', dados.nome_contratado);
+    }
     
     if (isAudespAditamento) {
         // --- MAPEAMENTO ESPECÍFICO PARA ADITAMENTO ---
@@ -440,14 +487,17 @@ function carregarDadosFormulario(dados) {
         preencherCampo('#anoTermo', dados.ano_aditamento);
         
         // Objeto e Justificativa
-        preencherCampo('#objetoTermo', dados.descricao_alteracao);
+        //preencherCampo('#objetoTermo', dados.descricao_alteracao);
         preencherCampo('#justificativa', 'true'); // Sempre sim
-        preencherCampo('#justificativaAssinatura', dados.descricao_justificativa || dados.descricao_alteracao);
+        preencherCampo('#justificativaAssinatura', dados.descricao_justificativa);
         
         // Datas
         preencherCampo('#dtInicioVigencia', dados.data_assinatura);
         preencherCampo('#dtFimVigencia', dados.data_termino);
+
+        preencherCampo('#dtAssinatura', dados.data_assinatura);
         
+
         // Exigência de Garantia (Converte S/N do MGC para true/false da Audesp)
         if (dados.exigencia_garantia) {
             const exigenciaBool = dados.exigencia_garantia === 'S' ? 'true' : 'false';
@@ -469,7 +519,7 @@ function carregarDadosFormulario(dados) {
         preencherCampo('#clausulasPenais', dados.clausulas_penais);
         preencherCampo('#dtInicioVigencia', dados.inicio_vigencia);
         preencherCampo('#dtFimVigencia', dados.termino_vigencia);
-        preencherCampo('#dtAssinatura', dados.data_assinatura);
+        preencherCampo('#dtAssinatura', dados.inicio_vigencia);
         preencherCampo('#numContrato', dados.numero_contrato);
         preencherCampo('#objetoContrato', dados.objeto_licitacao);
         preencherCampo('#exigenciaClausulasPenais', 'true');

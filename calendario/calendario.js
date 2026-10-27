@@ -140,23 +140,28 @@
       {date:"2027-12-31",title:"Ponto facultativo — Véspera de Ano Novo",category:"ponto_facultativo",source,sourceLabel:"Prefeitura de Praia Grande — Véspera de Ano Novo 2027"}
     ].map((e, i) => ({...e, id:`municipal-${e.date}-${i}`, allDay:true, readOnly:true, sourceType:"municipal"}));
   }
-  async function loadApiHolidays(year, notify = true) {
+  
+async function loadApiHolidays(year, notify = true) {
     try {
-      const response = await fetch(`${API_BASE}${year}?uf=SP`, { cache:"no-store" });
+      // Fetch apenas dos feriados nacionais (sem ?uf=SP)
+      const response = await fetch(`${API_BASE}${year}`, { cache:"no-store" });
       if (!response.ok) throw new Error(`BrasilAPI respondeu HTTP ${response.status}`);
+      
       const payload = await response.json();
       if (!Array.isArray(payload)) throw new Error("Formato inesperado retornado pela BrasilAPI.");
+      
       state.holidayCache[String(year)] = payload.map((h, i) => ({
         id:`brasilapi-${year}-${h.date}-${i}`,
         date:h.date,
         title:h.name,
-        category: h.type === "state" ? "feriado" : "feriado",
+        category: "feriado",
         allDay:true, readOnly:true, sourceType:"api",
         source:"https://brasilapi.com.br/docs",
-        sourceLabel: h.type === "state" ? "BrasilAPI — feriado estadual/SP" : "BrasilAPI — feriado nacional"
+        sourceLabel: "BrasilAPI — feriado nacional"
       }));
+      
       await storageSet({[HOLIDAY_CACHE_KEY]:state.holidayCache});
-      if (notify) setHolidayStatus(`Feriados de ${year} atualizados pela BrasilAPI.`);
+      if (notify) setHolidayStatus(`Feriados nacionais de ${year} atualizados.`);
       return true;
     } catch (error) {
       console.warn("[Calendário] Não foi possível atualizar feriados da API:", error);
@@ -164,6 +169,7 @@
       return false;
     }
   }
+
   function mergeHolidayEvents() {
     const apiEvents = Object.values(state.holidayCache).flat();
     const municipal = state.municipalEvents || [];

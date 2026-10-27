@@ -1,6 +1,4 @@
-// ==========================================
-// 1. INJETAR ESTILOS DA SIDEBAR (Padrão Bootstrap 5)
-// ==========================================
+
 // ==========================================
 // 1. INJETAR ESTILOS DA SIDEBAR (Isolado e Blindado)
 // ==========================================
@@ -255,6 +253,33 @@ if (isAditamento) {
     });
 }
 
+// Extrai nome e CPF dos responsáveis pela contratada selecionados no formulário.
+function coletarResponsaveisContratada() {
+    const select = document.getElementById('frm_responsavel_contratada_selecionados[]')
+        || document.querySelector('select[name="frm_responsavel_contratada_selecionados[]"]')
+        || document.querySelector('select.responsavel_contratada_selecionados');
+
+    if (!select) return [];
+
+    const opcoes = Array.from(select.selectedOptions || []);
+    return opcoes
+        .map(option => {
+            const texto = (option.textContent || '').replace(/\s+/g, ' ').trim();
+            // Formato esperado: "940 - NOME COMPLETO - 045.346.448-33 - email..."
+            const match = texto.match(/^\s*(?:\d+\s*-\s*)?(.+?)\s*-\s*(\d{3}\.?\d{3}\.?\d{3}-?\d{2})\s*(?:-|$)/);
+            if (!match) return null;
+
+            const nome = match[1].trim();
+            const cpf = match[2].trim();
+            if (!nome || !cpf) return null;
+            return { nome, cpf };
+        })
+        .filter((p, index, lista) =>
+            p && lista.findIndex(x => x.nome.toLowerCase() === p.nome.toLowerCase()
+                || x.cpf.replace(/\D/g, '') === p.cpf.replace(/\D/g, '')) === index
+        );
+}
+
 function salvarDadosMGC(callback = null) {
     const responsaveisAssinatura = [];
     document.querySelectorAll('.chk-secretario:checked').forEach(chk => {
@@ -265,8 +290,13 @@ function salvarDadosMGC(callback = null) {
         }
     });
 
+    const responsaveisContratada = coletarResponsaveisContratada();
+
     let chaveRegistro = "";
-    let dadosSalvar = { responsaveis: responsaveisAssinatura };
+    let dadosSalvar = {
+        responsaveis: responsaveisAssinatura,
+        responsaveis_contratada: responsaveisContratada
+    };
     let storageKey = "";
 
    if (isAditamento) {
@@ -291,8 +321,13 @@ function salvarDadosMGC(callback = null) {
             data_termino: document.getElementById('frm_data_termino') ? document.getElementById('frm_data_termino').value : '',
             data_publicacao: document.getElementById('frm_data_publicacao') ? document.getElementById('frm_data_publicacao').value : '',
             descricao_alteracao: document.getElementById('frm_descricao_alteracao') ? document.getElementById('frm_descricao_alteracao').value : '',
+            descricao_justificativa: document.getElementById('frm_descricao_justificativa') ? document.getElementById('frm_descricao_justificativa').value: '',
+            data_autorizacao: document.getElementById('frm_data_autorizacao') ? document.getElementById('frm_data_autorizacao').value: '',
+            descricao_autorizacao: document.getElementById('frm_motivo') ? document.getElementById('frm_motivo').value: '',
             tipos_aditamento: tiposSelecionados.join(', ') // Salva os valores "01, 02, etc" separados por vírgula
         };
+
+
     } else {
        
         storageKey = 'mgc_dados_contratos';
