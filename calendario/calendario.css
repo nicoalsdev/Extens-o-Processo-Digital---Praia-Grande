@@ -72,14 +72,13 @@ html, body {
 .btn-create {
   display: flex;
   align-items: center;
-  background: #ffffff;
+  background: transparent;
   border: none;
   border-radius: 24px;
   padding: 8px 24px 8px 12px;
-  color: #3c4043;
   cursor: pointer;
   box-shadow: var(--cal-shadow);
-  transition: background-color 0.2s, box-shadow 0.2s;
+  transition: background-color 0.6s, box-shadow 0.2s;
   width: max-content;
 }
 .btn-create:hover { 

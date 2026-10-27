@@ -554,6 +554,111 @@ body #customContextMenu .dropdown-item:hover {
                 display: none !important;
             }
 
+
+/* ===============================
+   CALENDÁRIO THEME
+=============================== */
+.calendar-app, .calendar-layout, .calendar-main {
+    background-color: ${theme.page} !important;
+}
+.calendar-header, .calendar-sidebar {
+    background-color: ${theme.card} !important;
+    border-color: ${isDark ? '#444' : '#dadce0'} !important;
+}
+.calendar-sidebar {
+    border-right-color: ${isDark ? '#444' : '#dadce0'} !important;
+}
+.calendar-header {
+    border-bottom-color: ${isDark ? '#444' : '#dadce0'} !important;
+}
+.calendar-header h1, .calendar-header h2, .calendar-sidebar h3, #periodoAtual {
+    color: ${theme.text} !important;
+}
+#btnHoje, .view-select {
+    color: ${theme.text} !important;
+    border-color: ${isDark ? '#555' : '#dadce0'} !important;
+    background-color: ${theme.input} !important;
+}
+#btnHoje:hover {
+    background-color: ${isDark ? '#333' : '#f1f3f4'} !important;
+    color: ${isDark ? '#fff' : '#202124'} !important;
+}
+.calendar-grid, .day-cell, .weekday-heading {
+    border-color: ${isDark ? '#444' : '#dadce0'} !important;
+}
+.day-cell {
+    background-color: ${theme.card} !important;
+}
+.outside-month {
+    background-color: ${isDark ? '#1a1a1a' : '#f8f9fa'} !important;
+    color: ${isDark ? '#777' : '#70757a'} !important;
+}
+.mini-title, .mini-weekday, .mini-day, .upcoming-name, .list-event-title, .list-date-heading {
+    color: ${theme.text} !important;
+}
+.mini-day:hover {
+    background-color: ${isDark ? '#333' : '#f1f3f4'} !important;
+}
+.mini-day.mini-outside {
+    color: ${isDark ? '#666' : '#9aa0a6'} !important;
+}
+.mini-day.mini-selected {
+    background-color: #0d6efd !important;
+    color: #fff !important;
+}
+.upcoming-item:hover, .list-event:hover {
+    background-color: ${isDark ? '#252525' : '#f1f3f4'} !important;
+}
+.time-day-header, .time-label, .time-day, .time-slot, .time-grid, .day-grid, .week-grid {
+    border-color: ${isDark ? '#444' : '#dadce0'} !important;
+    color: ${theme.text} !important;
+}
+.time-grid, .day-grid, .week-grid {
+    background-color: ${theme.card} !important;
+}
+.sidebar-action-btn {
+    color: ${isDark ? '#bbb' : '#5f6368'} !important;
+}
+.sidebar-action-btn:hover {
+    background-color: ${isDark ? '#333' : '#f1f3f4'} !important;
+    color: ${isDark ? '#fff' : '#202124'} !important;
+}
+.calendar-logo {
+    background-color: ${isDark ? '#333' : '#f1f3f4'} !important;
+    color: ${isDark ? '#fff' : '#202124'} !important;
+}
+.border-end, .border-bottom, .border-top {
+    border-color: ${isDark ? '#444' : '#dadce0'} !important;
+}
+.more-events {
+    color: ${isDark ? '#aaa' : '#5f6368'} !important;
+}
+.more-events:hover {
+    background-color: ${isDark ? '#333' : '#f1f3f4'} !important;
+    color: ${isDark ? '#fff' : '#202124'} !important;
+}
+
+/* ===============================
+   CORES DOS EVENTOS
+=============================== */
+.event-chip {
+    color: #ffffff !important;
+    border: none !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+}
+.event-chip:hover {
+    filter: brightness(1.1);
+}
+.event-chip.cat-pessoal { background-color: #34a853 !important; }
+.event-chip.cat-trabalho { background-color: #1a73e8 !important; }
+.event-chip.cat-lembrete { background-color: #f9ab00 !important; }
+.event-chip.cat-feriado { background-color: #d93025 !important; }
+.event-chip.cat-ponto_facultativo { background-color: #9334e6 !important; }
+.event-chip.cat-falta_abonada { background-color: #2e7d32 !important; }
+.event-chip.cat-licenca_medica { background-color: #e53935 !important; }
+.event-chip.cat-licenca_premio { background-color: #8e24aa !important; }
+.event-chip.cat-outras_licencas { background-color: #fb8c00 !important; }
+.event-chip.cat-ferias { background-color: #00acc1 !important; }
           
         `;
 
