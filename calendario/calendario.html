@@ -10,7 +10,7 @@
 </head>
 <body>
   <main class="calendar-app d-flex flex-column h-100">
-    
+
 <!-- Cabeçalho Principal -->
 <header class="calendar-header d-flex align-items-center px-3 py-2 border-bottom">
   <div class="d-flex align-items-center me-4" style="width: 240px; flex-shrink: 0;">
@@ -51,7 +51,7 @@
 
 <div class="calendar-layout flex-grow-1 overflow-hidden d-flex">
   <aside class="calendar-sidebar d-flex flex-column p-3 h-100 overflow-auto border-end">
-    
+
     <div class="sidebar-month mb-4" id="miniCalendar"></div>
     
     <div class="search-people mb-4 small px-2 py-2 rounded d-flex align-items-center d-none">
@@ -76,6 +76,12 @@
     <h3 class="h6 mb-2 fw-normal mt-4">Faltas Abonadas (<span id="contagemFaltas">0</span>/6)</h3>
     <div id="listaFaltasAbonadas" class="mb-4 small text-secondary">Nenhuma falta no ano.</div>
 
+    <h3 class="h6 mb-2 fw-normal mt-4">Atestados de 1 dia (<span id="contagemAtestados">0</span>/5)</h3>
+    <div id="listaAtestados" class="mb-4 small text-secondary">Nenhum atestado no ano.</div>
+
+    <h3 class="h6 mb-2 fw-normal mt-4">Outros Eventos</h3>
+    <div id="listaOutrosEventos" class="mb-4 small text-secondary">Nenhum evento no ano.</div>
+    
     <div class="mt-auto border-top pt-3 d-flex flex-column gap-2">
      <span id="Decreto" class="small text-muted" role="status">Decreto Municipal 8511/2026</span>
    </div>

@@ -654,17 +654,17 @@ body #customContextMenu .dropdown-item:hover {
 .event-chip:hover {
     filter: brightness(1.1);
 }
-.event-chip.cat-pessoal { background-color: #34a853 !important; }
-.event-chip.cat-trabalho { background-color: #1a73e8 !important; }
-.event-chip.cat-lembrete { background-color: #f9ab00 !important; }
-.event-chip.cat-feriado { background-color: #d93025 !important; }
-.event-chip.cat-ponto_facultativo { background-color: #9334e6 !important; }
-.event-chip.cat-falta_abonada { background-color: #2e7d32 !important; }
-.event-chip.cat-licenca_medica { background-color: #e53935 !important; }
-.event-chip.cat-licenca_premio { background-color: #8e24aa !important; }
-.event-chip.cat-outras_licencas { background-color: #fb8c00 !important; }
-.event-chip.cat-ferias { background-color: #00acc1 !important; }
-          
+
+.event-chip.cat-pessoal { background-color: #322bb3 !important; color: #fff !important; }
+.event-chip.cat-trabalho { background-color: #1a73e8 !important; color: #fff !important; }
+.event-chip.cat-lembrete { background-color: #f9ab00 !important; color: #000 !important; text-shadow: none !important; }
+.event-chip.cat-feriado { background-color: #d93025 !important; color: #fff !important; }
+.event-chip.cat-ponto_facultativo { background-color: #9334e6 !important; color: #fff !important; }
+.event-chip.cat-falta_abonada { background-color: #2e6d7d !important; color: #fff !important; }
+.event-chip.cat-licenca_medica { background-color: #35e596 !important; color: #000 !important; text-shadow: none !important; }
+.event-chip.cat-licenca_premio { background-color: #aa246e !important; color: #fff !important; }
+.event-chip.cat-outras_licencas { background-color: #b0fb00 !important; color: #000 !important; text-shadow: none !important; }
+.event-chip.cat-ferias { background-color: #b86032 !important; color: #fff !important; }
         `;
 
    // Remove estilos anteriores para evitar acumulação

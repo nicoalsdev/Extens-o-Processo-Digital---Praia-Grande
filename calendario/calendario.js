@@ -46,20 +46,20 @@
 
   function eventColor(evt) {
     return ({
-      pessoal: "#34a853", 
+      pessoal: "#322bb3", 
       trabalho: "#1a73e8", 
       lembrete: "#f9ab00",
       feriado: "#d93025", 
       ponto_facultativo: "#9334e6", 
-      falta_abonada: "#2e7d32", 
-      licenca_medica: "#e53935", 
-      licenca_premio: "#8e24aa", 
-      outras_licencas: "#fb8c00", 
-      ferias: "#00acc1"
+      falta_abonada: "#2e6d7d", 
+      licenca_medica: "#35e596", 
+      licenca_premio: "#aa246e", 
+      outras_licencas: "#b0fb00", 
+      ferias: "#b86032"
     })[evt.category] || "#1a73e8";
   }
 
-  function eventClass(evt) { return `cat-${evt.category || "trabalho"}`; }
+function eventClass(evt) { return `cat-${evt.category || "trabalho"}`; }
 
   function isAllDay(evt) { return evt.allDay !== false; }
 
@@ -141,7 +141,7 @@
     ].map((e, i) => ({...e, id:`municipal-${e.date}-${i}`, allDay:true, readOnly:true, sourceType:"municipal"}));
   }
   
-async function loadApiHolidays(year, notify = true) {
+  async function loadApiHolidays(year, notify = true) {
     try {
       // Fetch apenas dos feriados nacionais (sem ?uf=SP)
       const response = await fetch(`${API_BASE}${year}`, { cache:"no-store" });
@@ -206,18 +206,42 @@ async function loadApiHolidays(year, notify = true) {
     
     renderMiniCalendar();
     renderUpcoming();
-    renderFaltasAbonadas(); // A contagem é atualizada aqui
+    renderFaltasAbonadas(); 
+    renderAtestados(); 
+    renderOutrosEventos();
   }
+
   function startOfWeek(d) { const out = startOfDay(d); out.setDate(out.getDate() - out.getDay()); return out; }
-  function renderMonth() {
+
+function renderMonth() {
     const first = new Date(state.date.getFullYear(), state.date.getMonth(), 1);
     const gridStart = startOfWeek(first);
     let html = weekdayShort.map(d => `<div class="weekday-heading">${d.toUpperCase()}</div>`).join("");
+    
     for (let i=0; i<42; i++) {
       const day = addDays(gridStart, i), key = dateKey(day), events = dateEvents(key);
       const classes = ["day-cell", day.getMonth() !== state.date.getMonth() ? "outside-month" : "",
         sameDay(day, new Date()) ? "is-today" : "", key === state.selectedDate ? "selected-day" : ""].filter(Boolean).join(" ");
-        const chips = events.slice(0,3).map(e => `<button class="event-chip ${eventClass(e)}" data-event="${escapeHtml(e.id)}" title="${escapeHtml(e.title)}">${!isAllDay(e) && e.startTime ? escapeHtml(e.startTime)+" " : ""}${escapeHtml(e.title)}</button>`).join("");
+        
+        const chips = events.slice(0,3).map(e => {
+          let spanClass = "";
+          let titleHtml = `${!isAllDay(e) && e.startTime ? escapeHtml(e.startTime)+" " : ""}${escapeHtml(e.title)}`;
+          
+          // Lógica para barras contínuas
+          if (e.endDate && e.endDate !== e.date) {
+             const isConnLeft = (key !== e.date) && (day.getDay() !== 0);
+             const isConnRight = (key !== e.endDate) && (day.getDay() !== 6);
+             
+             if (isConnLeft) spanClass += " conn-left";
+             if (isConnRight) spanClass += " conn-right";
+             
+             if (isConnLeft) titleHtml = "&nbsp;"; 
+          }
+          
+          // Aqui garantimos que eventClass(e) coloque a classe cat-ferias, cat-falta_abonada, etc.
+          return `<button class="event-chip ${eventClass(e)}${spanClass}" data-event="${escapeHtml(e.id)}" title="${escapeHtml(e.title)}">${titleHtml}</button>`;
+        }).join("");
+        
         const more = events.length > 3 ? `<div class="more-events" data-date="${key}">+${events.length-3} mais</div>` : "";
         html += `<div class="${classes}" data-date="${key}" role="button" tabindex="0" aria-label="${escapeHtml(dateLong.format(day))}">
         <div class="day-number">${day.getDate()}</div><div class="day-events">${chips}${more}</div></div>`;
@@ -225,6 +249,8 @@ async function loadApiHolidays(year, notify = true) {
       calendarEl.className = "calendar-grid";
       calendarEl.innerHTML = html;
     }
+
+    
     function renderTimeGrid(dayOnly) {
       const days = dayOnly ? [state.date] : Array.from({length:7},(_,i)=>addDays(startOfWeek(state.date),i));
       let html = `<div class="${dayOnly ? "day-grid" : "week-grid"}"><div class="time-label"></div>`;
@@ -319,7 +345,7 @@ async function loadApiHolidays(year, notify = true) {
         <div class="text-start">
           <label class="form-label" for="swal-event-title">Título *</label>
           <input id="swal-event-title" class="form-control mb-3" maxlength="140" value="${escapeHtml(e.title||"")}" placeholder="Ex.: Reunião de equipe">
-              
+
           <div class="row g-2 mb-3">
             <div class="col-6">
               <label class="form-label" for="swal-event-date">Data (Início) *</label>
@@ -387,6 +413,20 @@ async function loadApiHolidays(year, notify = true) {
                   }
                   if (faltasAno.some(evt => evt.date.split("-")[1] === selectedMonth)) {
                     Swal.showValidationMessage("Apenas 1 falta abonada permitida por mês."); return false;
+                  }
+                }
+
+                if (category === "licenca_medica" && (!endDate || endDate === eventDate)) {
+                  const selectedYear = eventDate.split("-")[0];
+                  const atestadosAno = state.events.filter(evt => 
+                    evt.category === "licenca_medica" && 
+                    evt.date.startsWith(selectedYear) &&
+                    (!evt.endDate || evt.endDate === evt.date) &&
+                    evt.id !== (e ? e.id : null)
+                  );
+                  
+                  if (atestadosAno.length >= 5) {
+                    Swal.showValidationMessage("Limite de 5 atestados de um dia por ano atingido."); return false;
                   }
                 }
 
@@ -604,6 +644,67 @@ function renderFaltasAbonadas() {
     elLista.innerHTML = faltas.length ? faltas.map(f => `<div>• ${dateShort.format(parseDate(f.date))}</div>`).join("") : "Nenhuma falta no ano.";
   }
 }
+
+function renderAtestados() {
+  const currentYear = String(state.date.getFullYear());
+  
+  // Filtra licenças médicas que são do ano atual e não têm uma data de término diferente do início (1 dia)
+  const atestados = sortedEvents(state.events.filter(e => 
+    e.category === "licenca_medica" && 
+    e.date.startsWith(currentYear) &&
+    (!e.endDate || e.endDate === e.date)
+  ));
+
+  const elContagem = $("#contagemAtestados");
+  const elLista = $("#listaAtestados");
+
+  if (elContagem) elContagem.textContent = atestados.length;
+  if (elLista) {
+    elLista.innerHTML = atestados.length 
+    ? atestados.map(a => `<div>• ${dateShort.format(parseDate(a.date))}</div>`).join("") 
+    : "Nenhum atestado no ano.";
+  }
+}
+
+function renderOutrosEventos() {
+  const currentYear = String(state.date.getFullYear());
+  
+  // Filtra licença prêmio, outras licenças, férias E licenças médicas prolongadas (mais de 1 dia)
+  const outros = sortedEvents(state.events.filter(e => {
+    if (!e.date.startsWith(currentYear)) return false;
+    
+    const isLicencaLonga = e.category === "licenca_medica" && (e.endDate && e.endDate !== e.date);
+    const isOutrosRH = ["licenca_premio", "outras_licencas", "ferias"].includes(e.category);
+    
+    return isLicencaLonga || isOutrosRH;
+  }));
+
+  const elLista = $("#listaOutrosEventos");
+
+  if (elLista) {
+    elLista.innerHTML = outros.length 
+      ? outros.map(o => {
+          const labelDate = o.endDate && o.endDate !== o.date 
+            ? `${dateShort.format(parseDate(o.date))} a ${dateShort.format(parseDate(o.endDate))}`
+            : `${dateShort.format(parseDate(o.date))}`;
+          return `<div class="mb-2">
+                    <span style="color:${eventColor(o)}; font-weight: bold;">•</span> ${categoryLabel(o.category)}
+                    <br><span class="ms-2 opacity-75">${labelDate}</span>
+                  </div>`;
+        }).join("") 
+      : "Nenhum evento no ano.";
+  }
+}
+
+
+
+
+
+
+
+
+
+
 
 
 async function initialize() {

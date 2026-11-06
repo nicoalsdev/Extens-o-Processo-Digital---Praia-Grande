@@ -139,7 +139,27 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  overflow: hidden;
+  overflow: visible !important; /* ISSO É OBRIGATÓRIO PARA AS BARRAS GRUDAR */
+}
+
+/* Classes para unificar o evento contínuo de múltiplos dias */
+.event-chip.conn-left {
+  margin-left: -4px; /* Ignora o padding esquerdo da célula */
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  width: calc(100% + 4px);
+}
+
+.event-chip.conn-right {
+  margin-right: -5px; /* Ignora o padding direito + 1px de borda */
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  width: calc(100% + 5px);
+}
+
+/* Se for um dia no meio do evento (conecta de ambos os lados) */
+.event-chip.conn-left.conn-right {
+  width: calc(100% + 9px);
 }
 
 /* Eventos Estilo Google (Cores Claras Originais) */
@@ -158,11 +178,6 @@ html, body {
   cursor: pointer;
 }
 .event-chip:hover { filter: brightness(0.95); }
-.event-chip.cat-pessoal { color: #137333; background: #ceead6; }
-.event-chip.cat-trabalho { color: #174ea6; background: #d3e3fd; }
-.event-chip.cat-lembrete { color: #a14200; background: #fce8b2; }
-.event-chip.cat-feriado { color: #a50e0e; background: #fce8e6; }
-.event-chip.cat-ponto_facultativo { color: #681da8; background: #eadcf8; }
 
 /* Mini Calendário na Barra Lateral */
 .mini-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 0 8px; font-size: 14px; font-weight: 500; color: #3c4043;}
