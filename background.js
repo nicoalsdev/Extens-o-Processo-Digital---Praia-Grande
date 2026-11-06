@@ -22,7 +22,7 @@ console.log("🔧 background.js iniciado.");
 
 //Tracker
 const ALARM_MONITOR_NAME = "monitorAssinaturas";
-const MAX_MONITORAMENTO = 10;
+const MAX_MONITORAMENTO = 20;
 
 const notificationData = {};
 

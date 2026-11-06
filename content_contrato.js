@@ -161,37 +161,273 @@ sidebar.innerHTML = `
 `;
 document.body.appendChild(sidebar);
 
+
 // ==========================================
-// 3. PREENCHER LISTA DE SECRETÁRIOS
+// 3. BASE DE DADOS E PREENCHIMENTO DA LISTA
 // ==========================================
+
+window.secretarias = [
+    {
+        nome: "KATSU YONAMINE",
+        cargo: "Chefe do Gabinete do Prefeito",
+        email: "chefedegabinete@praiagrande.sp.gov.br",
+        codigo_orgao: "1 0 0",
+        orgao: "GABINETE DO PREFEITO",
+        id_gestor_orgao: "277"
+    },
+    {
+        nome: "REINALDO MOREIRA BRUNO",
+        cargo: "SECRETÁRIO GERAL DO GABINETE DO PREFEITO",
+        email: "minutaprefeito@praiagrande.sp.gov.br",
+        codigo_orgao: "1 1 0",
+        orgao: "GABINETE DO PREFEITO",
+        id_gestor_orgao: "292"
+    },
+    {
+        nome: "Alexandre Gallo Rodrigues",
+        cargo: "secretário de Governo",
+        email: "seg@praiagrande.sp.gov.br",
+        codigo_orgao: "2 2 0",
+        orgao: "GABINETE E DEPENDENCIAS SEG",
+        id_gestor_orgao: "296"
+    },
+    {
+        nome: "JOSIE YABUTA DE LIMA HOLLANDA",
+        cargo: "Secretária Municipal de Planejamento",
+        email: "josieh@praiagrande.sp.gov.br",
+        codigo_orgao: "3 2 0",
+        orgao: "GABINETE E DEPENDENCIAS",
+        id_gestor_orgao: "266"
+    },
+    {
+        nome: "MAURICIO VIEIRA IZUMI",
+        cargo: "SECRETÁRIO MUNICIPAL DE ASSUNTOS DE SEGURANÇA PÚBLICA",
+        email: "seasp@praiagrande.sp.gov.br",
+        codigo_orgao: "4 0 0",
+        orgao: "SECRETARIA DE ASSUNTOS DE SEG PUBLICA",
+        id_gestor_orgao: "280"
+    },
+    {
+        nome: "RONALDO FERREIRA DE ALCANTARA",
+        cargo: "SUBSECRTÁRIO DE GESTÃO DE PESSOAS",
+        email: "sead53@praiagrande.sp.gov.br",
+        codigo_orgao: "5 0 0",
+        orgao: "SECRETARIA DE ADMINISTRACAO",
+        id_gestor_orgao: "253"
+    },
+    {
+        nome: "GLAUCIA ANTUNES ALVAREZ",
+        cargo: "PROCURADORA CHEFE DA PROCURADORIA CONTENCIOSA",
+        email: "procuradorchefe@praiagrande.sp.gov.br",
+        codigo_orgao: "6 0 0",
+        orgao: "PROCURADORIA GERAL DO MUNICIPIO",
+        id_gestor_orgao: "259"
+    },
+    {
+        nome: "PATRICIA CONCEIÇÃO ALMEIDA DIAS",
+        cargo: "SECRETÁRIA MUNICIPAL DE EDUCAÇÃO",
+        email: "seduc.gabinete@praiagrande.sp.gov.br",
+        codigo_orgao: "9 0 0",
+        orgao: "SECRETARIA DE EDUCACAO",
+        id_gestor_orgao: "282"
+    },
+    {
+        nome: "JOSÉ ISAIAS COSTA LIMA",
+        cargo: "SECRETÁRIO MUNICIPAL DE SAÚDE PÚBLICA",
+        email: "secretario.sesap@praiagrande.sp.gov.br",
+        codigo_orgao: "10 0 0",
+        orgao: "SECRETARIA DE SAUDE PUBLICA",
+        id_gestor_orgao: "283"
+    },
+    {
+        nome: "LUIS FERNANDO FELIX DE PAULA",
+        cargo: "Secretário Municipal de Urbanismo",
+        email: "seurb13@praiagrande.sp.gov.br",
+        codigo_orgao: "11 0 0",
+        orgao: "SECRETARIA DE URBANISMO",
+        id_gestor_orgao: "243"
+    },
+    {
+        nome: "VALDIR PEREIRA RAMOS FILHO",
+        cargo: "SECRETÁRIO MUNICIPAL DE MEIO AMBIENTE",
+        email: "sema12@praiagrande.sp.gov.br",
+        codigo_orgao: "12 0 0",
+        orgao: "SECRETARIA DE MEIO AMBIENTE",
+        id_gestor_orgao: "285"
+    },
+    {
+        nome: "ELOISA OJEA GOMES TAVARES",
+        cargo: "SECRETÁRIA DE OBRAS PÚBLICAS",
+        email: "seop15@praiagrande.sp.gov.br",
+        codigo_orgao: "13 0 0",
+        orgao: "SECRETARIA DE OBRAS PUBLICAS",
+        id_gestor_orgao: "236"
+    },
+    {
+        nome: "FABRÍCIO MENEZES DE PAULA",
+        cargo: "SECRETÁRIO MUNICIPAL DE HABITAÇÃO",
+        email: "sehab@praiagrande.sp.gov.br",
+        codigo_orgao: "14 0 0",
+        orgao: "SECRETARIA DE HABITACAO",
+        id_gestor_orgao: "287"
+    },
+    {
+        nome: "SORAIA M. MILAN",
+        cargo: "Secretária Municipal",
+        email: "sesurbgabinete@praiagrande.sp.gov.br",
+        codigo_orgao: "15 0 0",
+        orgao: "SECRETARIA DE SERVICOS URBANOS",
+        id_gestor_orgao: "238"
+    },
+    {
+        nome: "MARCELINO SANTOS GOMES",
+        cargo: "Secretário Municipal de Trânsito",
+        email: "setran@praiagrande.sp.gov.br",
+        codigo_orgao: "16 2 0",
+        orgao: "GABINETE E DEPENDENCIAS",
+        id_gestor_orgao: "265"
+    },
+    {
+        nome: "LEANDRO AVELINO RODRIGUES CRUZ",
+        cargo: "Secretário Municipal de Transportes",
+        email: "setransp@praiagrande.sp.gov.br",
+        codigo_orgao: "17 0 0",
+        orgao: "SECRETARIA DE TRANSPORTES",
+        id_gestor_orgao: "246"
+    },
+    {
+        nome: "JOÃO ALVES CORREA NETO",
+        cargo: "SECRETÁRIO MUNICIPAL DE ASSUNTOS INSTITUCIONAIS",
+        email: "joaocorrea@praiagrande.sp.gov.br",
+        codigo_orgao: "18 0 0",
+        orgao: "SECR. DE ASSUNTOS INSTITUCIONAIS - SEAI",
+        id_gestor_orgao: "289"
+    },
+    {
+        nome: "MAURICIO DA SILVA PETIZ",
+        cargo: "secretário municipal de cultura e turismo",
+        email: "sectur@praiagrande.sp.gov.br",
+        codigo_orgao: "19 0 0",
+        orgao: "SECRETARIA DE CULTURA E TURISMO",
+        id_gestor_orgao: "232"
+    },
+    {
+        nome: "RODRIGO SANTANA",
+        cargo: "SECRETARIO MUNICIPAL DE ESPORTE E LAZER",
+        email: "seel@praiagrande.sp.gov.br",
+        codigo_orgao: "20 0 0",
+        orgao: "SECRETARIA DE ESPORTES E LAZER",
+        id_gestor_orgao: "235"
+    },
+    {
+        nome: "VERA LUCIA FIGUEIREDO BENICIO",
+        cargo: "SECRETARIA MUNICIPAL DA DIVERSIDADE E INCLUSAO",
+        email: "sedi@praiagrande.sp.gov.br",
+        codigo_orgao: "24 0 0",
+        orgao: "SECRETARIA DA DIVERSIDADE E INCLUSAO",
+        id_gestor_orgao: "294"
+    },
+    {
+        nome: "APARECIDA REGINA FERMINO DA SILVA",
+        cargo: "SECRETÁRIA MUNICIPAL",
+        email: "sepee@praiagrande.sp.gov.br",
+        codigo_orgao: "23 0 0",
+        orgao: "SECRETARIA DE PROJ.ESPECIAIS E ESTRATEG",
+        id_gestor_orgao: "298"
+    },
+    {
+        nome: "ERIKA CRISTINA PICOLO DA SILVA",
+        cargo: "Subsecretária de Controle Interno",
+        email: "controleinterno@praiagrande.sp.gov.br",
+        codigo_orgao: "1 10 0",
+        orgao: "SUBSECRETARIA DE CONTROLE INTERNO",
+        id_gestor_orgao: "267"
+    },
+    {
+        nome: "PAOLA KRISTINA VIEIRA DA SILVA",
+        cargo: "SUBSECRETARIA DE COMUNICACAO SOCIAL",
+        email: "paolavs@praiagrande.sp.gov.br",
+        codigo_orgao: "1 24 0",
+        orgao: "SUBSECRETARIA DE COMUNICACAO SOCIAL",
+        id_gestor_orgao: "264"
+    },
+    {
+        nome: "DENYS DOS SANTOS FONSECA",
+        cargo: "SUBSECRETARIO DE PLANEJAMENTO DE EXPANSAO DE REDE",
+        email: "seduc.redeescolar@praiagrande.sp.gov.br",
+        codigo_orgao: "9 18 0",
+        orgao: "SUBSECRETARIA PLANEJ.EXPANSAO REDE ESCOL",
+        id_gestor_orgao: "6"
+    }
+];
+
+// ==========================================
+// RENDERIZAR LISTA DE SECRETÁRIOS
+// ==========================================
+
 const listaSecretariosDiv = document.getElementById('mgc-lista-secretarios');
 
-secretarias.forEach((sec, index) => {
+listaSecretariosDiv.innerHTML = '';
+
+window.secretarias.forEach((sec, index) => {
+
     const div = document.createElement('div');
+
     div.className = 'list-group-item list-group-item-action secretaria-row d-flex align-items-center py-2 px-3';
+
     const checkboxId = `chk-sec-${index}`;
-    
+
     div.innerHTML = `
-        <input type="checkbox" class="chk-secretario" value="${sec.nome}" id="${checkboxId}">
-        <div class="sec-col-nome" title="${sec.nome}">${sec.nome}</div>
+        <input
+            type="checkbox"
+            class="chk-secretario"
+            value="${index}"
+            id="${checkboxId}"
+        >
+
+        <div class="sec-col-nome" title="${sec.nome}">
+            <div>${sec.nome}</div>
+            <small class="text-muted fw-normal">
+                ${sec.orgao}
+            </small>
+        </div>
     `;
-    
+
+    // Seleção individual
     div.addEventListener('click', function(e) {
+
         const chk = this.querySelector('.chk-secretario');
+
         chk.checked = !chk.checked;
-        if (chk.checked) this.classList.add('selecionada');
-        else this.classList.remove('selecionada');
+
+        if (chk.checked) {
+            this.classList.add('selecionada');
+        } else {
+            this.classList.remove('selecionada');
+        }
     });
 
-    div.addEventListener('dblclick', function(e) {
-        e.preventDefault(); 
-        console.log(`⚡ Injeção rápida disparada para: ${sec.nome}`);
-        document.dispatchEvent(new CustomEvent('AUTO_GESTORES', { detail: [sec.nome] }));
-        document.dispatchEvent(new CustomEvent('AUTO_RESPONSAVEIS', { detail: [sec.nome] }));
-    });
+    // Duplo clique: injeção individual
+  div.addEventListener('dblclick', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    console.log(`⚡ Injeção rápida: ${sec.nome}`);
+
+    document.dispatchEvent(new CustomEvent('AUTO_GESTORES', {
+        detail: [sec]
+    }));
+
+    document.dispatchEvent(new CustomEvent('AUTO_RESPONSAVEIS', {
+        detail: [sec]
+    }));
+});
 
     listaSecretariosDiv.appendChild(div);
 });
+
+console.log(`🟢 ${window.secretarias.length} secretários carregados.`);
+
 
 // ==========================================
 // 4. LÓGICA DA INTERFACE E EVENTOS
@@ -226,14 +462,30 @@ document.getElementById('btn-empenhos').addEventListener('click', () => {
 });
 
 document.getElementById('btn-injetar-pessoa').addEventListener('click', () => {
-    const selecionados = Array.from(document.querySelectorAll('.chk-secretario:checked')).map(chk => chk.value);
+
+    const selecionados = Array.from(
+        document.querySelectorAll('.chk-secretario:checked')
+    )
+    .map(chk => window.secretarias[Number(chk.value)])
+    .filter(Boolean);
+
     if (selecionados.length === 0) {
-        alert("⚠️ Por favor, selecione pelo menos um responsável na lista.");
+        alert("⚠️ Selecione pelo menos um responsável na lista.");
         return;
     }
-    document.dispatchEvent(new CustomEvent('AUTO_GESTORES', { detail: selecionados }));
-document.dispatchEvent(new CustomEvent('AUTO_RESPONSAVEIS', { detail: selecionados }));
+
+    console.log("📋 Registros selecionados para injeção:", selecionados);
+
+    document.dispatchEvent(new CustomEvent('AUTO_GESTORES', {
+        detail: selecionados
+    }));
+
+    document.dispatchEvent(new CustomEvent('AUTO_RESPONSAVEIS', {
+        detail: selecionados
+    }));
+
 });
+
 
 // ==========================================
 // 5. DETECÇÃO DE CONTEXTO E SALVAMENTO UNIFICADO
@@ -501,3 +753,106 @@ window.addEventListener('load', () => {
         });
     }
 });
+
+
+
+
+// ======================================================
+// CAPTURA AUTOMÁTICA DE GESTORES
+// ======================================================
+/*
+(function inicializarCapturaGestores() {
+
+    // Banco temporário durante a sessão da página
+    const gestoresCapturados = [];
+
+    // Evita duplicações
+    function gestorJaExiste(novoGestor) {
+        return gestoresCapturados.some(g =>
+            g.nome.toLowerCase() === novoGestor.nome.toLowerCase() &&
+            g.cargo.toLowerCase() === novoGestor.cargo.toLowerCase() &&
+            g.email.toLowerCase() === novoGestor.email.toLowerCase() &&
+            g.orgao.toLowerCase() === novoGestor.orgao.toLowerCase()
+        );
+    }
+
+    // Captura os dados dos campos
+    function capturarDadosGestor() {
+
+        const obterValor = (id) => {
+            const campo = document.getElementById(id);
+            return campo ? campo.value.trim() : '';
+        };
+
+        return {
+            nome: obterValor('frm_nome_pessoa'),
+            cargo: obterValor('frm_cargo'),
+            email: obterValor('frm_email'),
+            codigo_orgao: obterValor('frm_codigo_orgao'),
+            orgao: obterValor('frm_orgao'),
+            id_gestor_orgao: obterValor('frm_id_gestor_orgao')
+        };
+    }
+
+    // Escuta o clique na seta de adicionar gestor
+    document.addEventListener('click', function(event) {
+
+        const botao = event.target.closest('#seta_descer_orgao');
+
+        if (!botao) return;
+
+        // Captura antes da execução da função original
+        const gestor = capturarDadosGestor();
+
+        // Não registra campos completamente vazios
+        if (!gestor.nome) {
+            console.warn('⚠️ Nenhum nome de gestor encontrado.');
+            return;
+        }
+
+        // Evita registros duplicados
+        if (gestorJaExiste(gestor)) {
+            console.info('ℹ️ Gestor já registrado:', gestor.nome);
+            return;
+        }
+
+        gestoresCapturados.push(gestor);
+
+        console.groupCollapsed(
+            `👤 Gestor capturado: ${gestor.nome}`
+        );
+
+        console.log('Dados individuais:', gestor);
+
+        console.log(
+            '📋 JSON COMPLETO ATUALIZADO:\n',
+            JSON.stringify(gestoresCapturados, null, 4)
+        );
+
+        console.table(gestoresCapturados);
+
+        console.groupEnd();
+
+    }, true);
+
+    // Disponibiliza funções para consulta pelo console
+    window.exportarGestoresCapturados = function() {
+
+        const json = JSON.stringify(gestoresCapturados, null, 4);
+
+        console.log('📦 BASE COMPLETA DE GESTORES:\n' + json);
+
+        return json;
+    };
+
+    window.limparGestoresCapturados = function() {
+        gestoresCapturados.length = 0;
+        console.clear();
+        console.log('🗑️ Base temporária de gestores limpa.');
+    };
+
+    console.log('🟢 Captura automática de gestores inicializada.');
+
+})();
+*/
+
