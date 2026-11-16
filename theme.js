@@ -1231,6 +1231,58 @@ footer.layout-principal-rodape.rodape.simples {
 
 
 
+/* ===============================
+   AJUSTES DE INPUT, SELECT2, TÍTULOS E RODAPÉ
+=============================== */
+
+/* Input Somente Leitura (Fundo removido e cursor alterado) */
+div input[readonly],
+div input.form-control[readonly],
+div .form-control[readonly] {
+    background-color: transparent !important;
+    cursor: not-allowed !important;
+    color: #bbbbbb !important;
+}
+
+/* Select2 (Fundo removido para herdar o tema escuro e borda ajustada) */
+.select2-container--default .select2-selection--single {
+    background-color: transparent !important; 
+    border: 1px solid #444 !important; 
+    border-radius: 4px !important;
+}
+
+/* Cor do texto selecionado no Select2 para ficar legível no tema escuro */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #ffffff !important;
+}
+
+/* Título de Seção (Nova cor de fundo aplicada) */
+.section-title {
+    background: #2a2a2a !important;
+    color: #ffffff !important;
+    padding: 8px !important;
+    text-align: center !important;
+    font-weight: bold !important;
+    margin: 20px 0 !important;
+}
+
+/* Rodapé genérico (Fundo removido) */
+.rodape {
+    display: flex !important;
+    padding: 1rem 3rem !important;
+    color: #e0e0e0 !important;
+    background-color: transparent !important;
+}
+
+/* Rodapé específico do menu de pesquisa (Borda superior removida) */
+.menu-pesquisa > .rodape {
+    margin-top: .5rem !important;
+    margin-left: -.95rem !important;
+    margin-right: -.95rem !important;
+    padding: .5rem .5rem 0 !important;
+    border-top: none !important;
+}
+
 
                 ` : ''}
             `;

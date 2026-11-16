@@ -1,4 +1,5 @@
 
+pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('js/pdf.worker.min.js');
 // ==========================================
 // 1. INJETAR ESTILOS DA SIDEBAR (Isolado e Blindado)
 // ==========================================
@@ -134,12 +135,12 @@ sidebar.innerHTML = `
         <div class="mb-4">
             <label class="form-label text-uppercase text-secondary fw-bold mb-2" style="font-size: 0.75rem; letter-spacing: 0.5px;">Ações Gerais</label>
             <div class="row g-2">
-                <div class="col-6">
+                <div class="col-6 d-none">
                     <button id="btn-empenhos" class="btn btn-primary w-100 fw-semibold d-flex align-items-center justify-content-center gap-2">
                         <span>🔄</span> Empenhos
                     </button>
                 </div>
-                <div class="col-6">
+                <div class="col">
                     <button id="btn-salvar-dados" class="btn btn-warning w-100 fw-semibold text-dark d-flex align-items-center justify-content-center gap-2">
                         <span>💾</span> Salvar
                     </button>
@@ -856,3 +857,284 @@ window.addEventListener('load', () => {
 })();
 */
 
+// ======================================================
+// DISPONIBILIZAR SALVAMENTO NO CONSOLE DA PÁGINA
+// ======================================================
+
+const scriptConsole = document.createElement('script');
+
+scriptConsole.textContent = `
+    window.salvarDadosMGCConsole = function() {
+        document.dispatchEvent(
+            new CustomEvent('MGC_SOLICITAR_SALVAMENTO')
+        );
+
+        console.log('💾 Solicitação de salvamento enviada para a extensão.');
+    };
+
+    console.log('🟢 Comando disponível: salvarDadosMGCConsole()');
+`;
+
+(document.head || document.documentElement).appendChild(scriptConsole);
+scriptConsole.remove();
+
+// Recebe a solicitação no contexto da extensão
+document.addEventListener('MGC_SOLICITAR_SALVAMENTO', () => {
+
+    console.log('💾 Executando salvamento MGC...');
+
+    salvarDadosMGC(() => {
+        console.log('✅ Dados salvos com sucesso no chrome.storage.local!');
+    });
+
+});
+
+
+
+
+// ==========================================
+// INJEÇÃO DO BOTÃO EXTRATOR DE EMPENHOS
+// ==========================================
+
+function injetarBotaoExtratorPdf() {
+    const divEmpenho = document.getElementById('div_empenho');
+
+    if (!divEmpenho) {
+        setTimeout(injetarBotaoExtratorPdf, 1500);
+        return;
+    }
+
+    // Evita duplicidade
+    if (document.getElementById('btn-importar-empenhos-pdf')) return;
+
+    const campos = divEmpenho.querySelectorAll('.row > .col-sm-auto.mb-3');
+
+    if (campos.length < 2) {
+        setTimeout(injetarBotaoExtratorPdf, 1500);
+        return;
+    }
+
+    // Segunda coluna vazia: fica depois do campo Valor
+    const colunaDestino = campos[1];
+
+    colunaDestino.style.display = 'flex';
+    colunaDestino.style.alignItems = 'end';
+    colunaDestino.style.paddingBottom = '16px';
+
+    // Container
+    const container = document.createElement('div');
+    container.style.width = '100%';
+
+    // Label
+    const lbl = document.createElement('label');
+    lbl.htmlFor = 'numero_ano_empenho'; // Define o atributo for="numero_ano_empenho"
+    lbl.className = 'form-label required';
+    lbl.textContent = 'Empenho'; // textContent é mais seguro e rápido que innerHTML para texto puro
+
+    // Botão
+    const btn = document.createElement('button');
+    btn.id = 'btn-importar-empenhos-pdf';
+    btn.type = 'button';
+    btn.className = 'btn btn-outline-primary btn-sm';
+    btn.innerHTML = '<i class="fa fa-file-pdf"></i> Importar Empenhos PDF';
+
+    const fileInput = document.createElement('input');
+
+    fileInput.type = 'file';
+    fileInput.accept = '.pdf,application/pdf';
+    fileInput.style.display = 'none';
+
+    btn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', processarPdfEmpenhos);
+
+    container.appendChild(lbl);
+    container.appendChild(btn);
+    container.appendChild(fileInput);
+
+    colunaDestino.appendChild(container);
+}
+
+
+// ==========================================
+// PROCESSAMENTO DO PDF
+// ==========================================
+
+async function processarPdfEmpenhos(event) {
+
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    const btn = document.getElementById('btn-importar-empenhos-pdf');
+
+    const textoOriginal = '<i class="fa fa-file-pdf"></i> Importar Empenhos PDF';
+
+    btn.disabled = true;
+    btn.textContent = 'Processando PDF...';
+
+    try {
+
+        const arrayBuffer = await file.arrayBuffer();
+        const typedarray = new Uint8Array(arrayBuffer);
+
+        const pdf = await pdfjsLib.getDocument({
+            data: typedarray
+        }).promise;
+
+        let empenhosExtraidos = [];
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+
+            btn.textContent = `Lendo página ${i}/${pdf.numPages}...`;
+
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+
+            const textoPagina = textContent.items
+                .map(item => item.str)
+                .join(' ');
+
+            const dados = extrairDadosEmpenho(textoPagina, i);
+
+            if (dados.numeroEmpenho !== 'Não encontrado') {
+                empenhosExtraidos.push(dados);
+            }
+        }
+
+        if (!empenhosExtraidos.length) {
+            alert('Nenhum empenho válido foi encontrado no PDF.');
+            return;
+        }
+
+        btn.textContent = `Inserindo 0/${empenhosExtraidos.length}...`;
+
+        await injetarEmpenhosNaPagina(empenhosExtraidos, btn);
+
+        alert(
+            `${empenhosExtraidos.length} empenho(s) processado(s) com sucesso!`
+        );
+
+    } catch (error) {
+
+        console.error('[Extrator Empenhos] Erro:', error);
+
+        alert('Erro ao processar o PDF. Verifique o console.');
+
+    } finally {
+
+        btn.disabled = false;
+        btn.innerHTML = textoOriginal;
+
+        event.target.value = '';
+    }
+}
+
+
+// ==========================================
+// EXTRAÇÃO DOS DADOS DO EMPENHO
+// ==========================================
+
+function extrairDadosEmpenho(textoPage, numeroPagina) {
+
+    // Número do empenho
+    const matchNumEmpenho = textoPage.match(
+        /\d{4,6}-\d{4}[^\d]*(\d{4,6})/
+    );
+
+    // Ano do empenho
+    const matchAno = textoPage.match(
+        /\/(20\d{2})/
+    );
+
+    return {
+
+        paginaOrigem: numeroPagina,
+
+        numeroEmpenho: matchNumEmpenho
+            ? matchNumEmpenho[1]
+            : 'Não encontrado',
+
+        anoEmpenho: matchAno
+            ? matchAno[1]
+            : 'Não encontrado'
+    };
+}
+
+
+// ==========================================
+// PREENCHIMENTO AUTOMÁTICO DOS EMPENHOS
+// ==========================================
+
+async function injetarEmpenhosNaPagina(empenhos, btn) {
+
+    const inputNumero = document.getElementById('frm_numero_empenho');
+    const inputAno = document.getElementById('frm_exercicio_empenho');
+
+    const campoDescricao = document.getElementById('frm_descricao_empenho');
+
+    const setaDescer = document.getElementById('seta_descer_empenho');
+
+    if (!inputNumero || !inputAno || !campoDescricao || !setaDescer) {
+        throw new Error('Não foi possível localizar todos os campos do formulário.');
+    }
+
+    let inseridos = 0;
+
+    for (const empenho of empenhos) {
+
+        if (empenho.numeroEmpenho === 'Não encontrado') continue;
+
+        btn.textContent = `Inserindo ${inseridos + 1}/${empenhos.length}...`;
+
+        // 1. Preenche número e ano
+        inputNumero.value = empenho.numeroEmpenho;
+        inputAno.value = empenho.anoEmpenho;
+
+        // 2. Dispara eventos para atualizar os scripts da página
+        [inputNumero, inputAno].forEach(campo => {
+
+            campo.dispatchEvent(
+                new Event('input', { bubbles: true })
+            );
+
+            campo.dispatchEvent(
+                new Event('change', { bubbles: true })
+            );
+
+        });
+
+        // 3. Simula interação com o campo de descrição
+        campoDescricao.dispatchEvent(
+            new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                view: window
+            })
+        );
+
+        // Aguarda a busca AJAX preencher os dados do empenho
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        // 4. Adiciona o empenho
+        setaDescer.click();
+
+        inseridos++;
+
+        // 5. Aguarda a inclusão antes do próximo
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    btn.textContent = 'Concluído!';
+
+    console.log(
+        `[Extrator Empenhos] ${inseridos} empenho(s) inserido(s).`
+    );
+}
+
+
+// ==========================================
+// INICIALIZAÇÃO
+// ==========================================
+
+injetarBotaoExtratorPdf();
