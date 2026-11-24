@@ -75,6 +75,12 @@
     "all_frames": false
     },
     {
+      "matches": ["https://processodigital.praiagrande.sp.gov.br/processo/*"],
+      "js": ["js/interceptor-assinatura.js","css/sweetalert2.min.css"],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
       "matches": ["https://www.intra.pg/SEAD/Lists/AssDigital/Item/newifs.aspx*"],
       "js": ["content_sead.js","js/inject_fw.js"],
       "css": ["css/sweetalert2.min.css","css/all.min.css"],
