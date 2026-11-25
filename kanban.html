@@ -161,9 +161,6 @@
       cursor: pointer;
       transition: background-color 0.15s ease;
     }
-    .history-toggle:hover {
-      background-color: #f8f9fa !important;
-    }
   </style>
 </head>
 <body>
@@ -227,8 +224,23 @@
             
             <!-- Coluna Principal (Esquerda - 8 colunas) -->
             <div class="col-md-8 d-flex flex-column gap-3">
+             
+                  
+             
+
+              <div class="row">
               
-              <!-- Tags -->
+                <div class="col-6">
+                     <!-- Data de Prazo -->
+              <div class="card bg-white shadow-none">
+                <div class="card-body p-3">
+                  <label for="modalDataPrazo" class="section-label mb-2 d-block text-dark">Data de Prazo</label>
+                  <input type="date" id="modalDataPrazo" class="form-control form-control-sm bg-light text-dark border">
+                </div>
+              </div>
+                </div>
+                <div class='col-6'>
+                       <!-- Tags -->
               <div>
                 <div class="section-label mb-2 d-flex flex-wrap align-items-center gap-1 text-dark">
                   Etiquetas / Tags
@@ -238,21 +250,47 @@
                 </div>
               </div>
 
+
+                </div>
+              </div>
+
               <!-- Descrição -->
               <div>
                 <label for="modalDescription" class="section-label mb-2 d-block text-dark">Descrição / Comentário</label>
                 <textarea id="modalDescription" class="form-control bg-white text-dark border shadow-none" rows="5" placeholder="Adicione observações, pendências ou anotações sobre este processo..."></textarea>
               </div>
 
-              <!-- Histórico (Accordion nativo do Bootstrap) -->
+             
+
+            </div>
+
+            <!-- Barra Lateral (Direita - 4 colunas) -->
+            <div class="col-md-4 d-flex flex-column gap-3">
+              
+              
+
+              <!-- Ação Principal (Sub-kanban) -->
+              <button type="button" id="btn-abrir-subkanban" class="btn btn-outline-info text-dark fw-semibold w-100 d-flex align-items-center justify-content-center gap-2 py-2 shadow-sm">
+                <i class="fa-solid fa-users"></i> Gerenciar Empresas
+              </button>
+
+              <!-- Métricas de Tempo -->
+              <div class="card bg-white border shadow-none">
+                <div class="card-body p-3" id="boardTimeInfo">
+                  <div class="section-label mb-1 text-dark">Tempo no Board</div>
+                  <div class="text-muted small">Carregando...</div>
+                </div>
+              </div>
+
+               <!-- Histórico (Accordion nativo do Bootstrap) -->
               <div class="card border bg-white shadow-none">
                 <div id="historyToggleHeader" class="card-header bg-white border-0 py-2 px-3 d-flex justify-content-between align-items-center history-toggle" 
                      data-bs-toggle="collapse" data-bs-target="#collapseHistorico" aria-expanded="false">
                   <span class="fw-medium small text-dark">
-                    <i class="fa-regular fa-clock text-secondary me-1"></i> Histórico de Movimentações
+                    <i class="fa-regular fa-clock text-secondary me-1"></i> Histórico
                   </span>
                   <span id="historyToggleLabel" class="text-primary small fw-medium">
-                    Expandir <i class="fa-solid fa-chevron-down ms-1" style="font-size: 0.7rem;"></i>
+                    Mostrar <i class="fa-solid fa-chevron-down ms-1" style="font-size: 0.7rem;"></i>
                   </span>
                 </div>
                 <div class="collapse" id="collapseHistorico">
@@ -264,32 +302,8 @@
 
             </div>
 
-            <!-- Barra Lateral (Direita - 4 colunas) -->
-            <div class="col-md-4 d-flex flex-column gap-3">
-              
-              <!-- Ação Principal (Sub-kanban) -->
-              <button type="button" id="btn-abrir-subkanban" class="btn btn-outline-info text-dark fw-semibold w-100 d-flex align-items-center justify-content-center gap-2 py-2 shadow-sm">
-                <i class="fa-solid fa-users"></i> Gerenciar Empresas
-              </button>
 
-              <!-- Data de Prazo -->
-              <div class="card bg-white border shadow-none">
-                <div class="card-body p-3">
-                  <label for="modalDataPrazo" class="section-label mb-2 d-block text-dark">Data de Prazo</label>
-                  <input type="date" id="modalDataPrazo" class="form-control form-control-sm bg-light text-dark border">
-                </div>
-              </div>
-
-              <!-- Métricas de Tempo -->
-              <div class="card bg-white border shadow-none">
-                <div class="card-body p-3" id="boardTimeInfo">
-                  <div class="section-label mb-1 text-dark">Tempo no Board</div>
-                  <div class="text-muted small">Carregando...</div>
-                </div>
-              </div>
-
-            </div>
-
+          
           </div>
         </div>
 

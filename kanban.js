@@ -1359,7 +1359,7 @@ async function renderTagsInsideModal(processId, processNumber) {
         tagsForProcess.forEach(tag => {
             const tagSpan = document.createElement("span");
             tagSpan.className = "badge";
-            tagSpan.style.cssText = `background-color: ${tag.color}; margin-left: 4px; font-weight: normal;`;
+            tagSpan.style.cssText = `background-color: ${tag.color};  margin-left: 4px; font-weight: normal; color: #000`;
             tagSpan.textContent = tag.name;
             container.appendChild(tagSpan);
         });
