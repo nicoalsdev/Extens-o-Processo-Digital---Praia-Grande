@@ -76,6 +76,8 @@ function applyGlobalTheme(config) {
             .table { --bs-table-bg: ${theme.card} !important; color: #fff !important; }
             .table td, .table th { background-color: ${theme.card} !important; border-color: #666 !important; }
             .bg-primary, .btn-primary { background-color: #0d2c5e !important;}
+
+            .bg-info, .btn-info { background-color: #0a6b81 !important;}
             .bg-warning, .btn-warning { background-color: #b98b03 !important;}
             .bg-danger { background-color:#801e28 !important;}
             .bg-white, .btn-white { background-color:#2d2d2d !important}

@@ -5,83 +5,62 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>KANBAN - PROCESSO DIGITAL</title>
   <link href="css/bootstrap.min.css" rel="stylesheet">
-
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
-        
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
   <link rel="stylesheet" href="css/sweetalert2.min.css">
   <style>
-
     @property --border-angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
-}
+      syntax: "<angle>";
+      initial-value: 0deg;
+      inherits: false;
+    }
 
-@keyframes border-angle-rotate {
-  from { --border-angle: 0deg; }
-  to { --border-angle: 360deg; }
-}
+    @keyframes border-angle-rotate {
+      from { --border-angle: 0deg; }
+      to { --border-angle: 360deg; }
+    }
 
-/* A classe que será aplicada ao card localizado */
-.task-highlight-search {
-  --border-angle: 0deg;
-  position: relative;
-  z-index: 10; /* Garante que fique sobre os outros */
-  border: 4px solid transparent !important;
-  border-radius: 8px; /* Ajuste conforme o raio do seu card */
-  
-  /* O truque do gradiente: padding-box mantém o fundo do card, border-box desenha a borda */
-  background: 
-    linear-gradient(var(--card-bg-color, #fff), var(--card-bg-color, #fff)) padding-box,
-    conic-gradient(
-        from var(--border-angle),
-        #00fff2, 
-        #7f00ff, 
-        #ff0055, 
-        #00fff2
-    ) border-box !important;
-    
-  animation: border-angle-rotate 2s infinite linear;
-  box-shadow: 0 0 15px rgba(127, 0, 255, 0.4);
-  transform: scale(1.03);
-  transition: transform 0.3s ease;
-}
+    .task-highlight-search {
+      --border-angle: 0deg;
+      position: relative;
+      z-index: 10;
+      border: 4px solid transparent !important;
+      border-radius: 8px;
+      background: 
+        linear-gradient(var(--card-bg-color, #fff), var(--card-bg-color, #fff)) padding-box,
+        conic-gradient(
+            from var(--border-angle),
+            #00fff2, 
+            #7f00ff, 
+            #ff0055, 
+            #00fff2
+        ) border-box !important;
+      animation: border-angle-rotate 2s infinite linear;
+      box-shadow: 0 0 15px rgba(127, 0, 255, 0.4);
+      transform: scale(1.03);
+      transition: transform 0.3s ease;
+    }
 
     body { overflow-x: auto; white-space: nowrap; height: 100vh; background: #3a546e; padding: 20px; }
     .board { 
-    display: inline-block; 
-    vertical-align: top; 
-    width: 240px;          /* Era 300px, reduzi para 240px */
-    margin-right: 15px;    /* Espaçamento lateral menor */
-    background: #e7e7e7; 
-    border-radius: 10px; 
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
-}
+      display: inline-block; 
+      vertical-align: top; 
+      width: 240px;
+      margin-right: 15px;
+      background: #e7e7e7; 
+      border-radius: 10px; 
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
+    }
 
-/* Diminuindo a fonte do título da coluna */
-.board-header { 
-    font-weight: 600; 
-    font-size: 0.95rem;    /* Era 1.1rem, reduzi para 0.95rem */
-    color: #fff; 
-    padding: 8px 10px;     /* Padding menor para ficar mais compacto */
-    border-top-left-radius: 10px; 
-    border-top-right-radius: 10px; 
-}
-   .task-list { min-height: 100px; padding: 10px; }
-    .task {
-    display: flex;
-    align-items: center;
-    background: #f8f9fa;
-    border-radius: 6px;
-    margin: 4px 0;
-    padding: 6px;          /* Padding interno reduzido */
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    cursor: pointer;
-    font-size: 0.85rem;    /* Diminuindo a fonte do texto da task */
-}
-    .task:hover { background: #dee2e6; }
-    .due-date { font-size: 0.8rem; color: #495057; }
+    .board-header { 
+      font-weight: 600; 
+      font-size: 0.95rem;
+      color: #fff; 
+      padding: 8px 10px;
+      border-top-left-radius: 10px; 
+      border-top-right-radius: 10px; 
+    }
+
+    .task-list { min-height: 100px; padding: 10px; }
     .task {
       display: flex;
       align-items: center;
@@ -91,34 +70,16 @@
       padding: 6px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       cursor: pointer;
+      font-size: 0.85rem;
     }
-
-    .task:hover {
-      background: #e9ecef;
-    }
-
-    .task-color-bar {
-      width: 6px;
-      height: 100%;
-      border-radius: 4px 0 0 4px;
-      margin-right: 8px;
-    }
+    .task:hover { background: #e9ecef; }
+    .due-date { color: #6c757d; font-size: 0.75rem; }
 
     .task-content {
-    flex: 1;
-    line-height: 1.2;      /* Diminui o espaçamento entre linhas */
-    white-space: normal;   /* Garante que o texto quebre linha no card menor */
-}
-.due-date {
-    color: #6c757d;
-    font-size: 0.75rem;    /* Era 0.8rem */
-}
-.task-color-bar {
-    width: 4px;            /* Era 6px */
-    height: 100%;
-    border-radius: 4px 0 0 4px;
-    margin-right: 6px;
-}
+      flex: 1;
+      line-height: 1.2;
+      white-space: normal;
+    }
 
     .kanban-guide {
       position: fixed;
@@ -136,10 +97,7 @@
       cursor: pointer;
     }
 
-    .kanban-guide:hover {
-      width: 150px;
-    }
-
+    .kanban-guide:hover { width: 150px; }
     .kanban-guide-item {
       display: flex;
       align-items: center;
@@ -151,16 +109,8 @@
       opacity: 0;
       transition: opacity 0.2s ease;
     }
-
-    .kanban-guide:hover .kanban-guide-item {
-      opacity: 1;
-    }
-
-    .kanban-color-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 4px;
-    }
+    .kanban-guide:hover .kanban-guide-item { opacity: 1; }
+    .kanban-color-dot { width: 12px; height: 12px; border-radius: 4px; }
 
     #kanbanSearchBar {
       position: fixed;
@@ -173,7 +123,6 @@
       border-radius: 0 0 10px 10px;
       box-shadow: 0px 4px 10px #00000088;
     }
-
     #kanbanSearchBar input {
       width: 100%;
       padding: 8px;
@@ -183,205 +132,211 @@
       color: #000;
     }
 
-    #kanbanTopSpacer {
-      height: 20px;   /* altura da barra flutuante */
-
-    }
-
-    #textsearch{
+    #kanbanTopSpacer { height: 20px; }
+    #textsearch {
       bottom: 20px;
-      color:#fff;
+      color: #fff;
       position: fixed;
       right: 20px;
       opacity: 60%;
     }
-/* Reduzindo a fonte e compactando o Modal de Detalhes */
-#taskModal .modal-content {
-    font-size: 0.85rem; /* Mesma escala que usamos no board */
-}
 
-#taskModal .modal-title {
-    font-size: 1rem;
-}
+    /* Estilos do Novo Modal Processo */
+    .modal-processo .modal-content {
+      border-radius: 12px;
+      border: 1px solid #dee2e6;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+      white-space: normal; /* Garante quebra de linha normal dentro do modal */
+    }
 
-/* Diminuindo o tamanho dos inputs e labels para ocupar menos espaço */
-#taskModal .form-control, 
-#taskModal .form-label,
-#taskModal .btn {
-    font-size: 0.8rem;
-    padding: 4px 8px;
-}
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #6c757d;
+    }
 
-#taskModal .modal-header, 
-#taskModal .modal-footer {
-    padding: 8px 15px;
-}
-
-/* Ajuste específico para o histórico e informações de tempo */
-#historyList, #boardTimeInfo {
-    font-size: 0.75rem;
-}
-
-/* Reduzindo as margens entre as linhas do modal */
-#taskModal .mb-3, #taskModal .mt-2 {
-    margin-bottom: 0.5rem !important;
-    margin-top: 0.3rem !important;
-}
-
-#taskModal hr {
-    margin: 0.5rem 0;
-}
-
-.modalDescription{
-  height: 1500px !important;
-}
-
-
+    .history-toggle {
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+    .history-toggle:hover {
+      background-color: #f8f9fa !important;
+    }
   </style>
 </head>
 <body>
   <div id="kanbanTopSpacer"></div>
-  <div class="kanban-search-bar d-none " id="kanbanSearchBar">
+  <div class="kanban-search-bar d-none" id="kanbanSearchBar">
     <input id="kanbanFilterInput" type="text" placeholder="Filtrar processos..." />
-
   </div>
-  <div id="loadForecast"  class='d-none'
-  style=" padding:10px; margin-bottom:10px; border-radius:8px;">
-  Carregando previsão...
-</div>
+  
+  <div id="loadForecast" class="d-none" style="padding:10px; margin-bottom:10px; border-radius:8px;">
+    Carregando previsão...
+  </div>
 
-
-<div class="modal fade" id="globalSearchModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content" style="">
-      <div class="modal-header">
-        <h5 class="modal-title">Busca Global</h5>
-        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <input id="globalSearchInput" type="text" class="form-control text-dark" placeholder="Digite qualquer coisa..." />
-        <div id="globalSearchResults" style="margin-top:15px; max-height: 400px; overflow-y:auto;"></div>
-
+  <!-- Modal Busca Global -->
+  <div class="modal fade" id="globalSearchModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content" style="white-space: normal;">
+        <div class="modal-header">
+          <h5 class="modal-title">Busca Global</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input id="globalSearchInput" type="text" class="form-control text-dark" placeholder="Digite qualquer coisa..." />
+          <div id="globalSearchResults" style="margin-top:15px; max-height: 400px; overflow-y:auto;"></div>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
+  <div id="boardsContainer" style="transform: scale(1); transform-origin: top left;"></div>
+  <div id="kanbanGuide" class="kanban-guide"></div>
+  <div id="textsearch">Ctrl + M - Pesquisar Processos</div>
 
+  <!-- NOVO MODAL DE DETALHES DO PROCESSO -->
+  <div class="modal fade modal-processo" id="taskModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content bg-light text-dark overflow-hidden">
+        
+        <!-- 1. HEADER -->
+        <div class="modal-header bg-white border-bottom px-4 py-3 d-flex justify-content-between align-items-center gap-2">
+          <div class="d-flex align-items-center flex-wrap gap-2">
+            <h5 class="modal-title fw-bold mb-0 fs-4 text-dark" id="modalProcessNumber">0000/0000</h5>
+            <span class="badge bg-light text-secondary border font-monospace fw-normal" title="ID Interno" id="modalProcessId">
+              000000
+            </span>
+          </div>
 
+          <div class="d-flex align-items-center gap-2">
+            <button type="button" id="SearchProcessBtn" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 fw-medium" title="Pesquisar no Assinador Digital">
+              <i class="fa-solid fa-magnifying-glass"></i> Assinador
+            </button>
+            <button type="button" id="openProcessBtn" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 fw-medium" title="Abrir no Processo Digital">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir Processo
+            </button>
+            <button type="button" class="btn-close ms-1" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+        </div>
 
-<div id="boardsContainer" style="transform: scale(1);transform-origin: top left;"></div>
-<div id="kanbanGuide" class="kanban-guide"></div>
+        <!-- 2. BODY (Grid 2 Colunas) -->
+        <div class="modal-body p-4">
+          <div class="row g-4">
+            
+            <!-- Coluna Principal (Esquerda - 8 colunas) -->
+            <div class="col-md-8 d-flex flex-column gap-3">
+              
+              <!-- Tags -->
+              <div>
+                <div class="section-label mb-2 d-flex flex-wrap align-items-center gap-1 text-dark">
+                  Etiquetas / Tags
+                </div>
+                <div id="tagsListModal" class="d-flex flex-wrap align-items-center gap-2">
+                  <!-- Tags dinâmicas renderizadas via JS -->
+                </div>
+              </div>
 
-<div id="textsearch">Ctrl + M - Pesquisar Processos</div>
+              <!-- Descrição -->
+              <div>
+                <label for="modalDescription" class="section-label mb-2 d-block text-dark">Descrição / Comentário</label>
+                <textarea id="modalDescription" class="form-control bg-white text-dark border shadow-none" rows="5" placeholder="Adicione observações, pendências ou anotações sobre este processo..."></textarea>
+              </div>
 
+              <!-- Histórico (Accordion nativo do Bootstrap) -->
+              <div class="card border bg-white shadow-none">
+                <div id="historyToggleHeader" class="card-header bg-white border-0 py-2 px-3 d-flex justify-content-between align-items-center history-toggle" 
+                     data-bs-toggle="collapse" data-bs-target="#collapseHistorico" aria-expanded="false">
+                  <span class="fw-medium small text-dark">
+                    <i class="fa-regular fa-clock text-secondary me-1"></i> Histórico de Movimentações
+                  </span>
+                  <span id="historyToggleLabel" class="text-primary small fw-medium">
+                    Expandir <i class="fa-solid fa-chevron-down ms-1" style="font-size: 0.7rem;"></i>
+                  </span>
+                </div>
+                <div class="collapse" id="collapseHistorico">
+                  <div id="historyList" class="card-body border-top py-2 px-3 small text-secondary" style="max-height: 200px; overflow-y: auto;">
+                    <!-- Lista do histórico entra aqui -->
+                  </div>
+                </div>
+              </div>
 
-<!-- Modal -->
-<div class="modal fade " id="taskModal" tabindex="-1" aria-hidden="true" style="">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button id="SearchProcessBtn" class="btn bg-primary-subtle"><i class="fa-solid fa-magnifying-glass text-success-emphasis"></i></button>
-        <h5 class="modal-title ms-2">Detalhes do Processo <strong class="opacity-25">ID:<span id="modalProcessId"></span></strong> </h5> 
-
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-
-      <div class="modal-body text-dark">
-
-        <div class="row align-items-center">
-          <div class='col-6 mt-2 '>
-           <p><strong>Número:</strong> <span id="modalProcessNumber"></span></p>
-         </div>
-         <div class="col-5">
-          <div class="row">
-            <div class="col-3 mt-2 mr-3">
-              <label class="form-label"> <strong>Data de Prazo</strong></label>
-            </div> 
-            <div class="col-8 ml-3 offset-md-1">
-              <input type="date" id="modalDataPrazo" class="form-control text-dark">
             </div>
 
-            
+            <!-- Barra Lateral (Direita - 4 colunas) -->
+            <div class="col-md-4 d-flex flex-column gap-3">
+              
+              <!-- Ação Principal (Sub-kanban) -->
+              <button type="button" id="btn-abrir-subkanban" class="btn btn-outline-info text-dark fw-semibold w-100 d-flex align-items-center justify-content-center gap-2 py-2 shadow-sm">
+                <i class="fa-solid fa-users"></i> Gerenciar Empresas
+              </button>
+
+              <!-- Data de Prazo -->
+              <div class="card bg-white border shadow-none">
+                <div class="card-body p-3">
+                  <label for="modalDataPrazo" class="section-label mb-2 d-block text-dark">Data de Prazo</label>
+                  <input type="date" id="modalDataPrazo" class="form-control form-control-sm bg-light text-dark border">
+                </div>
+              </div>
+
+              <!-- Métricas de Tempo -->
+              <div class="card bg-white border shadow-none">
+                <div class="card-body p-3" id="boardTimeInfo">
+                  <div class="section-label mb-1 text-dark">Tempo no Board</div>
+                  <div class="text-muted small">Carregando...</div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 3. FOOTER -->
+        <div class="modal-footer bg-white border-top px-4 py-3 d-flex justify-content-between align-items-center">
+          <button type="button" id="removeTaskBtn" class="btn btn-sm btn-outline-danger border-0 d-inline-flex align-items-center gap-1 fw-medium">
+            <i class="fa-regular fa-trash-can"></i> Remover Card
+          </button>
+
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-secondary border text-white px-3 fw-medium" data-bs-dismiss="modal">
+              Cancelar
+            </button>
+            <button type="button" id="saveTaskBtn" class="btn btn-sm btn-primary px-4 fw-semibold">
+              Salvar Alterações
+            </button>
           </div>
         </div>
 
       </div>
+    </div>
+  </div>
 
-      
-
-
-
-      <div class="mb-3">
-        <label class="form-label">Descrição / Comentário</label>
-        <textarea id="modalDescription" class="form-control" rows="3"></textarea>
-      </div>
-
-      <div class="row">
-        <div class='col opacity-100'>
-
-          <div id="tagsListModal" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px;"></div>
-
+  <!-- Modal Novo Processo -->
+  <div class="modal fade" id="createProcessModal" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content" style="white-space: normal;">
+        <div class="modal-header">
+          <h5 class="modal-title">Novo Processo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <label>Número do Processo</label>
+          <input id="newProcessNumber" type="text" class="form-control" placeholder="Ex.: 12345/2024">
+        </div>
+        <div class="modal-footer">
+          <button id="saveNewProcess" class="btn btn-primary">Adicionar</button>
         </div>
       </div>
-
-      <hr>
-     <div class="d-flex justify-content-between align-items-center mb-1">
-  <h6 class="mb-0">Histórico do Processo</h6>
-  <button id="toggleHistoryBtn" class="btn btn-sm btn-outline-secondary" type="button" style="font-size: 0.75rem; padding: 2px 6px;">
-    <i class="fa-solid fa-chevron-down"></i> Mostrar
-  </button>
-</div>
-
-<div id="historyContainer" style="display: none; margin-top: 6px;">
-  <div id="historyList" class="text-muted small" style="max-height: 200px; overflow-y: auto;"></div>
-</div>
-      <hr>
-      <h6>⏱ Tempo no Board</h6>
-      <div id="boardTimeInfo" style="font-size: 0.85rem; opacity: .9;">
-        Carregando...
-      </div>
-    </div>
-
-    <!-- Rodapé com 3 botões -->
-    <div class="modal-footer d-flex justify-content-between align-items-center">
-      <button id="removeTaskBtn" class="btn btn-danger">Remover</button>
-      <button id="openProcessBtn" class="btn btn-secondary">Abrir Processo</button>
-      
-      <button id="saveTaskBtn" class="btn btn-primary">Salvar</button>
     </div>
   </div>
-</div>
-</div>
 
-
-<div class="modal fade" id="createProcessModal" tabindex="-1">
-  <div class="modal-dialog modal-sm modal-dialog-centered">
-    <div class="modal-content" >
-      <div class="modal-header">
-        <h5 class="modal-title">Novo Processo</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-
-      <div class="modal-body">
-        <label>Número do Processo</label>
-        <input id="newProcessNumber" type="text" class="form-control" placeholder="Ex.: 12345/2024">
-      </div>
-
-      <div class="modal-footer">
-        <button id="saveNewProcess" class="btn btn-primary">Adicionar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="theme.js"></script>
-
-<script src="js/Sortable.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="kanban.js"></script>
-<script src="js/sweetalert2.min.js"></script>
-<script src="listTags.js"></script>
-
+  <script src="theme.js"></script>
+  <script src="js/Sortable.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="kanban.js"></script>
+  <script src="js/sweetalert2.min.js"></script>
+  <script src="listTags.js"></script>
 </body>
 </html>

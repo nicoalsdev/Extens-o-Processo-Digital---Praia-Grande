@@ -380,18 +380,30 @@ async function renderBoardTime(processId) {
   const info = data.processData?.[processId];
 
   if (!info || !info.enteredBoardAt) {
-    container.innerHTML = "<span class='text-muted'>Sem informação.</span>";
+    container.innerHTML = `
+      <div class="section-label mb-2">Tempo no Board</div>
+      <span class="text-muted small">Sem informação.</span>
+    `;
     return;
-}
+  }
 
-const entered = info.enteredBoardAt;
-const dateStr = formatDateTime(entered);
-const elapsed = formatElapsedTime(entered);
+  const entered = info.enteredBoardAt;
+  const dateStr = formatDateTime(entered);
+  const elapsed = formatElapsedTime(entered);
 
-container.innerHTML = `
-  <div><strong>Entrou no board:</strong> ${dateStr}</div>
-  <div><strong>Tempo parado:</strong> ${elapsed}</div>
-`;
+  container.innerHTML = `
+    <div class="section-label mb-2">Tempo no Board</div>
+    <div class="mb-2">
+      <div class="text-muted" style="font-size: 0.75rem;">Entrada nesta coluna</div>
+      <div class="fw-semibold text-dark small">${dateStr}</div>
+    </div>
+    <div>
+      <div class="text-muted" style="font-size: 0.75rem;">Tempo parado</div>
+      <div class="fw-bold text-warning-emphasis small d-inline-flex align-items-center gap-1">
+        <i class="fa-solid fa-stopwatch"></i> ${elapsed}
+      </div>
+    </div>
+  `;
 }
 
 
@@ -496,20 +508,18 @@ async function renderHistory(processId) {
   const history = data.processData?.[processId]?.history || [];
 
   if (history.length === 0) {
-    container.innerHTML = "<span class='text-muted'>Nenhum histórico registrado.</span>";
+    container.innerHTML = "<div class='py-1 text-muted'>Nenhum histórico registrado.</div>";
     return;
-}
+  }
 
-const sorted = history.slice().sort((a, b) => b.date - a.date);
+  const sorted = history.slice().sort((a, b) => b.date - a.date);
 
-container.innerHTML = sorted.map(h => `
-    <div style="padding:4px 0; border-bottom:1px solid #2a2a2a">
-    <strong>${formatDateTime(h.date)}</strong><br>
-    ${h.action}
+  container.innerHTML = sorted.map(h => `
+    <div class="py-1 border-bottom border-light">
+      <strong class="text-dark">${formatDateTime(h.date)}</strong> — ${h.action}
     </div>
-`).join("");
+  `).join("");
 }
-
 
 
 
@@ -1206,72 +1216,93 @@ async function renderTasks(tasks, processData) {
     let currentTask = null;
 
     function openModal(task, dataFromStorage = {}) {
-     currentTask = task;
-     document.getElementById("modalProcessId").textContent = task.processId;
-     document.getElementById("modalProcessNumber").textContent = task.processNumber;
-     document.getElementById("modalDataPrazo").value = dataFromStorage.dataPrazo || "";
-     document.getElementById("modalDescription").value = dataFromStorage.description || "";
-     const modal = new bootstrap.Modal(document.getElementById("taskModal"));
-     modal.show();
+  currentTask = task;
+  document.getElementById("modalProcessId").textContent = task.processId;
+  document.getElementById("modalProcessNumber").textContent = task.processNumber || "(Sem número)";
+  document.getElementById("modalDataPrazo").value = dataFromStorage.dataPrazo || "";
+  document.getElementById("modalDescription").value = dataFromStorage.description || "";
+  
+  const modal = new bootstrap.Modal(document.getElementById("taskModal"));
+  modal.show();
 
-    // 🔹 Reseta o histórico para oculto toda vez que o modal abre
-     resetHistoryToggle();
+  // Reseta o collapse do histórico para fechado ao abrir
+  resetHistoryToggle();
 
-     // 🔹 Exibir as tags no modal
-     renderTagsInsideModal(task.processId, task.processNumber, task.type);
-     renderHistory(task.processId);
-     renderBoardTime(task.processId);
+  // Renderiza as informações dinâmicas
+  renderTagsInsideModal(task.processId, task.processNumber);
+  renderHistory(task.processId);
+  renderBoardTime(task.processId);
 
-         modalDirty = false; // reset ao abrir o modal
+  modalDirty = false;
 
-         const prazoInput = document.getElementById("modalDataPrazo");
-         const descInput = document.getElementById("modalDescription");
+  const prazoInput = document.getElementById("modalDataPrazo");
+  const descInput = document.getElementById("modalDescription");
 
-         function markDirty() {
-          modalDirty = true;
-      }
+  // Evita duplicar listeners se o modal abrir várias vezes
+  prazoInput.oninput = () => { modalDirty = true; };
+  descInput.oninput = () => { modalDirty = true; };
 
-      prazoInput.addEventListener("input", markDirty);
-      descInput.addEventListener("input", markDirty);
+  // Configura o botão lateral "Gerenciar Empresas" (Sub-Kanban)
+  const btnSubKanban = document.getElementById("btn-abrir-subkanban");
+  if (btnSubKanban) {
+    btnSubKanban.onclick = async () => {
+      const processId = task.processId;
 
-      // ==========================================
-    // NOVA INJEÇÃO: BOTÃO SUB-KANBAN DE EMPRESAS
-    // ==========================================
-    const modalFooter = document.querySelector("#taskModal .modal-footer");
-    
-    // Remove o botão antigo se já existir para não duplicar
-    const oldBtn = document.getElementById("btn-abrir-subkanban");
-    if (oldBtn) oldBtn.remove();
-
-    const btnSubKanban = document.createElement("button");
-    btnSubKanban.id = "btn-abrir-subkanban";
-    btnSubKanban.className = "btn btn-info";
-    btnSubKanban.style.marginRight = "auto"; // Empurra para a esquerda
-    btnSubKanban.innerHTML = `<i class="fa fa-sitemap"></i> Gerenciar Empresas`;
-       btnSubKanban.onclick = async () => {
-        const processId = task.processId;
-        
-        // Busca diretamente do storage para garantir o dado mais recente e evitar conflitos
-        await new Promise(resolve => {
-            chrome.storage.local.get(['subKanbanData'], async (result) => {
-                let subKanbans = result.subKanbanData || {};
-                
-                // Se o processo ainda não possui dados criados, inicializa apenas ele, preservando os demais
-                if (!subKanbans[processId]) {
-                    subKanbans[processId] = {};
-                    await new Promise(r => chrome.storage.local.set({ subKanbanData: subKanbans }, r));
-                }
-                resolve();
-            });
+      await new Promise(resolve => {
+        chrome.storage.local.get(['subKanbanData'], async (result) => {
+          let subKanbans = result.subKanbanData || {};
+          if (!subKanbans[processId]) {
+            subKanbans[processId] = {};
+            await new Promise(r => chrome.storage.local.set({ subKanbanData: subKanbans }, r));
+          }
+          resolve();
         });
+      });
 
-        const url = chrome.runtime.getURL(`kanban_processo.html?processId=${processId}&processNumber=${encodeURIComponent(task.processNumber)}`);
-        window.open(url, '_blank');
+      const url = chrome.runtime.getURL(`kanban_processo.html?processId=${processId}&processNumber=${encodeURIComponent(task.processNumber)}`);
+      window.open(url, '_blank');
     };
-
-    // Insere o botão no início do footer
-    modalFooter.insertBefore(btnSubKanban, modalFooter.firstChild);
   }
+}
+
+async function renderTagsInsideModal(processId, processNumber) {
+  const container = document.getElementById("tagsListModal");
+  const gearBtn = document.getElementById("modalGearBtn");
+  if (!container) return;
+
+  const data = await getStorageData();
+  const processTags = data.processTags || {};
+  const processInfo = data.processData ? data.processData[processId] : null;
+  const isManual = processInfo && processInfo.type === 'manual';
+
+  // Atualiza os dados do botão de engrenagem no cabeçalho das tags
+  if (gearBtn) {
+    gearBtn.dataset.processId = processId;
+    gearBtn.dataset.processNumber = processNumber || "(Sem número)";
+    gearBtn.disabled = isManual;
+    gearBtn.title = isManual ? "Processos manuais não podem ser editados" : "Gerenciar Tags";
+    gearBtn.style.opacity = isManual ? "0.4" : "1";
+    gearBtn.style.cursor = isManual ? "not-allowed" : "pointer";
+  }
+
+  const tagsForProcess = Object.entries(processTags)
+    .filter(([key]) => key.startsWith(processId + "-") || key.startsWith(processId + "_"))
+    .map(([key, tag]) => ({ id: key, name: tag.name, color: tag.color }));
+
+  container.innerHTML = "";
+
+  if (tagsForProcess.length === 0) {
+    container.innerHTML = '<span class="text-muted small">Sem etiquetas vinculadas.</span>';
+  } else {
+    tagsForProcess.forEach(tag => {
+      const tagSpan = document.createElement("span");
+      tagSpan.className = "badge rounded-pill px-3 py-1 fw-semibold text-white shadow-sm";
+      tagSpan.style.backgroundColor = tag.color || "#0dcaf0";
+      tagSpan.textContent = tag.name;
+      container.appendChild(tagSpan);
+    });
+  }
+}
 
 
 
@@ -1530,26 +1561,29 @@ function updateTaskElement(processId, dataPrazo, description) {
 }
 
 
-document.getElementById("toggleHistoryBtn").addEventListener("click", () => {
-  const container = document.getElementById("historyContainer");
-  const btn = document.getElementById("toggleHistoryBtn");
+const collapseHistoricoEl = document.getElementById("collapseHistorico");
+const historyToggleLabel = document.getElementById("historyToggleLabel");
 
-  if (container.style.display === "none") {
-    container.style.display = "block";
-    btn.innerHTML = '<i class="fa-solid fa-chevron-up"></i> Ocultar';
-  } else {
-    container.style.display = "none";
-    btn.innerHTML = '<i class="fa-solid fa-chevron-down"></i> Mostrar';
-  }
-});
+if (collapseHistoricoEl && historyToggleLabel) {
+  collapseHistoricoEl.addEventListener("show.bs.collapse", () => {
+    historyToggleLabel.innerHTML = 'Ocultar <i class="fa-solid fa-chevron-up ms-1" style="font-size: 0.7rem;"></i>';
+  });
+  collapseHistoricoEl.addEventListener("hide.bs.collapse", () => {
+    historyToggleLabel.innerHTML = 'Expandir <i class="fa-solid fa-chevron-down ms-1" style="font-size: 0.7rem;"></i>';
+  });
+}
 
-// Opcional: Garantir que o histórico sempre inicie fechado ao abrir o modal
 function resetHistoryToggle() {
-  const container = document.getElementById("historyContainer");
-  const btn = document.getElementById("toggleHistoryBtn");
-  if (container && btn) {
-    container.style.display = "none";
-    btn.innerHTML = '<i class="fa-solid fa-chevron-down"></i> Mostrar';
+  if (collapseHistoricoEl && collapseHistoricoEl.classList.contains("show")) {
+    const bsCollapse = bootstrap.Collapse.getInstance(collapseHistoricoEl);
+    if (bsCollapse) {
+      bsCollapse.hide();
+    } else {
+      collapseHistoricoEl.classList.remove("show");
+    }
+  }
+  if (historyToggleLabel) {
+    historyToggleLabel.innerHTML = 'Expandir <i class="fa-solid fa-chevron-down ms-1" style="font-size: 0.7rem;"></i>';
   }
 }
 
