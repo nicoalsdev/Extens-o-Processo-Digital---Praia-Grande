@@ -255,82 +255,75 @@
                     <ul id="predefinedTagsList" class='bg-white text-dark'></ul>
                     <p id="noTagsMessage" style="font-size:13px;color:#777;text-align:center;display:none;">Nenhuma tag rápida definida.</p>
 
-                     <div class='text-center pt-2'>
+                    <div class='text-center pt-2'>
                       <a href="tags-order.html" target="_blank" class="text-black" data-toggle="tooltip" data-placement="top" title="Tags - Order"
-            >
-            </i> Alterar Ordem das Tags<span class="btn-text">Tags - Order</span>
-          </a>
-                    </div>
-                    
-                    <div class="backup-actions">
-                      <button id="exportTagsBtn" class='bg-primary text-white'><i class="fa fa-download"></i> Exportar</button>
-                      <input type="file" id="importFile" accept="application/json" style="display:none;">
-                      <button id="importTagsBtn" class='bg-warning text-white'><i class="fa fa-upload"></i> Importar</button>
-
-                    </div>
-                   
-                    <p id="importMessage" class="note" style="margin-top:8px;display:none;"></p>
-
-                  </div>
-
+                      >
+                    </i> Alterar Ordem das Tags<span class="btn-text">Tags - Order</span>
+                  </a>
                 </div>
+
+                <p id="importMessage" class="note" style="margin-top:8px;display:none;"></p>
+
               </div>
-              <div class="card mb-3 d-none">
-                <h4><i class="fa fa-arrows-alt me-2"></i>Posicionamento das Etiquetas</h4>
 
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <div>
-                    <span class="fw-bold d-block">Modo de Inserção</span>
-                    <small class="text-muted">Personalizado</small>
-                  </div>
-                  <label class="switch">
-                    <input type="checkbox" id="tagPosition">
-                    <span class="slider round"></span>
-                  </label>
-                </div>
+            </div>
+          </div>
+          <div class="card mb-3 d-none">
+            <h4><i class="fa fa-arrows-alt me-2"></i>Posicionamento das Etiquetas</h4>
 
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <div>
-                    <span class="fw-bold d-block">Posição Vertical</span>
-                    <small class="text-muted">Em baixo do card</small>
-                  </div>
-                  <label class="switch ">
-                    <input type="checkbox" id="tagPositionV">
-                    <span class="slider round"></span>
-                  </label>
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center">
-                  <div>
-                    <span class="fw-bold d-block">Alinhamento Horizontal</span>
-                    <small class="text-muted">Alinhado a Direita</small>
-                  </div>
-                  <label class="switch">
-                    <input type="checkbox" id="tagPositionH">
-                    <span class="slider round"></span>
-                  </label>
-                </div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <span class="fw-bold d-block">Modo de Inserção</span>
+                <small class="text-muted">Personalizado</small>
               </div>
-              <nav class="">
-                <div class="d-flex justify-content-center gap-1 flex-wrap">
+              <label class="switch">
+                <input type="checkbox" id="tagPosition">
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <span class="fw-bold d-block">Posição Vertical</span>
+                <small class="text-muted">Em baixo do card</small>
+              </div>
+              <label class="switch ">
+                <input type="checkbox" id="tagPositionV">
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <span class="fw-bold d-block">Alinhamento Horizontal</span>
+                <small class="text-muted">Alinhado a Direita</small>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="tagPositionH">
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+          <nav class="">
+            <div class="d-flex justify-content-center gap-1 flex-wrap">
 
 
-            
 
-                  <a href="kanban.html" target="_blank" class="btn btn-sm text-black px-3" data-toggle="tooltip" data-placement="top" title="Kanban"
-                style="background: rgba(255,255,255,0.1); border-radius: 6px; border-color: #000;">
-                <i class="fa fa-table-columns me-1"></i> <span class="btn-text">Kanban</span>
-              </a>
 
-              <a href="https://assinadordigitalexterno.praiagrande.sp.gov.br/" target="_blank" class="btn btn-sm text-black px-3" data-toggle="tooltip" data-placement="top" title="Assinador Digital"
+              <a href="kanban.html" target="_blank" class="btn btn-sm text-black px-3" data-toggle="tooltip" data-placement="top" title="Kanban"
               style="background: rgba(255,255,255,0.1); border-radius: 6px; border-color: #000;">
-              <i class="fa-solid fa-cloud-arrow-up me-1"></i> <span class="btn-text">Assinador Digital</span>
+              <i class="fa fa-table-columns me-1"></i> <span class="btn-text">Kanban</span>
             </a>
 
-            <a href="lista_assinador.html" target="_blank" class="btn btn-sm text-black px-3" data-toggle="tooltip" data-placement="top" title="Lista Assinador Digital"
+            <a href="https://assinadordigitalexterno.praiagrande.sp.gov.br/" target="_blank" class="btn btn-sm text-black px-3" data-toggle="tooltip" data-placement="top" title="Assinador Digital"
             style="background: rgba(255,255,255,0.1); border-radius: 6px; border-color: #000;">
-            <i class="fa-solid fa-signature me-1"></i> <span class="btn-text">Lista Assinador Digital/span>
-            </a>
+            <i class="fa-solid fa-cloud-arrow-up me-1"></i> <span class="btn-text">Assinador Digital</span>
+          </a>
+
+          <a href="lista_assinador.html" target="_blank" class="btn btn-sm text-black px-3" data-toggle="tooltip" data-placement="top" title="Lista Assinador Digital"
+          style="background: rgba(255,255,255,0.1); border-radius: 6px; border-color: #000;">
+          <i class="fa-solid fa-signature me-1"></i> <span class="btn-text">Lista Assinador Digital/span>
+          </a>
 
           <a href="tools.html" class="btn btn-sm text-black px-3" data-toggle="tooltip" data-placement="top" title="Ferramentas"
           style="background: rgba(255,255,255,0.1); border-radius: 6px; border-color: #000;">
@@ -338,36 +331,36 @@
         </a>
 
 
-                <a href="calendario/calendario.html" target="_blank" class="btn btn-sm text-black px-3 d-none" data-toggle="tooltip" data-placement="top" title="Calendário"
-                  style="background: rgba(255,255,255,0.1); border-radius: 6px; border-color: #000;">
-                  <i class="fa-solid fa-calendar me-1" aria-hidden="true"></i> <span class="btn-text">Calendário</span>
-                  </a>
-
-        <a href="tags-order.html" target="_blank" class="btn btn-sm text-black px-3 d-none" data-toggle="tooltip" data-placement="top" title="Tags - Order"
+        <a href="calendario/calendario.html" target="_blank" class="btn btn-sm text-black px-3 d-none" data-toggle="tooltip" data-placement="top" title="Calendário"
         style="background: rgba(255,255,255,0.1); border-radius: 6px; border-color: #000;">
-        <i class="fa fa-bookmark me-1"></i> <span class="btn-text">Tags - Order</span>
+        <i class="fa-solid fa-calendar me-1" aria-hidden="true"></i> <span class="btn-text">Calendário</span>
       </a>
 
-
-      <a href="pages/tags.html" target="_blank" class="btn btn-sm text-black px-3 d-none" data-toggle="tooltip" data-placement="top" title="Tags - List"
+      <a href="tags-order.html" target="_blank" class="btn btn-sm text-black px-3 d-none" data-toggle="tooltip" data-placement="top" title="Tags - Order"
       style="background: rgba(255,255,255,0.1); border-radius: 6px; border-color: #000;">
-      <i class="fa fa-bookmark me-1"></i> <span class="btn-text">Tags - List</span>
+      <i class="fa fa-bookmark me-1"></i> <span class="btn-text">Tags - Order</span>
     </a>
 
 
+    <a href="pages/tags.html" target="_blank" class="btn btn-sm text-black px-3 d-none" data-toggle="tooltip" data-placement="top" title="Tags - List"
+    style="background: rgba(255,255,255,0.1); border-radius: 6px; border-color: #000;">
+    <i class="fa fa-bookmark me-1"></i> <span class="btn-text">Tags - List</span>
+  </a>
 
-      </div>
-    </nav>
 
 
-  </div>
+</div>
+</nav>
+
+
+</div>
 
 <footer class="text-center text-muted mt-1" id="extInfo" style="font-size: 0.9rem;">Versão 1.0 • ©Gerenciador Processo Digital</footer>
 
-  <script src="js/sweetalert2.min.js"></script>
-  <script src="settings.js"></script>
-
-  <script src="theme.js"></script>
-  <script src="js/bootstrap.min.js"></script>
+<script src="js/sweetalert2.min.js"></script>
+<script src="settings.js"></script>
+<script src="backup-manager.js"></script>
+<script src="theme.js"></script>
+<script src="js/bootstrap.min.js"></script>
 </body>
 </html>

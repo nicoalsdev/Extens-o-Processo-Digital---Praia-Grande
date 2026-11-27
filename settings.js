@@ -422,63 +422,50 @@ function toggleCollapsible(headerId, contentId) {
 }
 
 
+async function exportTags() {
+    try {
+        // Busca exatamente o que está marcado no backup.html (ou o padrão se nunca foi aberto)
+        const { payload, count } = await BackupManager.buildBackupPayload();
 
-// --- NOVO: FUNÇÕES DE EXPORTAÇÃO E IMPORTAÇÃO (ATUALIZADAS PARA INCLUIR PROCESS_TAGS) ---
-
-/**
- * Exporta as tags pré-definidas E as tags de processos para um arquivo JSON.
- */
-function exportTags() {
-    // Lista completa de chaves utilizadas na extensão
-    const chavesParaExportar = [
-        'predefinedTags',
-        'processTags',
-        'processData',
-        'userSettings',
-        'mapeamentoPastasProcessos',
-        'pastasMonitoradas',
-        'dadosPessoais',
-        'assinador_preferencia',
-        'configBadgesPastas'
-    ];
-
-    chrome.storage.local.get(chavesParaExportar, (data) => {
-        const dadosCompletosBackup = {
-            versaoBackup: "2.0",
-            dataExportacao: new Date().toISOString(),
-            ...data
-        };
-
-        const jsonContent = JSON.stringify(dadosCompletosBackup, null, 2);
+        const jsonContent = JSON.stringify(payload, null, 2);
         const blob = new Blob([jsonContent], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
 
         const a = document.createElement('a');
         a.href = url;
-        a.download = `backup_gerenciador_processo_digital_${new Date().toISOString().slice(0,10)}.json`;
+        a.download = `backup_gerenciador_processo_digital_${new Date().toISOString().slice(0, 10)}.json`;
         document.body.appendChild(a);
         a.click();
 
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        showToast('success', 'Backup completo de todos os dados e configurações realizado com sucesso!');
-    });
+        if (typeof showToast === 'function') {
+            showToast('success', `Backup realizado com sucesso (${count} itens selecionados)!`);
+        }
+    } catch (error) {
+        console.error('Erro ao exportar backup:', error);
+        if (typeof showToast === 'function') {
+            showToast('error', error.message || 'Erro ao gerar o arquivo de backup.');
+        } else {
+            alert(error.message);
+        }
+    }
 }
+
 /**
- * Importa tags a partir de um arquivo JSON.
+ * Importa dados a partir de um arquivo JSON (suporta backup v2.0 legado e v3.0 multi-storage).
  * @param {File} file - O arquivo JSON a ser lido.
  */
-// =========================================================================
-// IMPORTAÇÃO COMPLETA DE DADOS
-// =========================================================================
 function importTags(file) {
+    if (!file) return;
+
     const reader = new FileReader();
     const importMessage = document.getElementById('importMessage');
 
-    importMessage.style.display = 'none';
+    if (importMessage) importMessage.style.display = 'none';
 
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
         try {
             const importedData = JSON.parse(e.target.result);
 
@@ -486,64 +473,108 @@ function importTags(file) {
                 throw new Error("Formato de JSON inválido.");
             }
 
-            const predefinedTags = importedData.predefinedTags || [];
-            const processTags = importedData.processTags || {};
-            const processData = importedData.processData || {};
+            // Detecta se é o formato novo (v3.0 com bloco "data") ou o formato antigo (v2.0 plano)
+            const isV3 = Boolean(importedData.data && typeof importedData.data === 'object');
 
-            // Salva diretamente os blocos encontrados no storage local
-            const dataToSave = {
-                predefinedTags: predefinedTags,
-                processTags: processTags,
-                processData: processData
-            };
+            // Extrai as chaves de chrome.storage.local
+            let localDataToSave = {};
+            if (isV3) {
+                localDataToSave = { ...(importedData.data.chrome_local || {}) };
+            } else {
+                // Retrocompatibilidade com backup 2.0 (ignora metadados de versão/data)
+                const { versaoBackup, dataExportacao, ...legacyKeys } = importedData;
+                localDataToSave = legacyKeys;
+            }
 
-            // Se o backup contiver chaves completas extras da extensão, inclui também
-            if (importedData.userSettings) dataToSave.userSettings = importedData.userSettings;
-            if (importedData.mapeamentoPastasProcessos) dataToSave.mapeamentoPastasProcessos = importedData.mapeamentoPastasProcessos;
-            if (importedData.pastasMonitoradas) dataToSave.pastasMonitoradas = importedData.pastasMonitoradas;
+            // 1. Restaura chrome.storage.local
+            if (Object.keys(localDataToSave).length > 0) {
+                await chrome.storage.local.set(localDataToSave);
+            }
 
-            chrome.storage.local.set(dataToSave, () => {
-                if (typeof loadPredefinedTags === 'function') loadPredefinedTags();
-                if (typeof loadSettings === 'function') loadSettings();
+            // 2. Se for v3.0, restaura também os demais storages caso estejam no arquivo
+            if (isV3) {
+                if (importedData.data.chrome_sync && Object.keys(importedData.data.chrome_sync).length > 0) {
+                    await chrome.storage.sync.set(importedData.data.chrome_sync);
+                }
 
-                chrome.runtime.sendMessage({ action: 'predefinedTagsUpdated' }).catch(() => {});
-                chrome.tabs.query({}, (tabs) => {
-                    tabs.forEach(tab => {
-                        if (tab.id) {
-                            chrome.tabs.sendMessage(tab.id, { action: 'settingsUpdated' }).catch(() => {});
+                if (importedData.data.local_storage) {
+                    for (const [k, v] of Object.entries(importedData.data.local_storage)) {
+                        localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v));
+                    }
+                }
+
+                if (importedData.data.session_storage) {
+                    for (const [k, v] of Object.entries(importedData.data.session_storage)) {
+                        sessionStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v));
+                    }
+                }
+
+                if (importedData.data.cache_api && 'caches' in window) {
+                    for (const [cacheName, entries] of Object.entries(importedData.data.cache_api)) {
+                        const cache = await caches.open(cacheName);
+                        for (const entry of entries) {
+                            await cache.put(entry.url, new Response(entry.body));
                         }
-                    });
+                    }
+                }
+            }
+
+            // Atualiza a interface e notifica os content scripts abertos (mantido igual ao seu código)
+            if (typeof loadPredefinedTags === 'function') loadPredefinedTags();
+            if (typeof loadSettings === 'function') loadSettings();
+
+            chrome.runtime.sendMessage({ action: 'predefinedTagsUpdated' }).catch(() => {});
+            chrome.tabs.query({}, (tabs) => {
+                tabs.forEach(tab => {
+                    if (tab.id) {
+                        chrome.tabs.sendMessage(tab.id, { action: 'settingsUpdated' }).catch(() => {});
+                    }
                 });
-
-                const processCount = Object.keys(processTags).length;
-                const predefinedCount = predefinedTags.length;
-
-                importMessage.innerHTML = `Sucesso! <br>Tags Rápidas: ${predefinedCount}. <br>Tags de Processos: ${processCount} importadas.`;
-                importMessage.style.display = 'block';
-                importMessage.style.color = '#198754';
-
-                showToast('success', `Importação concluída com sucesso!`);
             });
 
+            // Contadores para o feedback visual
+            const processCount = Object.keys(localDataToSave.processTags || {}).length;
+            const predefinedCount = (localDataToSave.predefinedTags || []).length;
+            const totalKeysImported = isV3
+                ? Object.values(importedData.data).reduce((acc, obj) => acc + Object.keys(obj || {}).length, 0)
+                : Object.keys(localDataToSave).length;
+
+            if (importMessage) {
+                importMessage.innerHTML = `Sucesso! <b>${totalKeysImported}</b> blocos de dados restaurados.<br>Tags Rápidas: ${predefinedCount} | Processos: ${processCount}.`;
+                importMessage.style.display = 'block';
+                importMessage.style.color = '#198754';
+            }
+
+            if (typeof showToast === 'function') {
+                showToast('success', `Importação concluída (${totalKeysImported} itens restaurados)!`);
+            }
+
         } catch (error) {
-            importMessage.textContent = 'Erro ao processar o arquivo: JSON malformado.';
-            importMessage.style.display = 'block';
-            importMessage.style.color = '#dc3545';
+            if (importMessage) {
+                importMessage.textContent = 'Erro ao processar o arquivo: JSON malformado ou inválido.';
+                importMessage.style.display = 'block';
+                importMessage.style.color = '#dc3545';
+            }
             console.error('Erro de importação:', error);
-            showToast('error', 'Erro ao processar o arquivo de importação.');
+            if (typeof showToast === 'function') {
+                showToast('error', 'Erro ao processar o arquivo de importação.');
+            }
         }
     };
 
     reader.onerror = () => {
-        importMessage.textContent = 'Erro ao ler o arquivo.';
-        importMessage.style.display = 'block';
-        importMessage.style.color = '#dc3545';
-        showToast('error', 'Erro na leitura do arquivo.');
+        if (importMessage) {
+            importMessage.textContent = 'Erro ao ler o arquivo.';
+            importMessage.style.display = 'block';
+            importMessage.style.color = '#dc3545';
+        }
+        if (typeof showToast === 'function') {
+            showToast('error', 'Erro na leitura do arquivo.');
+        }
     };
 
     reader.readAsText(file);
 }
-
 
 
 
