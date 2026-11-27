@@ -190,8 +190,7 @@
         "css/*",
         "imgs/*",
         "tooltip.js",
-        "inject_novo_contrato.js",
-        "inject_mgc_audesp.js"
+        "inject_novo_contrato.js"
       ],
       "matches": ["<all_urls>"]
     }
