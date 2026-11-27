@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Gerenciador Processo Digital",
-  "version": "2.7.3",
+  "version": "2.8.0",
   "description": "Adicionar/Remover tags coloridas em processos e gerenciar via Kanban.",
   "omnibox": { "keyword": "assinador" },
   "permissions": [
@@ -116,6 +116,23 @@
         "js/bootstrap.min.js"
       ]
     },
+     {
+      "matches": [
+        "https://prefeitura.praiagrande.sp.gov.br/mgc/mgc_painel_audesp.php*"
+      ],
+      "css": [
+        "css/sweetalert2.min.css","css/all.min.css" 
+      ],
+      "js": [
+        "secretarias.js",
+        "js/pdf.min.js",
+        "content_mgc.js",
+        "js/sweetalert2.min.js",
+        "js/inject_fw.js",
+        "js/bootstrap.min.js"
+      ],
+      "run_at": "document_end"
+    },
     {
       "matches": [
         "https://audesp.tce.sp.gov.br/*"
@@ -173,7 +190,8 @@
         "css/*",
         "imgs/*",
         "tooltip.js",
-        "inject_novo_contrato.js"
+        "inject_novo_contrato.js",
+        "inject_mgc_audesp.js"
       ],
       "matches": ["<all_urls>"]
     }

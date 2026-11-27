@@ -225,6 +225,14 @@ window.secretarias = [
         id_gestor_orgao: "259"
     },
     {
+        nome: "GISELE DOMINGUES",
+        cargo: "SECRETÁRIA MUNICIPAL DE ASSISTENCIA SOCIAL",
+        email: "seasgabinete@praiagrande.sp.gov.br",
+        codigo_orgao: "8 0 0",
+        orgao: "SECRETARIA DE ASSISTENCIA SOCIAL",
+        id_gestor_orgao: "281"
+    },
+    {
         nome: "PATRICIA CONCEIÇÃO ALMEIDA DIAS",
         cargo: "SECRETÁRIA MUNICIPAL DE EDUCAÇÃO",
         email: "seduc.gabinete@praiagrande.sp.gov.br",
